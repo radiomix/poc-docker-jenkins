@@ -1,0 +1,14 @@
+#
+# ignore the followin file pattern
+#
+
+
+# emacs or latex backup files
+*~
+
+#vi swap files
+*swp
+
+# '#' files
+\#*
+.\#*
