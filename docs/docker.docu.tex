@@ -1,0 +1,418 @@
+% Created 2014-02-19 Mi 16:37
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{soul}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\providecommand{\alert}[1]{\textbf{#1}}
+
+\title{docker.docu}
+\author{Michael Klöckner}
+\date{\today}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs Org-mode version 7.8.11}}
+
+\begin{document}
+
+\maketitle
+
+\setcounter{tocdepth}{3}
+\tableofcontents
+\vspace*{1cm}
+
+
+\section{Overview}
+\label{sec-1}
+\subsection{Purpose}
+\label{sec-1-1}
+
+This paper documents the Proof of Concept Project as described in the Scope of Work written by Elemica:
+Enable a Jenkins build server to publish release artifacts as Docker images to a Docker registry. Start
+service on a new EC2 node by fetching the artifact from the registry.
+\subsection{Author}
+\label{sec-1-2}
+
+\begin{itemize}
+\item Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main,
+\item Email:mkl@im7.de
+\item Phone: +49 69 9866 1103
+\end{itemize}
+\section{Installing docker}
+\label{sec-2}
+
+This installation guide is take from the \href{http://docs.docer.io/en/latest/}{Docker documentation}.
+\subsection{Kernel options}
+\label{sec-2-1}
+
+Docker needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
+installed. Either you use a system with the appropriate kernel installed, or
+you update the kernel by hand as described in kernel compilation. The ker-
+nel needs to have compiled all options concerning virtual NICs, especially
+BRIDGED NICs, all NAT options and all net  ( NF ) options. Download
+the kernel source, untar it, change into the directory and configure it prop-
+erly. To compile the kernel as a debian package named \textbf{fora-kernel-3.13.3}
+to be installed later together with it's header follow these instructions:
+
+\begin{verbatim}
+make-kpkg clean
+make-kpkg --append-to-version "-flora-kernel-3.13.3" --revision "1" \
+--initrd kernel_image kernel_headers
+\end{verbatim}
+The package is to be found one directory upwards and can be installed using
+
+\begin{verbatim}
+dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
+../linux-image-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb/.
+\end{verbatim}
+\subsubsection{By Hand}
+\label{sec-2-1-1}
+
+First add the Docker repository key to your local keychain.
+
+\begin{verbatim}
+sudo apt-key adv --keyserver keyserver.ubuntu.com \
+--recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+\end{verbatim}
+Add the Docker repository to your apt sources list, update and install
+the lxc-docker package.
+
+\begin{verbatim}
+sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
+> /etc/apt/sources.list.d/docker.list"
+sudo apt-get update
+sudo apt-get install lxc-docker
+\end{verbatim}
+Now verify that the installation has worked by downloading the ubuntu
+image and launching a container. \texttt{sudo docker run -i -t ubuntu /bin/bash}.
+Type exit to exit.
+\subsubsection{Installation Script}
+\label{sec-2-1-2}
+
+Docker.io provides an installation script to be called: \texttt{curl -s https://get.docker.io/ubuntu/ | sudo sh}
+Now verify that the installation has worked by downloading the ubuntu
+image and launching a container. \texttt{sudo docker run -i -t ubuntu /bin/bash}
+Type exit to exit.
+\subsubsection{AWS}
+\label{sec-2-1-3}
+
+Docker.io provides an installation guide for Amazon Web Services EC2.
+\begin{itemize}
+\item Choose an image:
+\begin{itemize}
+\item Launch the Create Instance Wizard menu on your AWS Console.
+\item Click the Select button for a 64Bit Ubuntu image. For example: Ubuntu Server 12.04.3 LTS.
+\item For testing you can use the default (possibly free) t1.micro instance (more info on pricing).
+\item Click the Next: Configure Instance Details button at the bottom right.
+\end{itemize}
+\item Tell CloudInit to install Docker:
+\begin{itemize}
+\item When you're on the Configure Instance Details step, expand the Advanced Details section.
+\item Under User data, select As text
+\item Enter =\#include \href{https://get.docker.io}{https://get.docker.io} = into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap Docker by running the shell script located at this URL.
+\end{itemize}
+\item After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with Docker should be running!
+\end{itemize}
+If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
+timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
+docker. It will also set up a docker group and you may want to add the ubuntu user to it so that you don't have to use sudo for every Docker command.
+\subsection{Play with docker}
+\label{sec-2-2}
+\subsubsection{Check your Docker installation.}
+\label{sec-2-2-1}
+
+
+\begin{verbatim}
+# Check that you have a working install
+docker info
+\end{verbatim}
+\subsubsection{Download a pre-built image}
+\label{sec-2-2-2}
+
+
+\begin{verbatim}
+# Download an ubuntu image
+sudo docker pull ubuntu
+\end{verbatim}
+\subsubsection{Run an interactive shell}
+\label{sec-2-2-3}
+
+
+\begin{verbatim}
+# Run an interactive shell in the ubuntu image,
+# allocate a tty, attach stdin and stdout
+# To detach the tty without exiting the shell,
+# use the escape sequence Ctrl-p + Ctrl-q
+sudo docker run -i -t ubuntu /bin/bash
+\end{verbatim}
+\subsubsection{Bind to a port}
+\label{sec-2-2-4}
+
+The Docker client can use -H to connect to a custom port.
+-H accepts host and port assignment in the following format: 
+\begin{itemize}
+\item tcp://[host][:port]  =
+\item unix://path =
+\item host[:port] or :port =
+\end{itemize}
+
+
+\begin{verbatim}
+# Run docker in daemon mode
+sudo <path to>/docker -H 0.0.0.0:5555 -d &
+# Download an ubuntu image
+sudo docker -H :5555 pull ubuntu
+\end{verbatim}
+\subsubsection{Starting a long run}
+\label{sec-2-2-5}
+
+
+\begin{verbatim}
+# Start a very useful long-running process
+JOB=$(sudo docker run -d ubuntu /bin/sh -c "while true; \
+do echo Hello world; sleep 1; done")
+# Collect the output of the job so far
+sudo docker logs $JOB
+# Kill the job
+sudo docker kill $JOB
+\end{verbatim}
+\subsubsection{Bind a service on a TCP port}
+\label{sec-2-2-6}
+
+
+\begin{verbatim}
+# Bind port 4444 of this container, and tell netcat to listen on it
+JOB=$(sudo docker run -d -p 4444 ubuntu:12.10 /bin/nc -l 4444)
+
+# Which public port is NATed to my container?
+PORT=$(sudo docker port $JOB 4444 | awk -F: '{ print $2 }')
+
+# Connect to the public port
+echo hello world | nc 127.0.0.1 $PORT
+
+# Verify that the network connection worked
+echo "Daemon received: $(sudo docker logs $JOB)"
+\end{verbatim}
+\subsubsection{Committing (saving) a container state}
+\label{sec-2-2-7}
+
+
+Save your containers state to a container image, so the state can be re-used.
+
+When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the docker images command.
+
+\begin{verbatim}
+# Commit your container to a new named image
+sudo docker commit <container_id> <some_name>
+
+# List your containers
+sudo docker images
+\end{verbatim}
+\subsubsection{Committing a Container to a Named Image}
+\label{sec-2-2-8}
+
+When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central Docker Index (as you did a login above) and a meaningful name for the image.
+
+\begin{verbatim}
+# format is "sudo docker commit <container_id> <username>/<imagename>"
+$ sudo docker commit $CONTAINER_ID myname/kickassapp
+\end{verbatim}
+\subsubsection{Pushing an image to its repository}
+\label{sec-2-2-9}
+
+In order to push an image to its repository you need to have committed your container to a named image (see above).
+Now you can commit this image to the repository designated by its name or tag.
+
+\begin{verbatim}
+# format is "docker push <username>/<repo_name>"
+$ sudo docker push myname/kickassapp
+\end{verbatim}
+\subsubsection{Private Repositories}
+\label{sec-2-2-10}
+
+Right now (version 0.6), private repositories are only possible by hosting \href{https://github.com/dotcloud/docker-registry}{your private registry}. To push or pull to a repository on your own registry, you must prefix the tag with the address of the registry’s host, like this:
+
+\begin{verbatim}
+# Tag to create a repository with the full registry location.
+# The location (e.g. localhost.localdomain:5000) becomes
+# a permanent part of the repository name
+sudo docker tag 0u812deadbeef localhost.localdomain:5000/repo_name
+# Push the new repository to its home location on localhost
+sudo docker push localhost.localdomain:5000/repo_name
+\end{verbatim}
+Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
+\subsubsection{Export a container}
+\label{sec-2-2-11}
+
+To export a container to a tar file just type:
+
+\begin{verbatim}
+$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+mkl/debian          7.4                 11ed3d47ec89        About an hour ago   117.8 MB
+mkl/debian          latest              11ed3d47ec89        About an hour ago   117.8 MB
+mkl/debian          wheezy              11ed3d47ec89        About an hour ago   117.8 MB
+ubuntu              13.10               9f676bd305a4        2 weeks ago         182.1 MB
+ubuntu              saucy               9f676bd305a4        2 weeks ago         182.1 MB
+
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+ac3a595c294c        mkl/debian:7.4      /bin/bash           58 minutes ago      Exit 1                                  prickly_lovelace    
+f7528d270208        mkl/debian:7.4      echo success        About an hour ago   Exit 0                                  jovial_pare         
+6a569d77e974        ubuntu:12.04        /bin/bash           16 hours ago        Exit 0                                  backstabbing_pike 
+
+$ docker export ac3a595c294c  > exampleimage.tar
+\end{verbatim}
+\subsubsection{Import a container}
+\label{sec-2-2-12}
+
+At this time, the URL must start with http and point to a single file archive (.tar, .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a root filesystem. If you would like to import from a local directory or archive, you can use the - parameter to take the data from stdin.
+To import from a remote url type:
+
+\begin{verbatim}
+$ sudo docker import http://example.com/exampleimage.tar
+\end{verbatim}
+To import from a local file type:
+
+\begin{verbatim}
+$ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
+\end{verbatim}
+Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownerships might not get preserved.
+\subsubsection{Authentication file}
+\label{sec-2-2-13}
+
+
+The authentication is stored in a json file, .dockercfg located in your home directory. It supports multiple registry urls.
+
+docker login will create the “\href{https://index.docker.io/v1/}{https://index.docker.io/v1/}” key.
+
+docker login \href{https://my-registry.com}{https://my-registry.com} will create the “\href{https://my-registry.com}{https://my-registry.com}” key.
+
+For example:
+
+\begin{verbatim}
+{
+     "https://index.docker.io/v1/": {
+             "auth": "xXxXxXxXxXx=",
+             "email": "email@example.com"
+     },
+     "https://my-registry.com": {
+             "auth": "XxXxXxXxXxX=",
+             "email": "email@my-registry.com"
+     }
+}
+\end{verbatim}
+The auth field represents base64(<username>:<password>)
+  
+\subsection{Build your own base image}
+\label{sec-2-3}
+
+Docker.io provides a way to create a \href{http://docs.docker.io/en/latest/articles/baseimages/}{base image}. The base image heavily depends on the distribution, the host is running. The example script \href{https://github.com/dotcloud/docker/blob/master/contrib/mkimage-debootstrap.sh}{mkimage-debootstrap.sh} creates a debian base image.
+\subsubsection{Download the script}
+\label{sec-2-3-1}
+
+
+\begin{verbatim}
+$ wget https://raw.github.com/dotcloud/docker/master/contrib/mkimage-debootstrap.sh
+$ chmod +x mkimage-debootstrap.sh
+\end{verbatim}
+This downloads the build-script for a debian docker base image.
+\subsubsection{Build the base image}
+\label{sec-2-3-2}
+
+
+\begin{verbatim}
+$ ./mkimage-debootstrap.sh flora/debian wheezy 
+$ docker images -a
+\end{verbatim}
+This creates a new docker base image for debain wheezy and puts it into ropsitory \emph{flora/debian}, where \emph{flora} is the username and \emph{debian} the repo name.
+\section{Installing a \emph{Scala/Java} WebApp}
+\label{sec-3}
+
+As a proof of concept, we install a \emph{Scala} WebApp with \emph{Lift}. We need \emph{Java} version > 6 and we use \emph{Lift} as the framework. 
+\subsection{Installing \emph{Java} and \emph{Lift}}
+\label{sec-3-1}
+\subsubsection{The necessary debian packages}
+\label{sec-3-1-1}
+
+We need \emph{jdk} at least version 6, \emph{wegt} and \emph{zip}:
+
+\begin{verbatim}
+$ apt-get install -y openjdk-7-jre
+$ apt-get install -y openjdk-7-jdk
+$ apt-get install -y wget
+$ apt-get install -y zip
+\end{verbatim}
+This installs Java 7 and my take a minute.
+\subsubsection{\textbf{TODO} check if we need apache packages?}
+\label{sec-3-1-2}
+\subsubsection{Scala WebApp}
+\label{sec-3-1-3}
+
+We download and configure a sample \emph{Scala} WebApp and generate the War-file.
+
+\begin{verbatim}
+$ cd /opt
+$ wget https://github.com/Lift/Lift_26_sbt/archive/master.zip
+$ unzip master.zip
+$ cd lift_26_sbt-master/scala_210/lift_basic/
+$ ./sbt  compile
+$ ./sbt  package
+\end{verbatim}
+\href{http:///Lift/web.net/getting_started}{/Lift/ web framework}  will download \emph{sbt}, \emph{Scala} and the necessary dependencies and compile the War-File \textbf{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/target/scala-2.10/lift-2.6-starter-template$_2$.10-0.0.3.war}. By typing
+
+\begin{verbatim}
+$ ./sbt 
+> start
+\end{verbatim}
+we should be able to see the WebApp at \href{http://localhost:8080}{http://localhost:8080}. To exit just type \texttt{exit}. The source of this WebApp is under \textbf{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/}. To prove the concept, we will later just change \emph{index.html}.
+\subsection{Installing \emph{tomcat7}}
+\label{sec-3-2}
+
+We use \emph{tomcat} as the \textbf{Apache Tomcat Servlet/JSP} engine to serve our \emph{Scala} WebApp, installing it by typing:
+
+\begin{verbatim}
+$ apt-get install tomcat7
+\end{verbatim}
+Tomcat serves servlets  at \href{http://localhost:8080}{http://localhost:8080}. The debian package starts the service automatically at boot time via \emph{etc/init.d/tomcat7} script.
+\subsection{Deploying the WebApp to \emph{tomcat7}}
+\label{sec-3-3}
+
+\emph{Lift} uses \emph{sbt} to compile the project and output a WAR- or JAR-file, which we want to copy into \emph{tomcat7}'s webapp directory \textbf{/var/lib/tomcat7/webapps/}. We recompile the package and deploy it statically into \emph{tomcat}.
+
+\begin{verbatim}
+$ cd /opt/lift_26_sbt-master/scala_210/lift_basic/
+$  ./sbt  package
+$ cp  target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war \
+    /var/lib/tomcat7/webapps/lift.war
+$ service tomcat7 restart
+\end{verbatim}
+This copies the war-file and restarts \emph{tomcat7}. To see the WebApp direct your browser to \href{http://localhost:8080/lift_basic/}{http://localhost:8080/lift\_basic/}. There is no need to restart \emph{tomcat} manually, as the \emph{autoDeploy} attribute is set to ``true'' in file \textbf{/etc/tomcat7/server.xml}. \emph{tomcat} even unpacks war-files if attribute \emph{unpackWARs} is set to ``true''.
+\section{Installing Jenkinsx}
+\label{sec-4}
+
+How to install a jenkins server
+\section{Configure Jenkins to publish a container into the registry}
+\label{sec-5}
+
+
+Each time the WebApp has changed in git, Jenkins builds a new container,  consisting of three parts:
+\begin{enumerate}
+\item Deploying the WebApp-Files into the latest container.
+\item Commit the newly build container and tag it properly.
+\item Start the newly taged container.
+\end{enumerate}
+
+\end{document}

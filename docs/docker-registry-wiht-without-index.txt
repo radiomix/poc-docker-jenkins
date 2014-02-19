@@ -1,0 +1,29 @@
+3. How to use the Registry in standalone mode
+
+The Index has two main purposes (along with its fancy social features):
+
+    Resolve short names (to avoid passing absolute URLs all the time)
+            username/projectname -> https://registry.docker.io/users/<username>/repositories/<projectname>/
+            team/projectname -> https://registry.docker.io/team/<team>/repositories/<projectname>/
+
+    Authenticate a user as a repos owner (for a central referenced repository)
+
+3.1 Without an Index
+
+Using the Registry without the Index can be useful to store the images on a private network without having to rely on an external entity controlled by Docker Inc.
+
+In this case, the registry will be launched in a special mode (–standalone? –no-index?). In this mode, the only thing which changes is that Registry will never contact the Index to verify a token. It will be the Registry owner responsibility to authenticate the user who pushes (or even pulls) an image using any mechanism (HTTP auth, IP based, etc...).
+
+In this scenario, the Registry is responsible for the security in case of data corruption since the checksums are not delivered by a trusted entity.
+
+As hinted previously, a standalone registry can also be implemented by any HTTP server handling GET/PUT requests (or even only GET requests if no write access is necessary).
+3.2 With an Index
+
+The Index data needed by the Registry are simple:
+
+    Serve the checksums
+    Provide and authorize a Token
+
+In the scenario of a Registry running on a private network with the need of centralizing and authorizing, it’s easy to use a custom Index.
+
+The only challenge will be to tell Docker to contact (and trust) this custom Index. Docker will be configurable at some point to use a specific Index, it’ll be the private entity responsibility (basically the organization who uses Docker in a private environment) to maintain the Index and the Docker’s configuration among its consumers
