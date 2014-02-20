@@ -1,4 +1,4 @@
-% Created 2014-02-19 Mi 20:56
+% Created 2014-02-20 Do 12:27
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -49,12 +49,20 @@ This paper documents the Proof of Concept Project:
 \item Email:mkl@im7.de
 \item Phone: +49 69 9866 1103
 \end{itemize}
-\section{Installing docker}
+\subsection{docker version}
+\label{sec-1-3}
+
+We installed docker version 0.8 in 2014/02.
+\section{docker}
 \label{sec-2}
 
-This installation guide is take from the \href{http://docs.docer.io/en/latest/}{Docker documentation}.
-\subsection{Kernel options}
+This chapter deals with installation issues and some basic docker commands. It is mainly take from the \href{http://docs.docer.io/en/latest/}{Docker documentation}. 
+\subsection{\textbf{TODO} explain docker teminology: Image, Container, Repository, Registry, Index.}
 \label{sec-2-1}
+\subsection{Installation}
+\label{sec-2-2}
+\subsubsection{Kernel options}
+\label{sec-2-2-1}
 
 Docker needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
 installed. Either you use a system with the appropriate kernel installed, or
@@ -76,8 +84,8 @@ The package is to be found one directory upwards and can be installed using
 dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
 ../linux-image-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb/.
 \end{verbatim}
-\subsubsection{By Hand}
-\label{sec-2-1-1}
+\subsubsection{Installation by hand}
+\label{sec-2-2-2}
 
 First add the Docker repository key to your local keychain.
 
@@ -97,15 +105,15 @@ sudo apt-get install lxc-docker
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. \texttt{sudo docker run -i -t ubuntu /bin/bash}.
 Type exit to exit.
-\subsubsection{Installation Script}
-\label{sec-2-1-2}
+\subsubsection{Installation by script}
+\label{sec-2-2-3}
 
 Docker.io provides an installation script to be called: \texttt{curl -s https://get.docker.io/ubuntu/ | sudo sh}
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. \texttt{sudo docker run -i -t ubuntu /bin/bash}
 Type exit to exit.
-\subsubsection{AWS}
-\label{sec-2-1-3}
+\subsubsection{Installing on AWS}
+\label{sec-2-2-4}
 
 Docker.io provides an installation guide for Amazon Web Services EC2.
 \begin{itemize}
@@ -128,9 +136,11 @@ If this is your first AWS instance, you may need to set up your Security Group t
 timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
 docker. It will also set up a docker group and you may want to add the ubuntu user to it so that you don't have to use sudo for every Docker command.
 \subsection{Play with docker}
-\label{sec-2-2}
+\label{sec-2-3}
+
+We describe a view docker commands.
 \subsubsection{Check your Docker installation.}
-\label{sec-2-2-1}
+\label{sec-2-3-1}
 
 
 \begin{verbatim}
@@ -138,7 +148,7 @@ docker. It will also set up a docker group and you may want to add the ubuntu us
 docker info
 \end{verbatim}
 \subsubsection{Download a pre-built image}
-\label{sec-2-2-2}
+\label{sec-2-3-2}
 
 
 \begin{verbatim}
@@ -146,7 +156,7 @@ docker info
 sudo docker pull ubuntu
 \end{verbatim}
 \subsubsection{Run an interactive shell}
-\label{sec-2-2-3}
+\label{sec-2-3-3}
 
 
 \begin{verbatim}
@@ -157,7 +167,7 @@ sudo docker pull ubuntu
 sudo docker run -i -t ubuntu /bin/bash
 \end{verbatim}
 \subsubsection{Bind to a port}
-\label{sec-2-2-4}
+\label{sec-2-3-4}
 
 The Docker client can use -H to connect to a custom port.
 -H accepts host and port assignment in the following format: 
@@ -175,7 +185,7 @@ sudo <path to>/docker -H 0.0.0.0:5555 -d &
 sudo docker -H :5555 pull ubuntu
 \end{verbatim}
 \subsubsection{Starting a long run}
-\label{sec-2-2-5}
+\label{sec-2-3-5}
 
 
 \begin{verbatim}
@@ -188,7 +198,7 @@ sudo docker logs $JOB
 sudo docker kill $JOB
 \end{verbatim}
 \subsubsection{Bind a service on a TCP port}
-\label{sec-2-2-6}
+\label{sec-2-3-6}
 
 
 \begin{verbatim}
@@ -205,7 +215,7 @@ echo hello world | nc 127.0.0.1 $PORT
 echo "Daemon received: $(sudo docker logs $JOB)"
 \end{verbatim}
 \subsubsection{Committing (saving) a container state}
-\label{sec-2-2-7}
+\label{sec-2-3-7}
 
 
 Save your containers state to a container image, so the state can be re-used.
@@ -220,7 +230,7 @@ sudo docker commit <container_id> <some_name>
 sudo docker images
 \end{verbatim}
 \subsubsection{Committing a Container to a Named Image}
-\label{sec-2-2-8}
+\label{sec-2-3-8}
 
 When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central Docker Index (as you did a login above) and a meaningful name for the image.
 
@@ -229,7 +239,7 @@ When you make changes to an existing image, those changes get saved to a contain
 $ sudo docker commit $CONTAINER_ID myname/kickassapp
 \end{verbatim}
 \subsubsection{Pushing an image to its repository}
-\label{sec-2-2-9}
+\label{sec-2-3-9}
 
 In order to push an image to its repository you need to have committed your container to a named image (see above).
 Now you can commit this image to the repository designated by its name or tag.
@@ -239,7 +249,7 @@ Now you can commit this image to the repository designated by its name or tag.
 $ sudo docker push myname/kickassapp
 \end{verbatim}
 \subsubsection{Private Repositories}
-\label{sec-2-2-10}
+\label{sec-2-3-10}
 
 Right now (version 0.6), private repositories are only possible by hosting \href{https://github.com/dotcloud/docker-registry}{your private registry}. To push or pull to a repository on your own registry, you must prefix the tag with the address of the registry’s host, like this:
 
@@ -253,7 +263,7 @@ sudo docker push localhost.localdomain:5000/repo_name
 \end{verbatim}
 Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
 \subsubsection{Export a container}
-\label{sec-2-2-11}
+\label{sec-2-3-11}
 
 To export a container to a tar file just type:
 
@@ -275,7 +285,7 @@ f7528d270208        mkl/debian:7.4      echo success        About an hour ago   
 $ docker export ac3a595c294c  > exampleimage.tar
 \end{verbatim}
 \subsubsection{Import a container}
-\label{sec-2-2-12}
+\label{sec-2-3-12}
 
 At this time, the URL must start with http and point to a single file archive (.tar, .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a root filesystem. If you would like to import from a local directory or archive, you can use the - parameter to take the data from stdin.
 To import from a remote url type:
@@ -290,7 +300,7 @@ $ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
 \end{verbatim}
 Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownerships might not get preserved.
 \subsubsection{Authentication file}
-\label{sec-2-2-13}
+\label{sec-2-3-13}
 
 
 The authentication is stored in a json file, .dockercfg located in your home directory. It supports multiple registry urls.
@@ -316,11 +326,11 @@ For example:
 The auth field represents base64(<username>:<password>)
   
 \subsection{Build your own base image}
-\label{sec-2-3}
+\label{sec-2-4}
 
 Docker.io provides a way to create a \href{http://docs.docker.io/en/latest/articles/baseimages/}{base image}. The base image heavily depends on the distribution, the host is running. The example script \href{https://github.com/dotcloud/docker/blob/master/contrib/mkimage-debootstrap.sh}{mkimage-debootstrap.sh} creates a debian base image.
 \subsubsection{Download the script}
-\label{sec-2-3-1}
+\label{sec-2-4-1}
 
 
 \begin{verbatim}
@@ -329,7 +339,7 @@ $ chmod +x mkimage-debootstrap.sh
 \end{verbatim}
 This downloads the build-script for a debian docker base image.
 \subsubsection{Build the base image}
-\label{sec-2-3-2}
+\label{sec-2-4-2}
 
 
 \begin{verbatim}
@@ -337,6 +347,26 @@ $ ./mkimage-debootstrap.sh flora/debian wheezy
 $ docker images -a
 \end{verbatim}
 This creates a new docker base image for debain wheezy and puts it into ropsitory \emph{flora/debian}, where \emph{flora} is the username and \emph{debian} the repo name.
+\subsection{Container and Images}
+\label{sec-2-5}
+
+As docker is under heavy developement, the file system storing docker related informatian changes rapidly. The main directory to look for docker relevant bits and bytes is \emph{var/lib/docker}. 
+\subsubsection{Configuration}
+\label{sec-2-5-1}
+
+\begin{itemize}
+\item The daemon's config file is placed in \emph{etc/default/docker}.
+\item Images, containers and their configurations are placed under \emph{var/lib/docker}.
+\end{itemize}
+\subsubsection{LXC configuration}
+\label{sec-2-5-2}
+
+Using the Linux Container package \href{file://./lxc/}{http://linuxcontainers.org/}, docker configures each container by setting lxc options in \emph{var/lib/docker/container/GUID/config.lxc}. Here GUID is the full blown container id as given by \texttt{docker ps -a -no-trunc}  
+\subsubsection{Contianer Root File System}
+\label{sec-2-5-3}
+
+The corresponding root file system is stored in \emph{var/lib/docker/devicemapper/mnt/GUID}.
+Here GUID is the full blown container id as given by \texttt{docker ps -a -no-trunc}  
 \section{Installing a \emph{Scala/Java} WebApp}
 \label{sec-3}
 
