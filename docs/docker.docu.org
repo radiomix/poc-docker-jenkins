@@ -16,9 +16,13 @@ service on a new EC2 node by fetching the artifact from the registry.*
  - Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main, 
  - Email:mkl@im7.de
  - Phone: +49 69 9866 1103
-* Installing docker
-This installation guide is take from the [[http://docs.docer.io/en/latest/][Docker documentation]].
-** Kernel options
+** docker version
+We installed docker version 0.8 in 2014/02.
+* docker
+This chapter deals with installation issues and some basic docker commands. It is mainly take from the [[http://docs.docer.io/en/latest/][Docker documentation]]. 
+** TODO explain docker teminology: Image, Container, Repository, Registry, Index.
+** Installation
+*** Kernel options
 Docker needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
 installed. Either you use a system with the appropriate kernel installed, or
 you update the kernel by hand as described in kernel compilation. The ker-
@@ -37,7 +41,7 @@ The package is to be found one directory upwards and can be installed using
 dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
 ../linux-image-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb/.
 #+END_SRC
-*** By Hand
+*** Installation by hand
 First add the Docker repository key to your local keychain.
 #+BEGIN_SRC sh
 sudo apt-key adv --keyserver keyserver.ubuntu.com \
@@ -54,12 +58,12 @@ sudo apt-get install lxc-docker
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. =sudo docker run -i -t ubuntu /bin/bash=.
 Type exit to exit.
-*** Installation Script
+*** Installation by script
 Docker.io provides an installation script to be called: =curl -s https://get.docker.io/ubuntu/ | sudo sh=
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. =sudo docker run -i -t ubuntu /bin/bash=
 Type exit to exit.
-*** AWS
+*** Installing on AWS
 Docker.io provides an installation guide for Amazon Web Services EC2.
 - Choose an image: 
   + Launch the Create Instance Wizard menu on your AWS Console.
@@ -75,6 +79,7 @@ If this is your first AWS instance, you may need to set up your Security Group t
 timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
 docker. It will also set up a docker group and you may want to add the ubuntu user to it so that you don't have to use sudo for every Docker command.
 ** Play with docker
+We describe a view docker commands.
 *** Check your Docker installation.
 #+BEGIN_SRC bash
 # Check that you have a working install
@@ -236,6 +241,17 @@ $ ./mkimage-debootstrap.sh flora/debian wheezy
 $ docker images -a
 #+END_SRC
 This creates a new docker base image for debain wheezy and puts it into ropsitory /flora/debian/, where /flora/ is the username and /debian/ the repo name.
+** Container and Images
+As docker is under heavy developement, the file system storing docker related informatian changes rapidly. The main directory to look for docker relevant bits and bytes is /var/lib/docker/. 
+*** Configuration 
+- The daemon's config file is placed in /etc/default/docker/.  
+- Images, containers and their configurations are placed under /var/lib/docker/. 
+*** LXC configuration
+Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], docker configures each container by setting lxc options in /var/lib/docker/container/GUID/config.lxc/. Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
+*** Contianer Root File System
+The corresponding root file system is stored in /var/lib/docker/devicemapper/mnt/GUID/.
+Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
+
 * Installing a /Scala/Java/ WebApp
 As a proof of concept, we install a /Scala/ WebApp with /Lift/. We need /Java/ version > 6 and we use /Lift/ as the framework. 
 ** Installing /Java/ and /Lift/
