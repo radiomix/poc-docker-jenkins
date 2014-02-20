@@ -10,20 +10,20 @@
 * Overview
 ** Purpose
 This paper documents the Proof of Concept Project:
-*Enable a Jenkins build server to publish release artifacts as Docker images to a Docker registry. Start
+*Enable a Jenkins build server to publish release artifacts as /Docker/ images to a /Docker/ registry. Start
 service on a new EC2 node by fetching the artifact from the registry.*
 ** Author
  - Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main, 
  - Email:mkl@im7.de
  - Phone: +49 69 9866 1103
-** docker version
-We installed docker version 0.8 in 2014/02.
-* docker
-This chapter deals with installation issues and some basic docker commands. It is mainly take from the [[http://docs.docer.io/en/latest/][Docker documentation]]. 
-** TODO explain docker teminology: Image, Container, Repository, Registry, Index.
+** /Docker/ version
+   We installed /Docker/ version 0.8 in 2014/02.
+* /Docker/
+This chapter deals with installation issues and some basic /Docker/ commands. It is mainly take from the [[http://docs.docer.io/en/latest/][Docker documentation]]. 
+** TODO explain /docker/ teminology: Image, Container, Repository, Registry, Index.
 ** Installation
 *** Kernel options
-Docker needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
+/Docker/ needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
 installed. Either you use a system with the appropriate kernel installed, or
 you update the kernel by hand as described in kernel compilation. The ker-
 nel needs to have compiled all options concerning virtual NICs, especially
@@ -42,12 +42,12 @@ dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
 ../linux-image-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb/.
 #+END_SRC
 *** Installation by hand
-First add the Docker repository key to your local keychain.
+First add the /Docker/ repository key to your local keychain.
 #+BEGIN_SRC sh
 sudo apt-key adv --keyserver keyserver.ubuntu.com \
 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
 #+END_SRC
-Add the Docker repository to your apt sources list, update and install
+Add the /Docker/ repository to your apt sources list, update and install
 the lxc-docker package.
 #+BEGIN_SRC sh
 sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
@@ -70,17 +70,20 @@ Docker.io provides an installation guide for Amazon Web Services EC2.
   + Click the Select button for a 64Bit Ubuntu image. For example: Ubuntu Server 12.04.3 LTS. 
   + For testing you can use the default (possibly free) t1.micro instance (more info on pricing). 
   + Click the Next: Configure Instance Details button at the bottom right.
-- Tell CloudInit to install Docker:
+- Tell CloudInit to install /Docker/:
   + When you're on the Configure Instance Details step, expand the Advanced Details section.
   + Under User data, select As text
- + Enter =#include https://get.docker.io = into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap Docker by running the shell script located at this URL.
-- After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with Docker should be running!
+  + Enter #include https://get.docker.io  into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap /Docker/ by running the shell script located at this URL.
+- After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with /Docker/ should be running!
 If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
 timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
-docker. It will also set up a docker group and you may want to add the ubuntu user to it so that you don't have to use sudo for every Docker command.
-** Play with docker
-We describe a view docker commands.
-*** Check your Docker installation.
+docker. It will also set up a /docker/ group and you may want to add the ubuntu user to it so that you don't have to use sudo for every /Docker/ command.
+*** Configuration 
+- The daemon's config file is placed in /etc/default/docker/.  
+- Images, containers and their configurations are placed under /var/lib/docker/. 
+** Play with /Docker/
+We describe some basic /Docker/ commands.
+*** Check your /Docker/ installation.
 #+BEGIN_SRC bash
 # Check that you have a working install
 docker info
@@ -99,7 +102,7 @@ sudo docker pull ubuntu
 sudo docker run -i -t ubuntu /bin/bash
 #+END_SRC
 *** Bind to a port
-The Docker client can use -H to connect to a custom port.
+The /Docker/ client can use -H to connect to a custom port.
 -H accepts host and port assignment in the following format: 
 - tcp://[host][:port]  =
 - unix://path =
@@ -135,12 +138,9 @@ echo hello world | nc 127.0.0.1 $PORT
 # Verify that the network connection worked
 echo "Daemon received: $(sudo docker logs $JOB)"
 #+END_SRC
-
 *** Committing (saving) a container state
-
 Save your containers state to a container image, so the state can be re-used.
-
-When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the docker images command.
+When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the /Docker/ images command.
 #+BEGIN_SRC bash
 # Commit your container to a new named image
 sudo docker commit <container_id> <some_name>
@@ -148,9 +148,8 @@ sudo docker commit <container_id> <some_name>
 # List your containers
 sudo docker images
 #+END_SRC
-
 *** Committing a Container to a Named Image
-When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central Docker Index (as you did a login above) and a meaningful name for the image.
+When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central /Docker/ Index (as you did a login above) and a meaningful name for the image.
 #+BEGIN_SRC sh
 # format is "sudo docker commit <container_id> <username>/<imagename>"
 $ sudo docker commit $CONTAINER_ID myname/kickassapp
@@ -162,7 +161,6 @@ Now you can commit this image to the repository designated by its name or tag.
 # format is "docker push <username>/<repo_name>"
 $ sudo docker push myname/kickassapp
 #+END_SRC
-
 *** Private Repositories
 Right now (version 0.6), private repositories are only possible by hosting [[https://github.com/dotcloud/docker-registry][your private registry]]. To push or pull to a repository on your own registry, you must prefix the tag with the address of the registry’s host, like this:
 #+BEGIN_SRC sh
@@ -226,7 +224,24 @@ For example:
 }
 #+END_SRC
 The auth field represents base64(<username>:<password>)
-  
+
+*** Mount a volume
+/Docker/ provides the parameter =-v= with the =run= command to create a persitent storage device. 
+#+BEGIN_SRC sh
+docker run -v /volume1  myName/debian true
+#+END_SRC sh
+runs the image =myName/debian= with command =true= and creates a volume  attached to this container which is visable inside as =/volume1=. 
+To mount the host directory =/opt/this-volume= to a container in read only mode, we prepend the host directory name to the volume name: 
+#+BEGIN_SRC sh
+docker run -v /opt/this-volume:/volume1:ro  myName/debian true
+#+END_SRC  
+If you remove containers that mount volumes, the volumes will not be deleted until there are no containers still referencing those volumes. This allows you to upgrade, or effectivly migrate data volumes between containers.
+The complete syntax is
+#+BEGIN_SRC sh
+-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].
+#+END_SRC
+If host-dir is missing from the command, then docker creates a new volume. If host-dir is present but points to a non-existent directory on the host, Docker will automatically create this directory and use it as the source of the bind-mount.
+Note that this is not available from a Dockerfile due the portability and sharing purpose of it. The host-dir volumes are entirely host-dependent and might not work on any other machine. [[*Container%20and%20Images][Section Container and Images]] describes, where /Docker/ stores the volumes mounted by the container.
 ** Build your own base image
 Docker.io provides a way to create a [[http://docs.docker.io/en/latest/articles/baseimages/][base image]]. The base image heavily depends on the distribution, the host is running. The example script [[https://github.com/dotcloud/docker/blob/master/contrib/mkimage-debootstrap.sh][mkimage-debootstrap.sh]] creates a debian base image.
 *** Download the script
@@ -234,24 +249,22 @@ Docker.io provides a way to create a [[http://docs.docker.io/en/latest/articles/
 $ wget https://raw.github.com/dotcloud/docker/master/contrib/mkimage-debootstrap.sh
 $ chmod +x mkimage-debootstrap.sh
 #+END_SRC
-This downloads the build-script for a debian docker base image.
+This downloads the build-script for a debian /Docker/ base image.
 *** Build the base image
 #+BEGIN_SRC sh
 $ ./mkimage-debootstrap.sh flora/debian wheezy 
 $ docker images -a
 #+END_SRC
-This creates a new docker base image for debain wheezy and puts it into ropsitory /flora/debian/, where /flora/ is the username and /debian/ the repo name.
+This creates a new /Docker/ base image for debain wheezy and puts it into ropsitory /flora/debian/, where /flora/ is the username and /debian/ the repo name.
 ** Container and Images
-As docker is under heavy developement, the file system storing docker related informatian changes rapidly. The main directory to look for docker relevant bits and bytes is /var/lib/docker/. 
-*** Configuration 
-- The daemon's config file is placed in /etc/default/docker/.  
-- Images, containers and their configurations are placed under /var/lib/docker/. 
+As /Docker/ is under heavy developement, the file system storing /Docker/ related informatian changes rapidly. The main directory to look for /Docker/ relevant bits and bytes is /var/lib/docker/. In this section *GUID* is the full blown container id as given by =docker ps -a -no-trunc=.
 *** LXC configuration
-Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], docker configures each container by setting lxc options in /var/lib/docker/container/GUID/config.lxc/. Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
-*** Contianer Root File System
-The corresponding root file system is stored in /var/lib/docker/devicemapper/mnt/GUID/.
+Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], /Docker/ configures each container partly by setting lxc options in /var/lib/docker/container/GUID/config.lxc/. 
+*** [#A] Contianer Root File System
+The corresponding root file system is stored in /var/lib/docker/devicemapper/mnt/GUID/rootfs/.
 Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
-
+*** Container Volumes
+If a container mounts a volume from inside the files on that volue are stored under /var/lib/docker/vfs/dir/GUID/. Data stored under these volumes are persistend between container runs. There is a way to share these volumes between containers. 
 * Installing a /Scala/Java/ WebApp
 As a proof of concept, we install a /Scala/ WebApp with /Lift/. We need /Java/ version > 6 and we use /Lift/ as the framework. 
 ** Installing /Java/ and /Lift/
