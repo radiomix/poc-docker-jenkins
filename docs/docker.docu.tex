@@ -1,4 +1,4 @@
-% Created 2014-02-20 Do 12:27
+% Created 2014-02-20 Do 15:37
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -40,7 +40,7 @@
 \label{sec-1-1}
 
 This paper documents the Proof of Concept Project:
-\textbf{Enable a Jenkins build server to publish release artifacts as Docker images to a Docker registry. Start service on a new EC2 node by fetching the artifact from the registry.}
+\textbf{Enable a Jenkins build server to publish release artifacts as /Docker/ images to a /Docker/ registry. Start service on a new EC2 node by fetching the artifact from the registry.}
 \subsection{Author}
 \label{sec-1-2}
 
@@ -49,22 +49,22 @@ This paper documents the Proof of Concept Project:
 \item Email:mkl@im7.de
 \item Phone: +49 69 9866 1103
 \end{itemize}
-\subsection{docker version}
+\subsection{\emph{Docker} version}
 \label{sec-1-3}
 
-We installed docker version 0.8 in 2014/02.
-\section{docker}
+   We installed \emph{Docker} version 0.8 in 2014/02.
+\section{\emph{Docker}}
 \label{sec-2}
 
-This chapter deals with installation issues and some basic docker commands. It is mainly take from the \href{http://docs.docer.io/en/latest/}{Docker documentation}. 
-\subsection{\textbf{TODO} explain docker teminology: Image, Container, Repository, Registry, Index.}
+This chapter deals with installation issues and some basic \emph{Docker} commands. It is mainly take from the \href{http://docs.docer.io/en/latest/}{Docker documentation}. 
+\subsection{\textbf{TODO} explain \emph{docker} teminology: Image, Container, Repository, Registry, Index.}
 \label{sec-2-1}
 \subsection{Installation}
 \label{sec-2-2}
 \subsubsection{Kernel options}
 \label{sec-2-2-1}
 
-Docker needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
+\emph{Docker} needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
 installed. Either you use a system with the appropriate kernel installed, or
 you update the kernel by hand as described in kernel compilation. The ker-
 nel needs to have compiled all options concerning virtual NICs, especially
@@ -87,13 +87,13 @@ dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
 \subsubsection{Installation by hand}
 \label{sec-2-2-2}
 
-First add the Docker repository key to your local keychain.
+First add the \emph{Docker} repository key to your local keychain.
 
 \begin{verbatim}
 sudo apt-key adv --keyserver keyserver.ubuntu.com \
 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
 \end{verbatim}
-Add the Docker repository to your apt sources list, update and install
+Add the \emph{Docker} repository to your apt sources list, update and install
 the lxc-docker package.
 
 \begin{verbatim}
@@ -124,22 +124,29 @@ Docker.io provides an installation guide for Amazon Web Services EC2.
 \item For testing you can use the default (possibly free) t1.micro instance (more info on pricing).
 \item Click the Next: Configure Instance Details button at the bottom right.
 \end{itemize}
-\item Tell CloudInit to install Docker:
+\item Tell CloudInit to install \emph{Docker}:
 \begin{itemize}
 \item When you're on the Configure Instance Details step, expand the Advanced Details section.
 \item Under User data, select As text
-\item Enter =\#include \href{https://get.docker.io}{https://get.docker.io} = into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap Docker by running the shell script located at this URL.
+\item Enter \#include \href{https://get.docker.io}{https://get.docker.io}  into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap \emph{Docker} by running the shell script located at this URL.
 \end{itemize}
-\item After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with Docker should be running!
+\item After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with \emph{Docker} should be running!
 \end{itemize}
 If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
 timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
-docker. It will also set up a docker group and you may want to add the ubuntu user to it so that you don't have to use sudo for every Docker command.
-\subsection{Play with docker}
+docker. It will also set up a \emph{docker} group and you may want to add the ubuntu user to it so that you don't have to use sudo for every \emph{Docker} command.
+\subsubsection{Configuration}
+\label{sec-2-2-5}
+
+\begin{itemize}
+\item The daemon's config file is placed in \emph{etc/default/docker}.
+\item Images, containers and their configurations are placed under \emph{var/lib/docker}.
+\end{itemize}
+\subsection{Play with \emph{Docker}}
 \label{sec-2-3}
 
-We describe a view docker commands.
-\subsubsection{Check your Docker installation.}
+We describe some basic \emph{Docker} commands.
+\subsubsection{Check your \emph{Docker} installation.}
 \label{sec-2-3-1}
 
 
@@ -169,7 +176,7 @@ sudo docker run -i -t ubuntu /bin/bash
 \subsubsection{Bind to a port}
 \label{sec-2-3-4}
 
-The Docker client can use -H to connect to a custom port.
+The \emph{Docker} client can use -H to connect to a custom port.
 -H accepts host and port assignment in the following format: 
 \begin{itemize}
 \item tcp://[host][:port]  =
@@ -217,10 +224,8 @@ echo "Daemon received: $(sudo docker logs $JOB)"
 \subsubsection{Committing (saving) a container state}
 \label{sec-2-3-7}
 
-
 Save your containers state to a container image, so the state can be re-used.
-
-When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the docker images command.
+When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the \emph{Docker} images command.
 
 \begin{verbatim}
 # Commit your container to a new named image
@@ -232,7 +237,7 @@ sudo docker images
 \subsubsection{Committing a Container to a Named Image}
 \label{sec-2-3-8}
 
-When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central Docker Index (as you did a login above) and a meaningful name for the image.
+When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central \emph{Docker} Index (as you did a login above) and a meaningful name for the image.
 
 \begin{verbatim}
 # format is "sudo docker commit <container_id> <username>/<imagename>"
@@ -324,7 +329,28 @@ For example:
 }
 \end{verbatim}
 The auth field represents base64(<username>:<password>)
-  
+\subsubsection{Mount a volume}
+\label{sec-2-3-14}
+
+\emph{Docker} provides the parameter \texttt{-v} with the \texttt{run} command to create a persitent storage device. 
+
+\begin{verbatim}
+docker run -v /volume1  myName/debian true
+\end{verbatim}
+runs the image \texttt{myName/debian} with command \texttt{true} and creates a volume  attached to this container which is visable inside as \texttt{/volume1}. 
+To mount the host directory \texttt{/opt/this-volume} to a container in read only mode, we prepend the host directory name to the volume name: 
+
+\begin{verbatim}
+docker run -v /opt/this-volume:/volume1:ro  myName/debian true
+\end{verbatim}
+If you remove containers that mount volumes, the volumes will not be deleted until there are no containers still referencing those volumes. This allows you to upgrade, or effectivly migrate data volumes between containers.
+The complete syntax is
+
+\begin{verbatim}
+-v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].
+\end{verbatim}
+If host-dir is missing from the command, then docker creates a new volume. If host-dir is present but points to a non-existent directory on the host, Docker will automatically create this directory and use it as the source of the bind-mount.
+Note that this is not available from a Dockerfile due the portability and sharing purpose of it. The host-dir volumes are entirely host-dependent and might not work on any other machine. \hyperref[sec-2-5]{Section Container and Images} describes, where \emph{Docker} stores the volumes mounted by the container.
 \subsection{Build your own base image}
 \label{sec-2-4}
 
@@ -337,7 +363,7 @@ Docker.io provides a way to create a \href{http://docs.docker.io/en/latest/artic
 $ wget https://raw.github.com/dotcloud/docker/master/contrib/mkimage-debootstrap.sh
 $ chmod +x mkimage-debootstrap.sh
 \end{verbatim}
-This downloads the build-script for a debian docker base image.
+This downloads the build-script for a debian \emph{Docker} base image.
 \subsubsection{Build the base image}
 \label{sec-2-4-2}
 
@@ -346,27 +372,24 @@ This downloads the build-script for a debian docker base image.
 $ ./mkimage-debootstrap.sh flora/debian wheezy 
 $ docker images -a
 \end{verbatim}
-This creates a new docker base image for debain wheezy and puts it into ropsitory \emph{flora/debian}, where \emph{flora} is the username and \emph{debian} the repo name.
+This creates a new \emph{Docker} base image for debain wheezy and puts it into ropsitory \emph{flora/debian}, where \emph{flora} is the username and \emph{debian} the repo name.
 \subsection{Container and Images}
 \label{sec-2-5}
 
-As docker is under heavy developement, the file system storing docker related informatian changes rapidly. The main directory to look for docker relevant bits and bytes is \emph{var/lib/docker}. 
-\subsubsection{Configuration}
+As \emph{Docker} is under heavy developement, the file system storing \emph{Docker} related informatian changes rapidly. The main directory to look for \emph{Docker} relevant bits and bytes is \emph{var/lib/docker}. In this section \textbf{GUID} is the full blown container id as given by \texttt{docker ps -a -no-trunc}.
+\subsubsection{LXC configuration}
 \label{sec-2-5-1}
 
-\begin{itemize}
-\item The daemon's config file is placed in \emph{etc/default/docker}.
-\item Images, containers and their configurations are placed under \emph{var/lib/docker}.
-\end{itemize}
-\subsubsection{LXC configuration}
+Using the Linux Container package \href{file://./lxc/}{http://linuxcontainers.org/}, \emph{Docker} configures each container partly by setting lxc options in \emph{var/lib/docker/container/GUID/config.lxc}. 
+\subsubsection{Contianer Root File System}
 \label{sec-2-5-2}
 
-Using the Linux Container package \href{file://./lxc/}{http://linuxcontainers.org/}, docker configures each container by setting lxc options in \emph{var/lib/docker/container/GUID/config.lxc}. Here GUID is the full blown container id as given by \texttt{docker ps -a -no-trunc}  
-\subsubsection{Contianer Root File System}
+The corresponding root file system is stored in \emph{var/lib/docker/devicemapper/mnt/GUID/rootfs}.
+Here GUID is the full blown container id as given by \texttt{docker ps -a -no-trunc}  
+\subsubsection{Container Volumes}
 \label{sec-2-5-3}
 
-The corresponding root file system is stored in \emph{var/lib/docker/devicemapper/mnt/GUID}.
-Here GUID is the full blown container id as given by \texttt{docker ps -a -no-trunc}  
+If a container mounts a volume from inside the files on that volue are stored under \emph{var/lib/docker/vfs/dir/GUID}. Data stored under these volumes are persistend between container runs. There is a way to share these volumes between containers. 
 \section{Installing a \emph{Scala/Java} WebApp}
 \label{sec-3}
 
