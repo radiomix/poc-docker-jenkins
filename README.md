@@ -4,46 +4,6 @@
 Author: Michael Klöckner
 Date: 2014-02-19 21:03:04 CET
 
-
-
-Table of Contents
-=================
-1 Overview
-    1.1 Purpose
-    1.2 Author
-2 Installing docker
-    2.1 Kernel options
-        2.1.1 By Hand
-        2.1.2 Installation Script
-        2.1.3 AWS
-    2.2 Play with docker
-        2.2.1 Check your Docker installation.
-        2.2.2 Download a pre-built image
-        2.2.3 Run an interactive shell
-        2.2.4 Bind to a port
-        2.2.5 Starting a long run
-        2.2.6 Bind a service on a TCP port
-        2.2.7 Committing (saving) a container state
-        2.2.8 Committing a Container to a Named Image
-        2.2.9 Pushing an image to its repository
-        2.2.10 Private Repositories
-        2.2.11 Export a container
-        2.2.12 Import a container
-        2.2.13 Authentication file
-    2.3 Build your own base image
-        2.3.1 Download the script
-        2.3.2 Build the base image
-3 Installing a /Scala/Java/ WebApp
-    3.1 Installing /Java/ and /Lift/
-        3.1.1 The necessary debian packages
-        3.1.2 check if we need apache packages?
-        3.1.3 Scala WebApp
-    3.2 Installing /tomcat7/
-    3.3 Deploying the WebApp to /tomcat7/
-4 Installing Jenkinsx
-5 Configure Jenkins to publish a container into the registry
-
-
 1 Overview 
 -----------
 
@@ -87,70 +47,33 @@ The package is to be found one directory upwards and can be installed using
   dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
   ../linux-image-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb/.
 
-2.1.1 By Hand 
-~~~~~~~~~~~~~~
-First add the Docker repository key to your local keychain.
-
-
-  sudo apt-key adv --keyserver keyserver.ubuntu.com \
-  --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-
-Add the Docker repository to your apt sources list, update and install
-the lxc-docker package.
-
-
-  sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
-  > /etc/apt/sources.list.d/docker.list"
-  sudo apt-get update
-  sudo apt-get install lxc-docker
-
-Now verify that the installation has worked by downloading the ubuntu
-image and launching a container. =sudo docker run -i -t ubuntu /bin/bash=.
-Type exit to exit.
 
 2.1.2 Installation Script 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+==========================
 Docker.io provides an installation script to be called: =curl -s https://get.docker.io/ubuntu/ | sudo sh=
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. =sudo docker run -i -t ubuntu /bin/bash=
 Type exit to exit.
 
-2.1.3 AWS 
-~~~~~~~~~~
-Docker.io provides an installation guide for Amazon Web Services EC2.
-- Choose an image: 
-  + Launch the Create Instance Wizard menu on your AWS Console.
-  + Click the Select button for a 64Bit Ubuntu image. For example: Ubuntu Server 12.04.3 LTS. 
-  + For testing you can use the default (possibly free) t1.micro instance (more info on pricing). 
-  + Click the Next: Configure Instance Details button at the bottom right.
-- Tell CloudInit to install Docker:
-  + When you're on the Configure Instance Details step, expand the Advanced Details section.
-  + Under User data, select As text
- + Enter =#include [https://get.docker.io] = into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap Docker by running the shell script located at this URL.
-- After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with Docker should be running!
-If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
-timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
-docker. It will also set up a docker group and you may want to add the ubuntu user to it so that you don't have to use sudo for every Docker command.
-
 2.2 Play with docker 
 =====================
 
 2.2.1 Check your Docker installation. 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+======================================
 
 
   # Check that you have a working install
   docker info
 
 2.2.2 Download a pre-built image 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=================================
 
 
   # Download an ubuntu image
   sudo docker pull ubuntu
 
 2.2.3 Run an interactive shell 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===============================
 
 
   # Run an interactive shell in the ubuntu image,
@@ -160,7 +83,7 @@ docker. It will also set up a docker group and you may want to add the ubuntu us
   sudo docker run -i -t ubuntu /bin/bash
 
 2.2.4 Bind to a port 
-~~~~~~~~~~~~~~~~~~~~~
+=====================
 The Docker client can use -H to connect to a custom port.
 -H accepts host and port assignment in the following format: 
 - tcp://[host][:port]  =
@@ -175,7 +98,7 @@ The Docker client can use -H to connect to a custom port.
   sudo docker -H :5555 pull ubuntu
 
 2.2.5 Starting a long run 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+==========================
 
 
   # Start a very useful long-running process
@@ -186,133 +109,6 @@ The Docker client can use -H to connect to a custom port.
   # Kill the job
   sudo docker kill $JOB
 
-2.2.6 Bind a service on a TCP port 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-  # Bind port 4444 of this container, and tell netcat to listen on it
-  JOB=$(sudo docker run -d -p 4444 ubuntu:12.10 /bin/nc -l 4444)
-  
-  # Which public port is NATed to my container?
-  PORT=$(sudo docker port $JOB 4444 | awk -F: '{ print $2 }')
-  
-  # Connect to the public port
-  echo hello world | nc 127.0.0.1 $PORT
-  
-  # Verify that the network connection worked
-  echo "Daemon received: $(sudo docker logs $JOB)"
-
-
-2.2.7 Committing (saving) a container state 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Save your containers state to a container image, so the state can be re-used.
-
-When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the docker images command.
-
-
-  # Commit your container to a new named image
-  sudo docker commit <container_id> <some_name>
-  
-  # List your containers
-  sudo docker images
-
-
-2.2.8 Committing a Container to a Named Image 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central Docker Index (as you did a login above) and a meaningful name for the image.
-
-
-  # format is "sudo docker commit <container_id> <username>/<imagename>"
-  $ sudo docker commit $CONTAINER_ID myname/kickassapp
-
-2.2.9 Pushing an image to its repository 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to push an image to its repository you need to have committed your container to a named image (see above).
-Now you can commit this image to the repository designated by its name or tag.
-
-
-  # format is "docker push <username>/<repo_name>"
-  $ sudo docker push myname/kickassapp
-
-
-2.2.10 Private Repositories 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Right now (version 0.6), private repositories are only possible by hosting [your private registry]. To push or pull to a repository on your own registry, you must prefix the tag with the address of the registry’s host, like this:
-
-
-  # Tag to create a repository with the full registry location.
-  # The location (e.g. localhost.localdomain:5000) becomes
-  # a permanent part of the repository name
-  sudo docker tag 0u812deadbeef localhost.localdomain:5000/repo_name
-  # Push the new repository to its home location on localhost
-  sudo docker push localhost.localdomain:5000/repo_name
-
-Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
-
-[your private registry]: https://github.com/dotcloud/docker-registry
-
-2.2.11 Export a container 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-To export a container to a tar file just type:
-
-
-  $ docker images
-  REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-  mkl/debian          7.4                 11ed3d47ec89        About an hour ago   117.8 MB
-  mkl/debian          latest              11ed3d47ec89        About an hour ago   117.8 MB
-  mkl/debian          wheezy              11ed3d47ec89        About an hour ago   117.8 MB
-  ubuntu              13.10               9f676bd305a4        2 weeks ago         182.1 MB
-  ubuntu              saucy               9f676bd305a4        2 weeks ago         182.1 MB
-  
-  $ docker ps -a
-  CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-  ac3a595c294c        mkl/debian:7.4      /bin/bash           58 minutes ago      Exit 1                                  prickly_lovelace    
-  f7528d270208        mkl/debian:7.4      echo success        About an hour ago   Exit 0                                  jovial_pare         
-  6a569d77e974        ubuntu:12.04        /bin/bash           16 hours ago        Exit 0                                  backstabbing_pike 
-  
-  $ docker export ac3a595c294c  > exampleimage.tar
-
-2.2.12 Import a container 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-At this time, the URL must start with http and point to a single file archive (.tar, .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a root filesystem. If you would like to import from a local directory or archive, you can use the - parameter to take the data from stdin.
-To import from a remote url type:
-
-
-  $ sudo docker import http://example.com/exampleimage.tar
-
-To import from a local file type:
-
-
-  $ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
-
-Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownerships might not get preserved.
-
-2.2.13 Authentication file 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The authentication is stored in a json file, .dockercfg located in your home directory. It supports multiple registry urls.
-
-docker login will create the “[https://index.docker.io/v1/]” key.
-
-docker login [https://my-registry.com] will create the “[https://my-registry.com]” key.
-
-For example:
-
-
-  {
-       "https://index.docker.io/v1/": {
-               "auth": "xXxXxXxXxXx=",
-               "email": "email@example.com"
-       },
-       "https://my-registry.com": {
-               "auth": "XxXxXxXxXxX=",
-               "email": "email@my-registry.com"
-       }
-  }
-
-The auth field represents base64(<username>:<password>)
-  
 
 2.3 Build your own base image 
 ==============================
@@ -322,7 +118,7 @@ Docker.io provides a way to create a [base image]. The base image heavily depend
 [mkimage-debootstrap.sh]: https://github.com/dotcloud/docker/blob/master/contrib/mkimage-debootstrap.sh
 
 2.3.1 Download the script 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+==========================
 
 
   $ wget https://raw.github.com/dotcloud/docker/master/contrib/mkimage-debootstrap.sh
@@ -331,7 +127,7 @@ Docker.io provides a way to create a [base image]. The base image heavily depend
 This downloads the build-script for a debian docker base image.
 
 2.3.2 Build the base image 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===========================
 
 
   $ ./mkimage-debootstrap.sh flora/debian wheezy 
@@ -347,7 +143,7 @@ As a proof of concept, we install a /Scala/ WebApp with /Lift/. We need /Java/ v
 =================================
 
 3.1.1 The necessary debian packages 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+====================================
 We need /jdk/ at least version 6, /wegt/ and /zip/:
 
 
@@ -359,10 +155,10 @@ We need /jdk/ at least version 6, /wegt/ and /zip/:
 This installs Java 7 and my take a minute.
 
 3.1.2 TODO check if we need apache packages? 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=============================================
 
 3.1.3 Scala WebApp 
-~~~~~~~~~~~~~~~~~~~
+===================
 We download and configure a sample /Scala/ WebApp and generate the War-file.
 
 
