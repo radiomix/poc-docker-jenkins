@@ -179,18 +179,18 @@ we should be able to see the WebApp at [http://localhost:8080]. To exit just typ
 
 [/Lift/ web framework]: http:///Lift/web.net/getting_started
 
-3.2 Installing /tomcat7/ 
+3.2 Installing tomcat7 
 =========================
 We use /tomcat/ as the *Apache Tomcat Servlet/JSP* engine to serve our /Scala/ WebApp, installing it by typing:
 
 
   $ apt-get install tomcat7
 
-Tomcat serves servlets  at [http://localhost:8080]. The debian package starts the service automatically at boot time via /etc/init.d/tomcat7/ script.
+Tomcat serves servlets  at [http://localhost:8080]. The debian package starts the service automatically at boot time via /etc/init.dtomcat7 script.
 
-3.3 Deploying the WebApp to /tomcat7/ 
+3.3 Deploying the WebApp to tomcat7 
 ======================================
-/Lift/ uses /sbt/ to compile the project and output a WAR- or JAR-file, which we want to copy into /tomcat7/'s webapp directory */var/lib/tomcat7/webapps/*. We recompile the package and deploy it statically into /tomcat/.
+/Lift/ uses /sbt/ to compile the project and output a WAR- or JAR-file, which we want to copy into tomcat7's webapp directory */var/lib/tomcat7/webapps/*. We recompile the package and deploy it statically into /tomcat/.
 
 
   $ cd /opt/lift_26_sbt-master/scala_210/lift_basic/
@@ -199,7 +199,7 @@ Tomcat serves servlets  at [http://localhost:8080]. The debian package starts th
       /var/lib/tomcat7/webapps/lift.war
   $ service tomcat7 restart
 
-This copies the war-file and restarts /tomcat7/. To see the WebApp direct your browser to [http://localhost:8080/lift_basic/]. There is no need to restart /tomcat/ manually, as the /autoDeploy/ attribute is set to "true" in file */etc/tomcat7/server.xml*. /tomcat/ even unpacks war-files if attribute /unpackWARs/ is set to "true".
+This copies the war-file and restarts tomcat7. To see the WebApp direct your browser to [http://localhost:8080/lift_basic/]. There is no need to restart /tomcat/ manually, as the /autoDeploy/ attribute is set to "true" in file */etc/tomcat7/server.xml*. /tomcat/ even unpacks war-files if attribute /unpackWARs/ is set to "true".
 
 4 Installing Jenkinsx 
 ----------------------

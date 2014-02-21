@@ -1,7 +1,7 @@
 #
 #
 #
-#+OPTIONS: toc:3
+#+Options: toc:3
 #
 #
 #
@@ -10,7 +10,7 @@
 * Overview
 ** Purpose
 This paper documents the Proof of Concept Project:
-*Enable a Jenkins build server to publish release artifacts as /Docker/ images to a /Docker/ registry. Start
+*Enable a Jenkins build server to publish release artifacts as* /Docker/ *images to a* /Docker/ *reegistry. Start
 service on a new EC2 node by fetching the artifact from the registry.*
 ** Author
  - Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main, 
@@ -18,9 +18,12 @@ service on a new EC2 node by fetching the artifact from the registry.*
  - Phone: +49 69 9866 1103
 ** /Docker/ version
    We installed /Docker/ version 0.8 in 2014/02.
+** Deployment workflow
+One major issue in Continuous Integration is to insure a once deployed build artifact never changes in future deployment scenarios. /Docker/ versions each container, making it immutable after a =docker build=. To start a particular container, beeing pulled out of a repository, results in starting the same build artifact in all future deployment scenarios. We use the /Jenkins/ server to build a docker container triggered by a git push. This container is then pulled and started by the production environment.
+ [[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-deployment-workflow-01.jpg]]
 * /Docker/
 This chapter deals with installation issues and some basic /Docker/ commands. It is mainly take from the [[http://docs.docer.io/en/latest/][Docker documentation]]. 
-** TODO explain /docker/ teminology: Image, Container, Repository, Registry, Index.
+** TODO explain /docker/ terminology: Image, Container, Repository, Registry, Index.
 ** Installation
 *** Kernel options
 /Docker/ needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
@@ -256,21 +259,32 @@ $ ./mkimage-debootstrap.sh flora/debian wheezy
 $ docker images -a
 #+END_SRC
 This creates a new /Docker/ base image for debain wheezy and puts it into ropsitory /flora/debian/, where /flora/ is the username and /debian/ the repo name.
+** Layers
+   When Docker mounts the rootfs, it starts read-only, as in a traditional Linux boot, but then, instead of changing the file system to read-write mode, it takes advantage of a union mount to add a /read-write file system over the read-only file system/. In fact there may be multiple read-only file systems stacked on top of each other. We think of each one of these file systems as a *layer*. [[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-multilayer.png]].
+*** Union file system 
+At first, the top read-write layer has nothing in it, but any time a process creates a file, this happens in the top layer. And if something needs to update an existing file in a lower layer, then the file gets copied to the upper layer and changes go into the copy. The version of the file on the lower layer cannot be seen by the applications anymore, but it is there, unchanged. We call the union of the read-write layer and all the read-only layers a *union file system*.
+*** Base Image
+[[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-debianrw.png]]
+In Docker terminology, a read-only Layer is called an image. An image never changes.
+[[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-multilayer.png]]
+Each image may depend on one more image which forms the layer beneath it. We sometimes say that the lower image is the parent of the upper image. An image that has *no parent* is a *base image*.
+All images are identified by a 64 hexadecimal digit string (internally a 256bit value). To simplify their use, a short ID of the first 12 characters can be used on the command line. There is a small possibility of short id collisions, so the docker server will always return the long ID.
 ** Container and Images
-As /Docker/ is under heavy developement, the file system storing /Docker/ related informatian changes rapidly. The main directory to look for /Docker/ relevant bits and bytes is /var/lib/docker/. In this section *GUID* is the full blown container id as given by =docker ps -a -no-trunc=.
+As /Docker/ is under heavy development, the file system storing /Docker/ related information changes rapidly. The main directory to look for /Docker/ relevant bits and bytes is /var/lib/docker/. In this section *GUID* is the full blown container id as given by =docker ps -a -no-trunc=.
 *** LXC configuration
 Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], /Docker/ configures each container partly by setting lxc options in /var/lib/docker/container/GUID/config.lxc/. 
-*** [#A] Contianer Root File System
+*** [#A] Container Root File System
 The corresponding root file system is stored in /var/lib/docker/devicemapper/mnt/GUID/rootfs/.
 Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
 *** Container Volumes
-If a container mounts a volume from inside the files on that volue are stored under /var/lib/docker/vfs/dir/GUID/. Data stored under these volumes are persistend between container runs. There is a way to share these volumes between containers. 
+If a container mounts a volume from inside the files on that volume are stored under /var/lib/docker/vfs/dir/GUID/. Data stored under these volumes are persistent between container runs. There is a way to share these volumes between containers. 
 * Installing a /Scala/Java/ WebApp
 As a proof of concept, we install a /Scala/ WebApp with /Lift/. We need /Java/ version > 6 and we use /Lift/ as the framework. 
 ** Installing /Java/ and /Lift/
 *** The necessary debian packages
 We need /jdk/ at least version 6, /wegt/ and /zip/:
 #+BEGIN_SRC sh
+$ apt-get update
 $ apt-get install -y openjdk-7-jre
 $ apt-get install -y openjdk-7-jdk
 $ apt-get install -y wget
@@ -297,7 +311,8 @@ we should be able to see the WebApp at [[http://localhost:8080]]. To exit just t
 ** Installing /tomcat7/
 We use /tomcat/ as the *Apache Tomcat Servlet/JSP* engine to serve our /Scala/ WebApp, installing it by typing:
 #+BEGIN_SRC sh
-$ apt-get install tomcat7 
+$ apt-get update
+$ apt-get install -y tomcat7 
 #+END_SRC  
 Tomcat serves servlets  at [[http://localhost:8080]]. The debian package starts the service automatically at boot time via /etc/init.d/tomcat7/ script.
 ** Deploying the WebApp to /tomcat7/
@@ -310,7 +325,11 @@ $ cp  target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war \
 $ service tomcat7 restart
 #+END_SRC 
 This copies the war-file and restarts /tomcat7/. To see the WebApp direct your browser to [[http://localhost:8080/lift_basic/]]. There is no need to restart /tomcat/ manually, as the /autoDeploy/ attribute is set to "true" in file */etc/tomcat7/server.xml*. /tomcat/ even unpacks war-files if attribute /unpackWARs/ is set to "true".
-* Installing Jenkinsx
+** Building a container with the WebApp
+*** The Dockerfile
+We use =docker build= command to build the WebApp container from this docker file.
+
+* Installing Jenkins
 How to install a jenkins server
 * Configure Jenkins to publish a container into the registry
 
@@ -318,3 +337,5 @@ Each time the WebApp has changed in git, Jenkins builds a new container,  consis
 1. Deploying the WebApp-Files into the latest container.
 2. Commit the newly build container and tag it properly.
 3. Start the newly taged container.
+
+# LocalWords:  WebApp
