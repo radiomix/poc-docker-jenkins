@@ -1,7 +1,7 @@
 #
 #		Scala/Java/WebApp
 # Date:		2014.02.21
-# Pupose:	Build a debian based container with a scala/java sample web app
+# Pupose:	Build a debian based container whith openjdk installed
 # Author:	Michael Klöckner
 # Version:	0.1
 #
@@ -13,14 +13,13 @@ FROM debian:fresh
 # who we are
 MAINTAINER Michael Klöckner <mkl@im7.de>
 
-# We need jdk at least version 6, wegt zip :
+#
 RUN apt-get update
+RUN apt-get install -y apt-utils
+
+# We need jdk at least version 6, wegt zip :
 RUN apt-get install -y openjdk-7-jre
 RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y wget
 RUN apt-get install -y zip
 
-
-
-# we need tomcat 7 as the servlet engine
-#RUN apt-get install tomcat7 
