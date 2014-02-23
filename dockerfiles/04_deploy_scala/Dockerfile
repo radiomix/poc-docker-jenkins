@@ -22,7 +22,7 @@ RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt compile
 RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt package 
 
 # delete the old web app jar file
-RUN m -rf   /var/lib/tomcat7/webapps/test*
+RUN rm -rf   /var/lib/tomcat7/webapps/test*
 # copy the resulting war file into tomcats web app dir as file 'test.war'
 RUN  cd /opt/lift_26_sbt-master/scala_210/lift_blank/ &&  cp target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war  /var/lib/tomcat7/webapps/test.war
 
