@@ -1,18 +1,43 @@
-#
+
 #		Scala/Java/WebApp
 # Date:		2014.02.21
-# Pupose:	Build a debian based container and copy the Scala WebApp WAR-file into tomcat7 web app dir.
+# Pupose:	Build a debian based container whith openjdk installed
 # Author:	Michael Klöckner
-# Version:	0.4
-# 
-# Server:	http://localhost:8080/lift_blank
+# Version:	0.1
+#
 
 
 # use our base image debian/fresh
-FROM debian/scala:fresh_scala
+FROM debian:fresh
 
 # who we are
 MAINTAINER Michael Klöckner <mkl@im7.de>
+
+#
+RUN apt-get update
+RUN apt-get install -y apt-utils
+
+# We need jdk at least version 6, wegt zip :
+RUN apt-get install -y openjdk-7-jre
+RUN apt-get install -y openjdk-7-jdk
+RUN apt-get install -y wget
+RUN apt-get install -y zip
+RUN apt-get install -y git
+RUN apt-get install -y vim
+RUN apt-get install -y lynx
+
+
+# insall tomcat
+RUN apt-get update
+RUN apt-get install -y tomcat7
+
+# install scala/lift web app
+RUN wget -O /tmp/master.zip https://github.com/Lift/Lift_26_sbt/archive/master.zip
+RUN unzip -d /opt/ /tmp/master.zip
+RUN rm -f /tmp/maset.zip
+
+# compile the scala/lift web app into a war file once, to download necessery scala/java files
+RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt compile && ./sbt package 
 
 # clean up previous compiles
 RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt clean
