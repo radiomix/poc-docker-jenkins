@@ -277,37 +277,33 @@ Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], /Docke
 The corresponding root file system is stored in /var/lib/docker/devicemapper/mnt/GUID/rootfs/.
 Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
 *** Container Volumes
-If a container mounts a volume from inside the files on that volume are stored under /var/lib/docker/vfs/dir/GUID/. Data stored under these volumes are persistent between container runs. There is a way to share these volumes between containers. 
+    If a container mounts a volume from inside the files on that volume are stored under /var/lib/docker/vfs/dir/GUID/. Data stored under these volumes are persistent between container runs. There is a way to share these volumes between containers. 
+*** Removing a Container or an Image
+To remove a container from a repository we list the containers and type:
+#+BEGIN_SRC sh
+docker ps -a
+docker rm GUID
+#+END_SRC
+To remove an image from a repository we list the images and type:
+#+BEGIN_SRC sh
+docker images -a
+docker rmi USER/REPO:TAG
+#+END_SRC
+Here =USER/REPO:TAG= referes to the user part, the repository part and the tag part of a special image. Note that command =docker images -a= my list the same GUID multiple times as the same image may be tagged differently. Removing an image beeing tagged multiple times only results in deleting the tag, keeping the other tagged version(s) in the repository.   
 * Installing a /Scala/Java/ WebApp
 As a proof of concept, we install a /Scala/ WebApp with /Lift/. We need /Java/ version > 6 and we use /Lift/ as the framework. 
-** Installing /Java/ and /Lift/
-*** The necessary debian packages
-We need /jdk/ at least version 6, /wegt/ and /zip/:
+** Installing the necessary packages and /Java/
+We need /jdk/ at least version 6, /wegt/, /zip/ and git:
 #+BEGIN_SRC sh
 $ apt-get update
+$ apt-get install -y apt-utils
 $ apt-get install -y openjdk-7-jre
 $ apt-get install -y openjdk-7-jdk
 $ apt-get install -y wget
 $ apt-get install -y zip
+$ apt-get install -y git
 #+END_SRC
 This installs Java 7 and my take a minute.
-*** TODO check if we need apache packages?
-*** Scala WebApp
-We download and configure a sample /Scala/ WebApp and generate the War-file.
-#+BEGIN_SRC sh
-$ cd /opt
-$ wget https://github.com/Lift/Lift_26_sbt/archive/master.zip
-$ unzip master.zip
-$ cd lift_26_sbt-master/scala_210/lift_basic/
-$ ./sbt  compile
-$ ./sbt  package
-#+END_SRC 
-[[http:///Lift/web.net/getting_started][/Lift/ web framework]]  will download /sbt/, /Scala/ and the necessary dependencies and compile the War-File */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war*. By typing
-#+BEGIN_SRC sh
-$ ./sbt 
-> start
-#+END_SRC
-we should be able to see the WebApp at [[http://localhost:8080]]. To exit just type =exit=. The source of this WebApp is under */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/*. To prove the concept, we will later just change /index.html/.
 ** Installing /tomcat7/
 We use /tomcat/ as the *Apache Tomcat Servlet/JSP* engine to serve our /Scala/ WebApp, installing it by typing:
 #+BEGIN_SRC sh
@@ -315,6 +311,22 @@ $ apt-get update
 $ apt-get install -y tomcat7 
 #+END_SRC  
 Tomcat serves servlets  at [[http://localhost:8080]]. The debian package starts the service automatically at boot time via /etc/init.d/tomcat7/ script.
+** Scala WebApp
+*** Installation
+We download and configure a sample /Scala/ WebApp and unzip it under /opt/.
+#+BEGIN_SRC sh
+$ wget -O /tmp/master.zip https://github.com/Lift/Lift_26_sbt/archive/master.zip
+$ unzip -d /opt/ /tmp/master.zip
+#+END_SRC 
+*** Compiling the WebApp
+The first time this process may take several minutes to download /maven/ and the /Scala/-files. Later calls only compile the relevant jar- and war-files. To compile the WebApp we type:
+#+BEGIN_SRC sh
+$  cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
+#+END_SRC sh 
+
+[[http:///Lift/web.net/getting_started][/Lift/ web framework]]  will download /sbt/, /Scala/ and the necessary dependencies and compile the War-File */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war*. 
+ 
+By typing =/opt/lift_26_sbt-master/scala_210/lift_basic/sbt  start= we should be able to see the WebApp at [[http://localhost:8080]]. To exit just type =exit=. The source of this WebApp is under */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/*. To prove the concept, we will later just change /index.html/.
 ** Deploying the WebApp to /tomcat7/
 /Lift/ uses /sbt/ to compile the project and output a WAR- or JAR-file, which we want to copy into /tomcat7/'s webapp directory */var/lib/tomcat7/webapps/*. We recompile the package and deploy it statically into /tomcat/.
 #+BEGIN_SRC sh 
@@ -327,8 +339,22 @@ $ service tomcat7 restart
 This copies the war-file and restarts /tomcat7/. To see the WebApp direct your browser to [[http://localhost:8080/lift_basic/]]. There is no need to restart /tomcat/ manually, as the /autoDeploy/ attribute is set to "true" in file */etc/tomcat7/server.xml*. /tomcat/ even unpacks war-files if attribute /unpackWARs/ is set to "true".
 ** Building a container with the WebApp
 *** The Dockerfile
-We use =docker build= command to build the WebApp container from this docker file.
+The command 
+#+BEGIN_SRC sh
+sudo docker build -rm -t USER/REPO:TAG docker-dir/ 
+#+END_SRC
+builds the WebApp container using the docker file inside =docker-dir/= and pushes it into repository =USER/REPO= with tag =TAG=. Creating directories for each docker file, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. 
++ =01\_openjdk7/Dockerfile= creates an image with /Java/ and some utilities installed.
++ =02\_tomcat7/Dockerfile= installs /tomcat7/ as the servlet engine.
++ =03\_install\_scala/Dockerfile= installs /Scala/ and compiles a sample WebApp.
++ =04\deploy\_scala/Dockerfile=  compiles the sample WebApp and copies the war-file into /tomcat7/ webapp directory.
 
+Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the =RUN= commands from all the docker files into one single file.
+*** Starting the container
+The sample WebApp gets served by the /tomcat7/ instance on port 8080. In order to expose this container port by the docker host we run the container  typing:
+#+BEGIN_SRC sh
+sudo docker run -i -t -p :8080:8080 USER/REPO:TAG /bin/bash
+#+END_SRC
 * Installing Jenkins
 How to install a jenkins server
 * Configure Jenkins to publish a container into the registry
