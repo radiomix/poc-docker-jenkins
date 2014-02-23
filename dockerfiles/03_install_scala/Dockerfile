@@ -19,9 +19,5 @@ RUN unzip -d /opt/ /tmp/master.zip
 RUN rm -f /tmp/maset.zip
 
 # compile the scala/lift web app into a war file once, to download necessery scala/java files
-RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt package && ./sbt compile
+RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt compile && ./sbt package 
 
-# copy the resulting war file into tomcats web app dir 
-RUN cp /opt/lift_26_sbt-master/scala_210/lift_blank/target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war  /var/lib/tomcat7/webapps/lift_blank.war
-
-CMD service tomcat7 start
