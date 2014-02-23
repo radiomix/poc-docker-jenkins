@@ -205,29 +205,6 @@ To import from a local file type:
 $ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
 #+END_SRC
 Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownerships might not get preserved.
-*** Authentication file
-
-The authentication is stored in a json file, .dockercfg located in your home directory. It supports multiple registry urls.
-
-docker login will create the “https://index.docker.io/v1/” key.
-
-docker login https://my-registry.com will create the “https://my-registry.com” key.
-
-For example:
-#+BEGIN_SRC JASON
-{
-     "https://index.docker.io/v1/": {
-             "auth": "xXxXxXxXxXx=",
-             "email": "email@example.com"
-     },
-     "https://my-registry.com": {
-             "auth": "XxXxXxXxXxX=",
-             "email": "email@my-registry.com"
-     }
-}
-#+END_SRC
-The auth field represents base64(<username>:<password>)
-
 *** Mount a volume
 /Docker/ provides the parameter =-v= with the =run= command to create a persitent storage device. 
 #+BEGIN_SRC sh

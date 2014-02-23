@@ -1,4 +1,4 @@
-% Created 2014-02-23 So 17:38
+% Created 2014-02-23 So 23:07
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -309,33 +309,8 @@ To import from a local file type:
 $ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
 \end{verbatim}
 Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownerships might not get preserved.
-\subsubsection{Authentication file}
-\label{sec-2-3-13}
-
-
-The authentication is stored in a json file, .dockercfg located in your home directory. It supports multiple registry urls.
-
-docker login will create the “\href{https://index.docker.io/v1/}{https://index.docker.io/v1/}” key.
-
-docker login \href{https://my-registry.com}{https://my-registry.com} will create the “\href{https://my-registry.com}{https://my-registry.com}” key.
-
-For example:
-
-\begin{verbatim}
-{
-     "https://index.docker.io/v1/": {
-             "auth": "xXxXxXxXxXx=",
-             "email": "email@example.com"
-     },
-     "https://my-registry.com": {
-             "auth": "XxXxXxXxXxX=",
-             "email": "email@my-registry.com"
-     }
-}
-\end{verbatim}
-The auth field represents base64(<username>:<password>)
 \subsubsection{Mount a volume}
-\label{sec-2-3-14}
+\label{sec-2-3-13}
 
 \emph{Docker} provides the parameter \texttt{-v} with the \texttt{run} command to create a persitent storage device. 
 
