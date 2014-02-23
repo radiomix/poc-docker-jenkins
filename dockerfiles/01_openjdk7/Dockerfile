@@ -1,4 +1,4 @@
-#
+
 #		Scala/Java/WebApp
 # Date:		2014.02.21
 # Pupose:	Build a debian based container whith openjdk installed
@@ -22,4 +22,5 @@ RUN apt-get install -y openjdk-7-jre
 RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y wget
 RUN apt-get install -y zip
+RUN apt-get install -y git
 
