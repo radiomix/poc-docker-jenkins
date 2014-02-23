@@ -24,4 +24,5 @@ RUN apt-get install -y wget
 RUN apt-get install -y zip
 RUN apt-get install -y git
 RUN apt-get install -y vim
+RUN apt-get install -y lynx
 
