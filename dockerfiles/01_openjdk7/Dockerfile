@@ -23,4 +23,5 @@ RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y wget
 RUN apt-get install -y zip
 RUN apt-get install -y git
+RUN apt-get install -y vim
 
