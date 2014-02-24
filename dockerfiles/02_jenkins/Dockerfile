@@ -20,10 +20,8 @@ RUN echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/
 RUN apt-get update
 
 # depending on the base image we:
-# install netstat, cpulimit and sudo, needed by jenkins
+# install netstat, needed by jenkins
 RUN apt-get install -y net-tools
-RUN apt-get install -y sudo
-RUN apt-get install -y cpulimit
 
 # install jenkins
 RUN apt-get install -y jenkins
