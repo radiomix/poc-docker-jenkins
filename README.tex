@@ -1,4 +1,4 @@
-% Created 2014-02-24 Mo 15:44
+% Created 2014-02-24 Mo 17:56
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -494,19 +494,77 @@ The sample WebApp gets served by the \emph{tomcat7} instance on port 8080. In or
 \begin{verbatim}
 sudo docker run -i -t -p :8080:8080 USER/REPO:TAG /bin/bash
 \end{verbatim}
-\section{Installing Jenkins}
+\section{Jenkins}
 \label{sec-4}
 
-How to install a jenkins server
-\section{Configure Jenkins to publish a container into the registry}
-\label{sec-5}
+This section describes how to install a \emph{Jenkins} server, as described in \href{https://wiki.jenkins-ci.org/display/JENKINS/Installing%2BJenkins%2Bon%2BUbuntu}{https://wiki.jenkins-ci.org}. 
+\subsection{Installation}
+\label{sec-4-1}
 
+On Debian-based distributions, such as \emph{Ubuntu}, you can install \emph{Jenkins} through \texttt{apt-get}. Recent versions are available in an apt repository. Older but stable LTS versions are in this apt repository.
 
-Each time the WebApp has changed in git, Jenkins builds a new container,  consisting of three parts:
+You need to have a JDK and JRE installed. openjdk-7-jre and openjdk-7-jdk are suggested. As root we type
+
+\begin{verbatim}
+wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key \
+ | sudo apt-key add - 
+echo deb http://pkg.jenkins-ci.org/debian binary/ >  /etc/apt/sources.list.d/jenkins.list
+apt-get update
+apt-get install -y net-tools
+apt-get install jenkins
+\end{verbatim}
+
+What does this package do?
+
+\begin{itemize}
+\item \emph{Jenkins} will be launched as a daemon up on start. See /etc/init.d/jenkins for more details.
+\item The `jenkins' user is created to run this service.
+\item Log file will be placed in \emph{var/log/jenkins/jenkins.log}. Check this file if you are troubleshooting Jenkins.
+\item \emph{etc/default/jenkins will capture configuration parameters for the launch. - By default, /Jenkins} listen on port 8080. Access this port with your browser to start configuration.
+\end{itemize}
+\subsection{Configure Jenkins}
+\label{sec-4-2}
+
+We want to run \emph{Jenkins} on port 8090: 
+
+\begin{verbatim}
+sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
+\end{verbatim}
+\subsection{Build a container and publish it into the registry}
+\label{sec-4-3}
+
+Each time the WebApp has changed in git, \emph{Jenkins} builds a new container,  consisting of three parts:
 \begin{enumerate}
 \item Deploying the WebApp-Files into the latest container.
 \item Commit the newly build container and tag it properly.
-\item Start the newly taged container.
+\item Start the newly tagged container.
 \end{enumerate}
+
+We start this container, exposing port 8090:
+
+\begin{verbatim}
+sudo docker run -p :8090:8090 -i -t GUID /bin/bash
+\end{verbatim}
+\subsection{\textbf{TODO}}
+\label{sec-4-4}
+
+\begin{itemize}
+\item jenkins startup errors with: ``  jenkins/etc/init.d/jenkins: line 108: ulimit: open files: cannot modify limit: Operation not permitted''
+\item jenkins setup
+\item jenkins web app source controll
+\item start service \emph{jenkins} automatically
+\end{itemize}
+\subsection{Launch the newly build container}
+\label{sec-4-5}
+\section{Conclusion}
+\label{sec-5}
+\section{Open Questions}
+\label{sec-6}
+\subsection{Networking}
+\label{sec-6-1}
+\subsection{Logging}
+\label{sec-6-2}
+\subsection{Persistence}
+\label{sec-6-3}
 
 \end{document}
