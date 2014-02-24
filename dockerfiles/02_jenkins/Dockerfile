@@ -15,7 +15,7 @@ MAINTAINER Michael Klöckner <mkl@im7.de>
 
 
 # add jenkins server to repo list
-RUN wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key sudo | apt-key add -
+RUN wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
 RUN echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list
 RUN apt-get update
 
