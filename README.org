@@ -332,13 +332,53 @@ The sample WebApp gets served by the /tomcat7/ instance on port 8080. In order t
 #+BEGIN_SRC sh
 sudo docker run -i -t -p :8080:8080 USER/REPO:TAG /bin/bash
 #+END_SRC
-* Installing Jenkins
-How to install a jenkins server
-* Configure Jenkins to publish a container into the registry
+* Jenkins
+This section describes how to install a /Jenkins/ server, as described in [[https://wiki.jenkins-ci.org/display/JENKINS/Installing%2BJenkins%2Bon%2BUbuntu][https://wiki.jenkins-ci.org]]. 
+** Installation
+On Debian-based distributions, such as /Ubuntu/, you can install /Jenkins/ through =apt-get=. Recent versions are available in an apt repository. Older but stable LTS versions are in this apt repository.
 
-Each time the WebApp has changed in git, Jenkins builds a new container,  consisting of three parts:
+You need to have a JDK and JRE installed. openjdk-7-jre and openjdk-7-jdk are suggested. As root we type
+#+BEGIN_SRC sh
+wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key \
+ | sudo apt-key add - 
+echo deb http://pkg.jenkins-ci.org/debian binary/ >  /etc/apt/sources.list.d/jenkins.list
+apt-get update
+apt-get install -y net-tools
+apt-get install jenkins
+#+END_SRC 
+
+What does this package do?
+
+- /Jenkins/ will be launched as a daemon up on start. See /etc/init.d/jenkins for more details.
+- The 'jenkins' user is created to run this service.
+- Log file will be placed in /var/log/jenkins/jenkins.log/. Check this file if you are troubleshooting Jenkins.
+- /etc/default/jenkins will capture configuration parameters for the launch.
+- By default, /Jenkins/ listen on port 8080. Access this port with your browser to start configuration.
+
+** Configure Jenkins
+We want to run /Jenkins/ on port 8090: 
+#+BEGIN_SRC sh
+sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
+#+END_SRC 
+** Build a container and publish it into the registry
+Each time the WebApp has changed in git, /Jenkins/ builds a new container,  consisting of three parts:
 1. Deploying the WebApp-Files into the latest container.
 2. Commit the newly build container and tag it properly.
-3. Start the newly taged container.
+3. Start the newly tagged container.
 
+We start this container, exposing port 8090:
+#+BEGIN_SRC sh
+sudo docker run -p :8090:8090 -i -t GUID /bin/bash
+#+END_SRC 
+** TODO 
+- jenkins startup errors with: "  jenkins/etc/init.d/jenkins: line 108: ulimit: open files: cannot modify limit: Operation not permitted"
+- jenkins setup
+- jenkins web app source controll
+- start service /jenkins/ automatically
 # LocalWords:  WebApp
+** Launch the newly build container
+* Conclusion
+* Open Questions
+** Networking
+** Logging
+** Persistence
