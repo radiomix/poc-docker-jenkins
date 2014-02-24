@@ -1,4 +1,4 @@
-% Created 2014-02-24 Mo 15:38
+% Created 2014-02-24 Mo 15:42
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -57,7 +57,7 @@ This paper documents the Proof of Concept Project:
 \label{sec-1-4}
 
 One major issue in Continuous Integration is to insure a once deployed build artifact never changes in future deployment scenarios. \emph{Docker} versions each container, making it immutable after a \texttt{docker build}. To start a particular container, beeing pulled out of a repository, results in starting the same build artifact in all future deployment scenarios. We use the \emph{Jenkins} server to build a docker container triggered by a git push. This container is then pulled and started by the production environment.
-\includegraphics[width=.9\linewidth]{img/docker-deployment-workflow-01.jpg}
+\href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-deployment-workflow-01.jpg}{docker-deployment-workflow-01.jpg}
 \section{\emph{Docker}}
 \label{sec-2}
 
