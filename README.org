@@ -237,13 +237,13 @@ $ docker images -a
 #+END_SRC
 This creates a new /Docker/ base image for debain wheezy and puts it into ropsitory /flora/debian/, where /flora/ is the username and /debian/ the repo name.
 ** Layers
-   When Docker mounts the rootfs, it starts read-only, as in a traditional Linux boot, but then, instead of changing the file system to read-write mode, it takes advantage of a union mount to add a /read-write file system over the read-only file system/. In fact there may be multiple read-only file systems stacked on top of each other. We think of each one of these file systems as a *layer*. [[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-multilayer.png]].
+   When Docker mounts the rootfs, it starts read-only, as in a traditional Linux boot, but then, instead of changing the file system to read-write mode, it takes advantage of a union mount to add a /read-write file system over the read-only file system/. In fact there may be multiple read-only file systems stacked on top of each other. We think of each one of these file systems as a *layer*. [[file:img/docker-filesystems-multilayer.png]].
 *** Union file system 
 At first, the top read-write layer has nothing in it, but any time a process creates a file, this happens in the top layer. And if something needs to update an existing file in a lower layer, then the file gets copied to the upper layer and changes go into the copy. The version of the file on the lower layer cannot be seen by the applications anymore, but it is there, unchanged. We call the union of the read-write layer and all the read-only layers a *union file system*.
 *** Base Image
-[[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-debianrw.png]]
+[[file:img/docker-filesystems-debianrw.png]]
 In Docker terminology, a read-only Layer is called an image. An image never changes.
-[[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-multilayer.png]]
+[[file:img/docker-filesystems-multilayer.png]]
 Each image may depend on one more image which forms the layer beneath it. We sometimes say that the lower image is the parent of the upper image. An image that has *no parent* is a *base image*.
 All images are identified by a 64 hexadecimal digit string (internally a 256bit value). To simplify their use, a short ID of the first 12 characters can be used on the command line. There is a small possibility of short id collisions, so the docker server will always return the long ID.
 ** Container and Images
