@@ -20,7 +20,7 @@ service on a new EC2 node by fetching the artifact from the registry.*
    We installed /Docker/ version 0.8 in 2014/02.
 ** Deployment workflow
 One major issue in Continuous Integration is to insure a once deployed build artifact never changes in future deployment scenarios. /Docker/ versions each container, making it immutable after a =docker build=. To start a particular container, beeing pulled out of a repository, results in starting the same build artifact in all future deployment scenarios. We use the /Jenkins/ server to build a docker container triggered by a git push. This container is then pulled and started by the production environment.
- [[file:/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-deployment-workflow-01.jpg]]
+[[file:img/docker-deployment-workflow-01.jpg][docker-deployment-workflow-01.jpg]]
 * /Docker/
 This chapter deals with installation issues and some basic /Docker/ commands. It is mainly take from the [[http://docs.docer.io/en/latest/][Docker documentation]]. 
 ** TODO explain /docker/ terminology: Image, Container, Repository, Registry, Index.
