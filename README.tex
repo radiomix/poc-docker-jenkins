@@ -1,4 +1,4 @@
-% Created 2014-02-24 Mo 15:42
+% Created 2014-02-24 Mo 15:44
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -356,7 +356,7 @@ This creates a new \emph{Docker} base image for debain wheezy and puts it into r
 \subsection{Layers}
 \label{sec-2-5}
 
-   When Docker mounts the rootfs, it starts read-only, as in a traditional Linux boot, but then, instead of changing the file system to read-write mode, it takes advantage of a union mount to add a \emph{read-write file system over the read-only file system}. In fact there may be multiple read-only file systems stacked on top of each other. We think of each one of these file systems as a \textbf{layer}. \includegraphics[width=.9\linewidth]{/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-multilayer.png}.
+   When Docker mounts the rootfs, it starts read-only, as in a traditional Linux boot, but then, instead of changing the file system to read-write mode, it takes advantage of a union mount to add a \emph{read-write file system over the read-only file system}. In fact there may be multiple read-only file systems stacked on top of each other. We think of each one of these file systems as a \textbf{layer}. \includegraphics[width=.9\linewidth]{img/docker-filesystems-multilayer.png}.
 \subsubsection{Union file system}
 \label{sec-2-5-1}
 
@@ -364,9 +364,9 @@ At first, the top read-write layer has nothing in it, but any time a process cre
 \subsubsection{Base Image}
 \label{sec-2-5-2}
 
-\includegraphics[width=.9\linewidth]{/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-debianrw.png}
+\includegraphics[width=.9\linewidth]{img/docker-filesystems-debianrw.png}
 In Docker terminology, a read-only Layer is called an image. An image never changes.
-\includegraphics[width=.9\linewidth]{/debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-filesystems-multilayer.png}
+\includegraphics[width=.9\linewidth]{img/docker-filesystems-multilayer.png}
 Each image may depend on one more image which forms the layer beneath it. We sometimes say that the lower image is the parent of the upper image. An image that has \textbf{no parent} is a \textbf{base image}.
 All images are identified by a 64 hexadecimal digit string (internally a 256bit value). To simplify their use, a short ID of the first 12 characters can be used on the command line. There is a small possibility of short id collisions, so the docker server will always return the long ID.
 \subsection{Container and Images}
