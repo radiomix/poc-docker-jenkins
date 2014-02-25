@@ -1,4 +1,4 @@
-% Created 2014-02-24 Mo 17:56
+% Created 2014-02-25 Di 21:43
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -71,11 +71,9 @@ This chapter deals with installation issues and some basic \emph{Docker} command
 
 \emph{Docker} needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
 installed. Either you use a system with the appropriate kernel installed, or
-you update the kernel by hand as described in kernel compilation. The ker-
-nel needs to have compiled all options concerning virtual NICs, especially
+you update the kernel by hand as described in kernel compilation. The kernel needs to have compiled all options concerning virtual NICs, especially
 BRIDGED NICs, all NAT options and all net  ( NF ) options. Download
-the kernel source, untar it, change into the directory and configure it prop-
-erly. To compile the kernel as a debian package named \textbf{fora-kernel-3.13.3}
+the kernel source, untar it, change into the directory and configure it properly. To compile the kernel as a debian package named \textbf{fora-kernel-3.13.3}
 to be installed later together with it's header follow these instructions:
 
 \begin{verbatim}
@@ -135,7 +133,7 @@ Docker.io provides an installation guide for Amazon Web Services EC2.
 \item Under User data, select As text
 \item Enter \#include \href{https://get.docker.io}{https://get.docker.io}  into the instance User Data. CloudInit is part of the Ubuntu image you chose; it will bootstrap \emph{Docker} by running the shell script located at this URL.
 \end{itemize}
-\item After a few more standard choices where defaults are probably ok, your AWS Ubuntu instance with \emph{Docker} should be running!
+\item After a few more standard choices where defaults are probably OK, your AWS Ubuntu instance with \emph{Docker} should be running!
 \end{itemize}
 If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
 timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
@@ -258,22 +256,8 @@ Now you can commit this image to the repository designated by its name or tag.
 # format is "docker push <username>/<repo_name>"
 $ sudo docker push myname/kickassapp
 \end{verbatim}
-\subsubsection{Private Repositories}
-\label{sec-2-3-10}
-
-Right now (version 0.6), private repositories are only possible by hosting \href{https://github.com/dotcloud/docker-registry}{your private registry}. To push or pull to a repository on your own registry, you must prefix the tag with the address of the registry’s host, like this:
-
-\begin{verbatim}
-# Tag to create a repository with the full registry location.
-# The location (e.g. localhost.localdomain:5000) becomes
-# a permanent part of the repository name
-sudo docker tag 0u812deadbeef localhost.localdomain:5000/repo_name
-# Push the new repository to its home location on localhost
-sudo docker push localhost.localdomain:5000/repo_name
-\end{verbatim}
-Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
 \subsubsection{Export a container}
-\label{sec-2-3-11}
+\label{sec-2-3-10}
 
 To export a container to a tar file just type:
 
@@ -295,7 +279,7 @@ f7528d270208        mkl/debian:7.4      echo success        About an hour ago   
 $ docker export ac3a595c294c  > exampleimage.tar
 \end{verbatim}
 \subsubsection{Import a container}
-\label{sec-2-3-12}
+\label{sec-2-3-11}
 
 At this time, the URL must start with http and point to a single file archive (.tar, .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a root filesystem. If you would like to import from a local directory or archive, you can use the - parameter to take the data from stdin.
 To import from a remote url type:
@@ -308,22 +292,22 @@ To import from a local file type:
 \begin{verbatim}
 $ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
 \end{verbatim}
-Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownerships might not get preserved.
+Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownership might not get preserved.
 \subsubsection{Mount a volume}
-\label{sec-2-3-13}
+\label{sec-2-3-12}
 
-\emph{Docker} provides the parameter \texttt{-v} with the \texttt{run} command to create a persitent storage device. 
+\emph{Docker} provides the parameter \texttt{-v} with the \texttt{run} command to create a persistent storage device. 
 
 \begin{verbatim}
 docker run -v /volume1  myName/debian true
 \end{verbatim}
-runs the image \texttt{myName/debian} with command \texttt{true} and creates a volume  attached to this container which is visable inside as \texttt{/volume1}. 
+runs the image \texttt{myName/debian} with command \texttt{true} and creates a volume  attached to this container which is visible inside as \texttt{/volume1}. 
 To mount the host directory \texttt{/opt/this-volume} to a container in read only mode, we prepend the host directory name to the volume name: 
 
 \begin{verbatim}
 docker run -v /opt/this-volume:/volume1:ro  myName/debian true
 \end{verbatim}
-If you remove containers that mount volumes, the volumes will not be deleted until there are no containers still referencing those volumes. This allows you to upgrade, or effectivly migrate data volumes between containers.
+If you remove containers that mount volumes, the volumes will not be deleted until there are no containers still referencing those volumes. This allows you to upgrade, or effectively migrate data volumes between containers.
 The complete syntax is
 
 \begin{verbatim}
@@ -402,12 +386,164 @@ docker images -a
 docker rmi USER/REPO:TAG
 \end{verbatim}
 Here \texttt{USER/REPO:TAG} referes to the user part, the repository part and the tag part of a special image. Note that command \texttt{docker images -a} my list the same GUID multiple times as the same image may be tagged differently. Removing an image beeing tagged multiple times only results in deleting the tag, keeping the other tagged version(s) in the repository.   
-\section{Installing a \emph{Scala/Java} WebApp}
+\section{Private Repositories}
 \label{sec-3}
+
+Right now (version 0.6), private repositories are only possible by hosting \href{https://github.com/dotcloud/docker-registry}{your private registry}. 
+\subsection{Pushing to a private repo}
+\label{sec-3-1}
+
+To push or pull to a repository on your own registry, you must prefix the tag with the address of the registry’s host, like this:
+
+\begin{verbatim}
+# Tag to create a repository with the full registry location.
+# The location (e.g. localhost.localdomain:5000) becomes
+# a permanent part of the repository name
+sudo docker tag 0u812deadbeef localhost.localdomain:5000/repo_name
+# Push the new repository to its home location on localhost
+sudo docker push localhost.localdomain:5000/repo_name
+\end{verbatim}
+The last command will fails, if no registry server answers locally on port 5000.
+\subsection{Building a private repo}
+\label{sec-3-2}
+
+As \href{http://blog.docker.io/2013/07/how-to-use-your-own-registry/}{Sam Alba}, a Dotcloud.io engineer since the first beginning of \emph{docker} describes, we can build a registry container, provided \texttt{gunicorn} and \texttt{pip} is installed:
+
+\begin{verbatim}
+#install pip 
+sudo apt-get install python-pip
+#install gunicorn
+sudo apt-get install gunicorn
+#install the docker-registry container an run it
+git clone https://github.com/dotcloud/docker-registry.git
+cd docker-registry
+cp config_sample.yml config.yml
+sudo pip install -r requirements.txt
+gunicorn --access-logfile - --log-level debug --debug \
+    -b 0.0.0.0:5000 -w 1 wsgi:application
+\end{verbatim}
+
+To simplify things, the github repository comes with a Dockerfile do build a container from Ubuntu 13.4.
+Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
+\subsection{Changes to the repository building code}
+\label{sec-3-3}
+
+The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages to get it running:
+\subsubsection{Upgrade \emph{pip}}
+\label{sec-3-3-1}
+
+
+\begin{verbatim}
+wgethttps://raw.github.com/pypa/pip/master/contrib/get-pip.py -o get-pip.py
+sudo python get-pip.py
+\end{verbatim}
+\subsubsection{Install \emph{gcc}}
+\label{sec-3-3-2}
+
+
+\begin{verbatim}
+sudo apt-get install -y gcc
+\end{verbatim}
+\subsubsection{Install deb-packages from file \emph{docker-registry/Dockerfile}}
+\label{sec-3-3-3}
+
+
+\begin{verbatim}
+sudo apt-get install -y  git-core build-essential python-dev \
+    libevent-dev python-openssl liblzma-dev wget
+\end{verbatim}
+\subsection{Registry as a  gunicorn application}
+\label{sec-3-4}
+
+
+\begin{verbatim}
+git clone https://github.com/dotcloud/docker-registry.git
+cd docker-registry
+cp config_sample.yml config.yml
+sudo pip install -r requirements.txt
+gunicorn --access-logfile - --log-level debug --debug \
+    -b 0.0.0.0:5000 -w 1 wsgi:application
+\end{verbatim}
+\subsection{Registry as container}
+\label{sec-3-5}
+
+An alternative way is to build a registry container after we installed the necessary libraries on the docker host.
+
+\begin{verbatim}
+git clone https://github.com/dotcloud/docker-registry.git
+cd docker-registry
+sudo docker build -rm -t registry .
+sudo docker run -d -p 5000:5000 registry
+\end{verbatim}
+This results in an image tagged \emph{registry} and a container running on the same docker host exposing port 5000.
+\subsection{Testing the private registry}
+\label{sec-3-6}
+
+Let's say we have two hosts, registry.localdomain and host01.localdomain both beeing known by local DNS. We build our images on host01.localdomain and store them on registry.localdomain running the registry container on port 5000. 
+\subsubsection{On host01.localdomain}
+\label{sec-3-6-1}
+
+After a successful build or a a commit we tag an image properly and push it onto registry: 
+
+\begin{verbatim}
+# what have we got?
+host01>sudo docker images
+REPOSITORY                           TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+debian/jenkins                       jenkins             38332d781d61        2 minutes ago        699.4 MB
+ubuntu                               13.10               9f676bd305a4        3 weeks ago         182.1 MB
+ubuntu                               saucy               9f676bd305a4        3 weeks ago         182.1 MB
+
+host01>sudo docker tag 38332d781d61 registry.localdomain:5000/debian/jenkins
+host01>sudo docker images 
+REPOSITORY                                  TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+debian/jenkins                              jenkins             38332d781d61        2 minutes ago        699.4 MB
+registry.localdomain:5000/debian/jenkins    jenkins             38332d781d61        2 minutes ago        699.4 MB
+ubuntu                                      13.10               9f676bd305a4        3 weeks ago         182.1 MB
+ubuntu                                      saucy               9f676bd305a4        3 weeks ago         182.1 MB
+
+# push this image to the registry server
+host01>sudo docker push registry.localdomain:5000/debian/jenkins
+The push refers to a repository [registry.localdomain:5000/debian/jenkins] (len: 1)
+Sending image list
+Pushing repository registry.localdomain:5000/debian/jenkins (1 tags)
+11ed3d47ec89: Image successfully pushed 
+38332d781d61: Image successfully pushed 
+Pushing tag for rev [38332d781d61] on {http://registry.localdomain:5000/v1/repositories/debian/jenkins/tags/latest}
+
+# remove both "images" locally
+host01>sudo docker rmi  debian/jenkins
+Untagged:38332d781d616823aaaaadc7c9ca4243f696b4efe2a74a49eb18fd062633198d
+host01>sudo docker rmi registry.localdomain:5000/debian/jenki
+Untagged:38332d781d616823aaaaadc7c9ca4243f696b4efe2a74a49eb18fd062633198d
+# check for local images
+host01>sudo docker images
+REPOSITORY                         TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+ubuntu                             13.10               9f676bd305a4        3 weeks ago         182.1 MB
+ubuntu                             saucy               9f676bd305a4        3 weeks ago         182.1 MB
+
+# no more local images for jenkins build: so we pull them from registry
+# using the same command as the pull:
+host01>sudo docker registry.localdomain:5000/debian/jenkin
+Pulling repository host01.localdomain:5000/debian/jenkins
+38332d781d61: Download complete 
+9f676bd305a4: Download complete
+
+#check the local images
+host01>sudo docker images
+REPOSITORY                                  TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+registry.localdomain:5000/debian/jenkins    jenkins             38332d781d61        2 minutes ago       699.4 MB
+ubuntu                                      13.10               9f676bd305a4        3 weeks ago         182.1 M
+\end{verbatim}
+\subsubsection{Web Services}
+\label{sec-3-6-2}
+
+\href{https://quay.io/}{quay.io} serves private registry the web, \href{https://index.docker.io/}{docker.io} provides a public index server.
+\section{Installing a \emph{Scala/Java} WebApp}
+\label{sec-4}
 
 As a proof of concept, we install a \emph{Scala} WebApp with \emph{Lift}. We need \emph{Java} version > 6 and we use \emph{Lift} as the framework. 
 \subsection{Installing the necessary packages and \emph{Java}}
-\label{sec-3-1}
+\label{sec-4-1}
 
 We need \emph{jdk} at least version 6, \emph{wegt}, \emph{zip} and git:
 
@@ -422,7 +558,7 @@ $ apt-get install -y git
 \end{verbatim}
 This installs Java 7 and my take a minute.
 \subsection{Installing \emph{tomcat7}}
-\label{sec-3-2}
+\label{sec-4-2}
 
 We use \emph{tomcat} as the \textbf{Apache Tomcat Servlet/JSP} engine to serve our \emph{Scala} WebApp, installing it by typing:
 
@@ -432,9 +568,9 @@ $ apt-get install -y tomcat7
 \end{verbatim}
 Tomcat serves servlets  at \href{http://localhost:8080}{http://localhost:8080}. The debian package starts the service automatically at boot time via \emph{etc/init.d/tomcat7} script.
 \subsection{Scala WebApp}
-\label{sec-3-3}
+\label{sec-4-3}
 \subsubsection{Installation}
-\label{sec-3-3-1}
+\label{sec-4-3-1}
 
 We download and configure a sample \emph{Scala} WebApp and unzip it under \emph{opt}.
 
@@ -443,7 +579,7 @@ $ wget -O /tmp/master.zip https://github.com/Lift/Lift_26_sbt/archive/master.zip
 $ unzip -d /opt/ /tmp/master.zip
 \end{verbatim}
 \subsubsection{Compiling the WebApp}
-\label{sec-3-3-2}
+\label{sec-4-3-2}
 
 The first time this process may take several minutes to download \emph{maven} and the \emph{Scala}-files. Later calls only compile the relevant jar- and war-files. To compile the WebApp we type:
 
@@ -455,7 +591,7 @@ $  cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
  
 By typing \texttt{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/sbt  start} we should be able to see the WebApp at \href{http://localhost:8080}{http://localhost:8080}. To exit just type \texttt{exit}. The source of this WebApp is under \textbf{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/}. To prove the concept, we will later just change \emph{index.html}.
 \subsection{Deploying the WebApp to \emph{tomcat7}}
-\label{sec-3-4}
+\label{sec-4-4}
 
 \emph{Lift} uses \emph{sbt} to compile the project and output a WAR- or JAR-file, which we want to copy into \emph{tomcat7}'s webapp directory \textbf{/var/lib/tomcat7/webapps/}. We recompile the package and deploy it statically into \emph{tomcat}.
 
@@ -468,9 +604,9 @@ $ service tomcat7 restart
 \end{verbatim}
 This copies the war-file and restarts \emph{tomcat7}. To see the WebApp direct your browser to \href{http://localhost:8080/lift_basic/}{http://localhost:8080/lift\_basic/}. There is no need to restart \emph{tomcat} manually, as the \emph{autoDeploy} attribute is set to ``true'' in file \textbf{/etc/tomcat7/server.xml}. \emph{tomcat} even unpacks war-files if attribute \emph{unpackWARs} is set to ``true''.
 \subsection{Building a container with the WebApp}
-\label{sec-3-5}
+\label{sec-4-5}
 \subsubsection{The Dockerfile}
-\label{sec-3-5-1}
+\label{sec-4-5-1}
 
 The command 
 
@@ -487,7 +623,7 @@ builds the WebApp container using the docker file inside \texttt{docker-dir/} an
 
 Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the \texttt{RUN} commands from all the docker files into one single file.
 \subsubsection{Starting the container}
-\label{sec-3-5-2}
+\label{sec-4-5-2}
 
 The sample WebApp gets served by the \emph{tomcat7} instance on port 8080. In order to expose this container port by the docker host we run the container  typing:
 
@@ -495,11 +631,11 @@ The sample WebApp gets served by the \emph{tomcat7} instance on port 8080. In or
 sudo docker run -i -t -p :8080:8080 USER/REPO:TAG /bin/bash
 \end{verbatim}
 \section{Jenkins}
-\label{sec-4}
+\label{sec-5}
 
 This section describes how to install a \emph{Jenkins} server, as described in \href{https://wiki.jenkins-ci.org/display/JENKINS/Installing%2BJenkins%2Bon%2BUbuntu}{https://wiki.jenkins-ci.org}. 
 \subsection{Installation}
-\label{sec-4-1}
+\label{sec-5-1}
 
 On Debian-based distributions, such as \emph{Ubuntu}, you can install \emph{Jenkins} through \texttt{apt-get}. Recent versions are available in an apt repository. Older but stable LTS versions are in this apt repository.
 
@@ -523,7 +659,7 @@ What does this package do?
 \item \emph{etc/default/jenkins will capture configuration parameters for the launch. - By default, /Jenkins} listen on port 8080. Access this port with your browser to start configuration.
 \end{itemize}
 \subsection{Configure Jenkins}
-\label{sec-4-2}
+\label{sec-5-2}
 
 We want to run \emph{Jenkins} on port 8090: 
 
@@ -531,7 +667,7 @@ We want to run \emph{Jenkins} on port 8090:
 sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
 \end{verbatim}
 \subsection{Build a container and publish it into the registry}
-\label{sec-4-3}
+\label{sec-5-3}
 
 Each time the WebApp has changed in git, \emph{Jenkins} builds a new container,  consisting of three parts:
 \begin{enumerate}
@@ -546,7 +682,7 @@ We start this container, exposing port 8090:
 sudo docker run -p :8090:8090 -i -t GUID /bin/bash
 \end{verbatim}
 \subsection{\textbf{TODO}}
-\label{sec-4-4}
+\label{sec-5-4}
 
 \begin{itemize}
 \item jenkins startup errors with: ``  jenkins/etc/init.d/jenkins: line 108: ulimit: open files: cannot modify limit: Operation not permitted''
@@ -555,16 +691,22 @@ sudo docker run -p :8090:8090 -i -t GUID /bin/bash
 \item start service \emph{jenkins} automatically
 \end{itemize}
 \subsection{Launch the newly build container}
-\label{sec-4-5}
+\label{sec-5-5}
 \section{Conclusion}
-\label{sec-5}
-\section{Open Questions}
 \label{sec-6}
+
+On our test machines we could install a sample \emph{Scala} WebApp, register the source code with \emph{Jenkins} and get \emph{Jenkins} build a docker container each time the source code changed in \emph{git}. As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
+
+We recommend \emph{docker} as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment.  
+\section{Open Questions}
+\label{sec-7}
 \subsection{Networking}
-\label{sec-6-1}
+\label{sec-7-1}
 \subsection{Logging}
-\label{sec-6-2}
+\label{sec-7-2}
 \subsection{Persistence}
-\label{sec-6-3}
+\label{sec-7-3}
+
+ 
 
 \end{document}
