@@ -286,7 +286,7 @@ gunicorn --access-logfile - --log-level debug --debug \
 To simplify things, the github repository comes with a Dockerfile do build a container from Ubuntu 13.4.
 Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
 ** Changes to the repository building code
-The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages to get it running:
+The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages on a docker host to get the /gunicorn/ application or the registry container running:
 *** Upgrade /pip/ 
 #+BEGIN_SRC sh
 wgethttps://raw.github.com/pypa/pip/master/contrib/get-pip.py -o get-pip.py
@@ -310,6 +310,7 @@ sudo pip install -r requirements.txt
 gunicorn --access-logfile - --log-level debug --debug \
     -b 0.0.0.0:5000 -w 1 wsgi:application
 #+END_SRC
+Finallay the /gnuicorn/ application worked as expected.
 ** Registry as container
 An alternative way is to build a registry container after we installed the necessary libraries on the docker host.
 #+BEGIN_SRC sh

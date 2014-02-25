@@ -1,4 +1,4 @@
-% Created 2014-02-25 Di 21:43
+% Created 2014-02-25 Di 21:55
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -428,7 +428,7 @@ Once a repository has your registry’s host name as part of the tag, you can pu
 \subsection{Changes to the repository building code}
 \label{sec-3-3}
 
-The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages to get it running:
+The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages on a docker host to get the \emph{gunicorn} application or the registry container running:
 \subsubsection{Upgrade \emph{pip}}
 \label{sec-3-3-1}
 
@@ -464,6 +464,7 @@ sudo pip install -r requirements.txt
 gunicorn --access-logfile - --log-level debug --debug \
     -b 0.0.0.0:5000 -w 1 wsgi:application
 \end{verbatim}
+Finallay the \emph{gnuicorn} application worked as expected.
 \subsection{Registry as container}
 \label{sec-3-5}
 
