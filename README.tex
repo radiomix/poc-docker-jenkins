@@ -1,4 +1,4 @@
-% Created 2014-02-26 Mi 14:21
+% Created 2014-03-02 So 21:38
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -29,20 +29,26 @@
 
 \maketitle
 
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{2}
 \tableofcontents
 \vspace*{1cm}
 
 
+
 \section{Overview}
 \label{sec-1}
-\subsection{Purpose}
+\subsection{Abstract}
 \label{sec-1-1}
 
-This paper documents the Proof of Concept Project:
-\textbf{Enable a Jenkins build server to publish release artifacts as} \emph{Docker} \textbf{images to a /Docker/ registry. Start service on a new EC2 node by fetching the artifact from the registry.}
-\subsection{Author}
+One major issue in continuous integration is to insure a once deployed build artifact never changes in future deployment scenarios. Many development cycles require short boot times and quick deployment ways. The virtualization tool \emph{Docker} relies on the \emph{LXC} container technologie. It stores containers or images in a repository, making them immutable afterwards. Pulling a particular image out of a repository and starting it as a container, results in starting the same build artifact in all future deployment scenarios. 
+
+As proposed by \href{http://deeprecursion.com/}{Markus Fix} \textbf{we build immutable} \emph{Docker} \textbf{images  from} \emph{Scala} \textbf{WebApp release artifacts and push them into a private} \emph{Docker} \textbf{registry. We start the} \emph{Scala} \textbf{WebApp service inside a} \emph{Docker} \textbf{container pulled out of the private} \emph{Docker} \textbf{registry.} 
+\subsection{Layout}
 \label{sec-1-2}
+
+Chapter two shows different ways to install \emph{Docker} and its prerequisites. It then gives a short introduction into basic \emph{Docker} commands. Chapter three deals with the private registry. It condenses the main work we did. Chapter four and five combine a sample \emph{Scala} WebApp with a \emph{Jenkins} server. The next chapter provides our experience with running the services on Amazon Web Service. We add our conclusions and open questions as extra chapters.  
+\subsection{Author}
+\label{sec-1-3}
 
 \begin{itemize}
 \item Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main,
@@ -50,24 +56,17 @@ This paper documents the Proof of Concept Project:
 \item Phone: +49 69 9866 1103
 \end{itemize}
 \subsection{\emph{Docker} version}
-\label{sec-1-3}
-
-   We installed \emph{Docker} version 0.8 in 2014/02.
-\subsection{Deployment workflow}
 \label{sec-1-4}
 
-One major issue in Continuous Integration is to insure a once deployed build artifact never changes in future deployment scenarios. \emph{Docker} versions each container, making it immutable after a \texttt{docker build}. To start a particular container, being pulled out of a repository, results in starting the same build artifact in all future deployment scenarios. We use the \emph{Jenkins} server to build a docker container triggered by a git push. This container is then pulled and started by the production environment.
-\href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/img/docker-deployment-workflow-01.jpg}{docker-deployment-workflow-01.jpg}
+   We installed \emph{Docker} version 0.8 in 2014/02.
 \section{\emph{Docker}}
 \label{sec-2}
 
 This chapter deals with installation issues and some basic \emph{Docker} commands. It is mainly take from the \href{http://docs.docer.io/en/latest/}{Docker documentation}. 
-\subsection{\textbf{TODO} explain \emph{docker} terminology: Image, Container, Repository, Registry, Index.}
+\subsection{Installing Docker}
 \label{sec-2-1}
-\subsection{Installation}
-\label{sec-2-2}
-\subsubsection{Kernel options}
-\label{sec-2-2-1}
+\subsubsection{Kernel}
+\label{sec-2-1-1}
 
 \emph{Docker} needs a 64-Bit Linux distribution, a recent kernel > 3.8 and LXC
 installed. Either you use a system with the appropriate kernel installed, or
@@ -86,9 +85,21 @@ The package is to be found one directory upwards and can be installed using
 \begin{verbatim}
 dpkg -i ../linux-headers-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb \
 ../linux-image-3.13.3-flora-kernel-3.13.3_1.2_amd64.deb/.
+# reboot
+sudo reboot
 \end{verbatim}
-\subsubsection{Installation by hand}
-\label{sec-2-2-2}
+
+We could also install a backport kernel:
+
+\begin{verbatim}
+# install the backported kernel
+sudo apt-get update
+sudo apt-get install  linux-image-generic-lts-raring  linux-headers-generic-lts-raring
+# reboot
+sudo reboot
+\end{verbatim}
+\subsubsection{Installing \emph{Docker} by hand}
+\label{sec-2-1-2}
 
 First add the \emph{Docker} repository key to your local keychain.
 
@@ -96,8 +107,16 @@ First add the \emph{Docker} repository key to your local keychain.
 sudo apt-key adv --keyserver keyserver.ubuntu.com \
 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
 \end{verbatim}
+On AWS-machines we might be forced to pass protocol and port to the \emph{gpg} utility explicitly: 
+
+\begin{verbatim}
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
+--recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+\end{verbatim}
+
 Add the \emph{Docker} repository to your apt sources list, update and install
-the lxc-docker package.
+the lxc-docker package. 
+ 
 
 \begin{verbatim}
 sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
@@ -108,15 +127,15 @@ sudo apt-get install lxc-docker
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. \texttt{sudo docker run -i -t ubuntu /bin/bash}.
 Type exit to exit.
-\subsubsection{Installation by script}
-\label{sec-2-2-3}
+\subsubsection{Installing \emph{Docker} by script}
+\label{sec-2-1-3}
 
 Docker.io provides an installation script to be called: \texttt{curl -s https://get.docker.io/ubuntu/ | sudo sh}
 Now verify that the installation has worked by downloading the ubuntu
 image and launching a container. \texttt{sudo docker run -i -t ubuntu /bin/bash}
 Type exit to exit.
-\subsubsection{Installing on AWS}
-\label{sec-2-2-4}
+\subsubsection{Installing \emph{Docker}  on AWS}
+\label{sec-2-1-4}
 
 Docker.io provides an installation guide for Amazon Web Services EC2.
 \begin{itemize}
@@ -136,21 +155,22 @@ Docker.io provides an installation guide for Amazon Web Services EC2.
 \item After a few more standard choices where defaults are probably OK, your AWS Ubuntu instance with \emph{Docker} should be running!
 \end{itemize}
 If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
-timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named lxc-
-docker. It will also set up a \emph{docker} group and you may want to add the ubuntu user to it so that you don't have to use sudo for every \emph{Docker} command.
+timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named \emph{lxc-docker}. It will also set up a \emph{Docker} group and you may want to add the ubuntu user to it so that you don't have to use sudo for every \emph{Docker} command. 
+
+We found, that launching an AWS instance of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit) does not come with a 3.8 kernel and CloudInit did not install \emph{Docker}, so we had to manually install both manually.   
 \subsubsection{Configuration}
-\label{sec-2-2-5}
+\label{sec-2-1-5}
 
 \begin{itemize}
 \item The daemon's config file is placed in \emph{etc/default/docker}.
 \item Images, containers and their configurations are placed under \emph{var/lib/docker}.
 \end{itemize}
 \subsection{Play with \emph{Docker}}
-\label{sec-2-3}
+\label{sec-2-2}
 
 We describe some basic \emph{Docker} commands.
 \subsubsection{Check your \emph{Docker} installation.}
-\label{sec-2-3-1}
+\label{sec-2-2-1}
 
 
 \begin{verbatim}
@@ -158,7 +178,7 @@ We describe some basic \emph{Docker} commands.
 docker info
 \end{verbatim}
 \subsubsection{Download a pre-built image}
-\label{sec-2-3-2}
+\label{sec-2-2-2}
 
 
 \begin{verbatim}
@@ -166,7 +186,7 @@ docker info
 sudo docker pull ubuntu
 \end{verbatim}
 \subsubsection{Run an interactive shell}
-\label{sec-2-3-3}
+\label{sec-2-2-3}
 
 
 \begin{verbatim}
@@ -177,7 +197,7 @@ sudo docker pull ubuntu
 sudo docker run -i -t ubuntu /bin/bash
 \end{verbatim}
 \subsubsection{Bind to a port}
-\label{sec-2-3-4}
+\label{sec-2-2-4}
 
 The \emph{Docker} client can use -H to connect to a custom port.
 -H accepts host and port assignment in the following format: 
@@ -195,7 +215,7 @@ sudo <path to>/docker -H 0.0.0.0:5555 -d &
 sudo docker -H :5555 pull ubuntu
 \end{verbatim}
 \subsubsection{Starting a long run}
-\label{sec-2-3-5}
+\label{sec-2-2-5}
 
 
 \begin{verbatim}
@@ -208,7 +228,7 @@ sudo docker logs $JOB
 sudo docker kill $JOB
 \end{verbatim}
 \subsubsection{Bind a service on a TCP port}
-\label{sec-2-3-6}
+\label{sec-2-2-6}
 
 
 \begin{verbatim}
@@ -225,7 +245,7 @@ echo hello world | nc 127.0.0.1 $PORT
 echo "Daemon received: $(sudo docker logs $JOB)"
 \end{verbatim}
 \subsubsection{Committing (saving) a container state}
-\label{sec-2-3-7}
+\label{sec-2-2-7}
 
 Save your containers state to a container image, so the state can be re-used.
 When you commit your container only the differences between the image the container was created from and the current state of the container will be stored (as a diff). See which images you already have using the \emph{Docker} images command.
@@ -238,7 +258,7 @@ sudo docker commit <container_id> <some_name>
 sudo docker images
 \end{verbatim}
 \subsubsection{Committing a Container to a Named Image}
-\label{sec-2-3-8}
+\label{sec-2-2-8}
 
 When you make changes to an existing image, those changes get saved to a container’s file system. You can then promote that container to become an image by making a commit. In addition to converting the container to an image, this is also your opportunity to name the image, specifically a name that includes your user name from the Central \emph{Docker} Index (as you did a login above) and a meaningful name for the image.
 
@@ -247,7 +267,7 @@ When you make changes to an existing image, those changes get saved to a contain
 $ sudo docker commit $CONTAINER_ID myname/kickassapp
 \end{verbatim}
 \subsubsection{Pushing an image to its repository}
-\label{sec-2-3-9}
+\label{sec-2-2-9}
 
 In order to push an image to its repository you need to have committed your container to a named image (see above).
 Now you can commit this image to the repository designated by its name or tag.
@@ -257,7 +277,7 @@ Now you can commit this image to the repository designated by its name or tag.
 $ sudo docker push myname/kickassapp
 \end{verbatim}
 \subsubsection{Export a container}
-\label{sec-2-3-10}
+\label{sec-2-2-10}
 
 To export a container to a tar file just type:
 
@@ -279,7 +299,7 @@ f7528d270208        mkl/debian:7.4      echo success        About an hour ago   
 $ docker export ac3a595c294c  > exampleimage.tar
 \end{verbatim}
 \subsubsection{Import a container}
-\label{sec-2-3-11}
+\label{sec-2-2-11}
 
 At this time, the URL must start with http and point to a single file archive (.tar, .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a root filesystem. If you would like to import from a local directory or archive, you can use the - parameter to take the data from stdin.
 To import from a remote url type:
@@ -294,7 +314,7 @@ $ cat exampleimage.tar | sudo docker import - exampleimagelocal:new
 \end{verbatim}
 Note the sudo in this example – you must preserve the ownership of the files (especially root ownership) during the archiving with tar. If you are not root (or the sudo command) when you tar, then the ownership might not get preserved.
 \subsubsection{Mount a volume}
-\label{sec-2-3-12}
+\label{sec-2-2-12}
 
 \emph{Docker} provides the parameter \texttt{-v} with the \texttt{run} command to create a persistent storage device. 
 
@@ -314,13 +334,13 @@ The complete syntax is
 -v=[]: Create a bind mount with: [host-dir]:[container-dir]:[rw|ro].
 \end{verbatim}
 If host-dir is missing from the command, then docker creates a new volume. If host-dir is present but points to a non-existent directory on the host, Docker will automatically create this directory and use it as the source of the bind-mount.
-Note that this is not available from a Dockerfile due the portability and sharing purpose of it. The host-dir volumes are entirely host-dependent and might not work on any other machine. \hyperref[sec-2-6]{Section Container and Images} describes, where \emph{Docker} stores the volumes mounted by the container.
-\subsection{Build your own base image}
-\label{sec-2-4}
+Note that this is not available from a Dockerfile due the portability and sharing purpose of it. The host-dir volumes are entirely host-dependent and might not work on any other machine. \hyperref[sec-2-5]{Section Container and Images} describes, where \emph{Docker} stores the volumes mounted by the container.
+\subsection{Build your a base image}
+\label{sec-2-3}
 
 Docker.io provides a way to create a \href{http://docs.docker.io/en/latest/articles/baseimages/}{base image}. The base image heavily depends on the distribution, the host is running. The example script \href{https://github.com/dotcloud/docker/blob/master/contrib/mkimage-debootstrap.sh}{mkimage-debootstrap.sh} creates a debian base image.
 \subsubsection{Download the script}
-\label{sec-2-4-1}
+\label{sec-2-3-1}
 
 
 \begin{verbatim}
@@ -329,7 +349,7 @@ $ chmod +x mkimage-debootstrap.sh
 \end{verbatim}
 This downloads the build-script for a debian \emph{Docker} base image.
 \subsubsection{Build the base image}
-\label{sec-2-4-2}
+\label{sec-2-3-2}
 
 
 \begin{verbatim}
@@ -338,15 +358,15 @@ $ docker images -a
 \end{verbatim}
 This creates a new \emph{Docker} base image for debain wheezy and puts it into ropsitory \emph{flora/debian}, where \emph{flora} is the username and \emph{debian} the repo name.
 \subsection{Layers}
-\label{sec-2-5}
+\label{sec-2-4}
 
    When Docker mounts the rootfs, it starts read-only, as in a traditional Linux boot, but then, instead of changing the file system to read-write mode, it takes advantage of a union mount to add a \emph{read-write file system over the read-only file system}. In fact there may be multiple read-only file systems stacked on top of each other. We think of each one of these file systems as a \textbf{layer}. \includegraphics[width=.9\linewidth]{img/docker-filesystems-multilayer.png}.
 \subsubsection{Union file system}
-\label{sec-2-5-1}
+\label{sec-2-4-1}
 
 At first, the top read-write layer has nothing in it, but any time a process creates a file, this happens in the top layer. And if something needs to update an existing file in a lower layer, then the file gets copied to the upper layer and changes go into the copy. The version of the file on the lower layer cannot be seen by the applications anymore, but it is there, unchanged. We call the union of the read-write layer and all the read-only layers a \textbf{union file system}.
 \subsubsection{Base Image}
-\label{sec-2-5-2}
+\label{sec-2-4-2}
 
 \includegraphics[width=.9\linewidth]{img/docker-filesystems-debianrw.png}
 In Docker terminology, a read-only Layer is called an image. An image never changes.
@@ -354,24 +374,24 @@ In Docker terminology, a read-only Layer is called an image. An image never chan
 Each image may depend on one more image which forms the layer beneath it. We sometimes say that the lower image is the parent of the upper image. An image that has \textbf{no parent} is a \textbf{base image}.
 All images are identified by a 64 hexadecimal digit string (internally a 256bit value). To simplify their use, a short ID of the first 12 characters can be used on the command line. There is a small possibility of short id collisions, so the docker server will always return the long ID.
 \subsection{Container and Images}
-\label{sec-2-6}
+\label{sec-2-5}
 
 As \emph{Docker} is under heavy development, the file system storing \emph{Docker} related information changes rapidly. The main directory to look for \emph{Docker} relevant bits and bytes is \emph{var/lib/docker}. In this section \textbf{GUID} is the full blown container id as given by \texttt{docker ps -a -no-trunc}.
 \subsubsection{LXC configuration}
-\label{sec-2-6-1}
+\label{sec-2-5-1}
 
 Using the Linux Container package \href{file://./lxc/}{http://linuxcontainers.org/}, \emph{Docker} configures each container partly by setting lxc options in \emph{var/lib/docker/container/GUID/config.lxc}. 
 \subsubsection{Container Root File System}
-\label{sec-2-6-2}
+\label{sec-2-5-2}
 
 The corresponding root file system is stored in \emph{var/lib/docker/devicemapper/mnt/GUID/rootfs}.
 Here GUID is the full blown container id as given by \texttt{docker ps -a -no-trunc}  
 \subsubsection{Container Volumes}
-\label{sec-2-6-3}
+\label{sec-2-5-3}
 
     If a container mounts a volume from inside the files on that volume are stored under \emph{var/lib/docker/vfs/dir/GUID}. Data stored under these volumes are persistent between container runs. There is a way to share these volumes between containers. 
 \subsubsection{Removing a Container or an Image}
-\label{sec-2-6-4}
+\label{sec-2-5-4}
 
 To remove a container from a repository we list the containers and type:
 
@@ -386,7 +406,7 @@ docker images -a
 docker rmi USER/REPO:TAG
 \end{verbatim}
 Here \texttt{USER/REPO:TAG} referes to the user part, the repository part and the tag part of a special image. Note that command \texttt{docker images -a} my list the same GUID multiple times as the same image may be tagged differently. Removing an image beeing tagged multiple times only results in deleting the tag, keeping the other tagged version(s) in the repository.   
-\section{Private Repositories}
+\section{Private Registry}
 \label{sec-3}
 
 Right now (version 0.6), private repositories are only possible by hosting \href{https://github.com/dotcloud/docker-registry}{your private registry}. 
@@ -403,11 +423,11 @@ sudo docker tag 0u812deadbeef localhost.localdomain:5000/repo_name
 # Push the new repository to its home location on localhost
 sudo docker push localhost.localdomain:5000/repo_name
 \end{verbatim}
-The last command will fails, if no registry server answers locally on port 5000.
-\subsection{Building a private repo}
+The push command will fail, if no registry server answers locally on port 5000.
+\subsection{Building a private registry}
 \label{sec-3-2}
 
-As \href{http://blog.docker.io/2013/07/how-to-use-your-own-registry/}{Sam Alba}, a Dotcloud.io engineer since the first beginning of \emph{docker} describes, we can build a registry container, provided \texttt{gunicorn} and \texttt{pip} is installed:
+\href{http://blog.docker.io/2013/07/how-to-use-your-own-registry/}{Sam Alba}, dotCloud's first engineer hire, describes how to build a registry container, provided \texttt{gunicorn} and \texttt{pip} is installed:
 
 \begin{verbatim}
 #install pip 
@@ -425,7 +445,7 @@ gunicorn --access-logfile - --log-level debug --debug \
 
 To simplify things, the github repository comes with a Dockerfile do build a container from Ubuntu 13.4.
 Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
-\subsection{Changes to the repository building code}
+\subsection{Changes to the registry building code}
 \label{sec-3-3}
 
 The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages on a docker host to get the \emph{gunicorn} application or the registry container running:
@@ -465,7 +485,7 @@ gunicorn --access-logfile - --log-level debug --debug \
     -b 0.0.0.0:5000 -w 1 wsgi:application
 \end{verbatim}
 Finallay the \emph{gnuicorn} application worked as expected.
-\subsection{Registry as container}
+\subsection{Registry as a container}
 \label{sec-3-5}
 
 An alternative way is to build a registry container after we installed the necessary libraries on the docker host.
@@ -477,68 +497,85 @@ sudo docker build -rm -t registry .
 sudo docker run -d -p 5000:5000 registry
 \end{verbatim}
 This results in an image tagged \emph{registry} and a container running on the same docker host exposing port 5000.
-\subsection{Testing the private registry}
+\subsection{Registry as a Web Services}
 \label{sec-3-6}
 
-Let's say we have two hosts, registry.localdomain and host01.localdomain both beeing known by local DNS. We build our images on host01.localdomain and store them on registry.localdomain running the registry container on port 5000. 
-\subsubsection{On host01.localdomain}
-\label{sec-3-6-1}
+Starting from \$12 per month for 5 repositories \href{https://quay.io/}{quay.io} serves a private registry on the web. We did not find out, whether \href{https://index.docker.io/}{docker.io} indexes quay.io hosted private repositories.
+\subsection{Testing the private registry}
+\label{sec-3-7}
 
-After a successful build or a a commit we tag an image properly and push it onto registry: 
+Using two machines, \textbf{registry.local} and \textbf{host01.local} both beeing known by local DNS, we build \emph{docker} images on \textbf{host01.local} and store them on \textbf{registry.local} running the registry on port 5000.  Suppose, we just successfully built an image from a Dockerfile or committed a container -resulting in an image. Let's see, how to tag the image \textbf{foo}, push it into the registry, delete it locally and pull it out again later. 
+
+It is essential to know the exact tag for the image, as the private registry does not allow searching of tags or images. 
+\subsubsection{Tag the image}
+\label{sec-3-7-1}
+
 
 \begin{verbatim}
 # what have we got?
-host01>sudo docker images
-REPOSITORY                           TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-debian/jenkins                       jenkins             38332d781d61        2 minutes ago        699.4 MB
-ubuntu                               13.10               9f676bd305a4        3 weeks ago         182.1 MB
-ubuntu                               saucy               9f676bd305a4        3 weeks ago         182.1 MB
+host01:$ sudo docker images
+REPOSITORY                           TAG       IMAGE ID         CREATED           VIRTUAL SIZE
+debian/foo                           foo       38332d781d61     2 minutes ago     699.4 MB
+ubuntu                               13.10     9f676bd305a4     3 weeks ago       182.1 MB
+ubuntu                               saucy     9f676bd305a4     3 weeks ago       182.1 MB
 
-host01>sudo docker tag 38332d781d61 registry.localdomain:5000/debian/jenkins
-host01>sudo docker images 
-REPOSITORY                                  TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-debian/jenkins                              jenkins             38332d781d61        2 minutes ago        699.4 MB
-registry.localdomain:5000/debian/jenkins    jenkins             38332d781d61        2 minutes ago        699.4 MB
-ubuntu                                      13.10               9f676bd305a4        3 weeks ago         182.1 MB
-ubuntu                                      saucy               9f676bd305a4        3 weeks ago         182.1 MB
+host01:$ sudo docker tag 38332d781d61 registry.local:5000/debian/foo
+host01:$ sudo docker images 
+REPOSITORY                            TAG      IMAGE ID         CREATED           VIRTUAL SIZE
+debian/foo                            foo      38332d781d61     2 minutes ago     699.4 MB
+registry.local:5000/debian/foo        foo      38332d781d61     2 minutes ago     699.4 MB
+ubuntu                                13.10    9f676bd305a4     3 weeks ago       182.1 MB
+ubuntu                                saucy    9f676bd305a4     3 weeks ago       182.1 MB
+\end{verbatim}
+\subsubsection{Push the image into the registry}
+\label{sec-3-7-2}
 
+
+\begin{verbatim}
 # push this image to the registry server
-host01>sudo docker push registry.localdomain:5000/debian/jenkins
-The push refers to a repository [registry.localdomain:5000/debian/jenkins] (len: 1)
+host01:$ sudo docker push registry.local:5000/debian/foo
+The push refers to a repository [registry.local:5000/debian/foo] (len: 1)
 Sending image list
-Pushing repository registry.localdomain:5000/debian/jenkins (1 tags)
+Pushing repository registry.local:5000/debian/foo (1 tags)
 11ed3d47ec89: Image successfully pushed 
 38332d781d61: Image successfully pushed 
-Pushing tag for rev [38332d781d61] on {http://registry.localdomain:5000/v1/repositories/debian/jenkins/tags/latest}
+Pushing tag for rev [38332d781d61] on {http://registry.local:5000/v1/repositories/debian/foo/tags/latest}
+\end{verbatim}
+\subsubsection{Remove the image locally}
+\label{sec-3-7-3}
 
-# remove both "images" locally
-host01>sudo docker rmi  debian/jenkins
+
+\begin{verbatim}
+# remove the image locally by removing both tags referring to the same image!
+host01:$ sudo docker rmi  debian/foo
 Untagged:38332d781d616823aaaaadc7c9ca4243f696b4efe2a74a49eb18fd062633198d
-host01>sudo docker rmi registry.localdomain:5000/debian/jenki
+
+host01:$ sudo docker rmi registry.local:5000/debian/foo
 Untagged:38332d781d616823aaaaadc7c9ca4243f696b4efe2a74a49eb18fd062633198d
+
 # check for local images
-host01>sudo docker images
-REPOSITORY                         TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-ubuntu                             13.10               9f676bd305a4        3 weeks ago         182.1 MB
-ubuntu                             saucy               9f676bd305a4        3 weeks ago         182.1 MB
+host01:$ sudo docker images
+REPOSITORY                    TAG           IMAGE ID         CREATED           VIRTUAL SIZE
+ubuntu                        13.10         9f676bd305a4     3 weeks ago       182.1 MB
+ubuntu                        saucy         9f676bd305a4     3 weeks ago       182.1 MB
+\end{verbatim}
+\subsubsection{Pull the image out of the registry}
+\label{sec-3-7-4}
 
-# no more local images for jenkins build: so we pull them from registry
-# using the same command as the pull:
-host01>sudo docker registry.localdomain:5000/debian/jenkin
-Pulling repository host01.localdomain:5000/debian/jenkins
+
+\begin{verbatim}
+# we pull the image  using the exact name we pushed it with:
+host01:$ sudo docker pull registry.local:5000/debian/foo
+Pulling repository host01.local:5000/debian/foo
 38332d781d61: Download complete 
 9f676bd305a4: Download complete
 
 #check the local images
-host01>sudo docker images
-REPOSITORY                                  TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-registry.localdomain:5000/debian/jenkins    jenkins             38332d781d61        2 minutes ago       699.4 MB
-ubuntu                                      13.10               9f676bd305a4        3 weeks ago         182.1 M
+host01:$ sudo docker images
+REPOSITORY                        TAG       IMAGE ID         CREATED             VIRTUAL SIZE
+registry.local:5000/debian/foo    foo       38332d781d61     2 minutes ago       699.4 MB
+ubuntu                            13.10     9f676bd305a4     3 weeks ago         182.1 M
 \end{verbatim}
-\subsubsection{Web Services}
-\label{sec-3-6-2}
-
-\href{https://quay.io/}{quay.io} serves private registry the web, \href{https://index.docker.io/}{docker.io} provides a public index server.
 \section{Installing a \emph{Scala/Java} WebApp}
 \label{sec-4}
 
@@ -682,32 +719,39 @@ We start this container, exposing port 8090:
 \begin{verbatim}
 sudo docker run -p :8090:8090 -i -t GUID /bin/bash
 \end{verbatim}
-\subsection{\textbf{TODO}}
-\label{sec-5-4}
-
-\begin{itemize}
-\item jenkins startup errors with: ``  jenkins/etc/init.d/jenkins: line 108: ulimit: open files: cannot modify limit: Operation not permitted''
-\item jenkins setup
-\item jenkins web app source controll
-\item start service \emph{jenkins} automatically
-\end{itemize}
 \subsection{Launch the newly build container}
-\label{sec-5-5}
-\section{Conclusion}
+\label{sec-5-4}
+\section{AWS}
 \label{sec-6}
+
+After testing the \emph{Docker} installation locally we moved to Amazon Web Services launching four AMI  of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit), attached an Elastic IP to each and run them as:
+\begin{itemize}
+\item a \emph{Docker} registry server to keep the \emph{Docker} images exposing port 5000
+\item a development server  without \emph{Docker} installed running \emph{tomcat7} to develop the  \emph{Scala} WebApp on port 80
+\item a \emph{Jenkins} server with \emph{Docker} installed, to build the \emph{Docker} images and push them to the registry server on port 8080
+\item a production server with only \emph{Docker} installed, pulling the \emph{Docker} images from the registry server and running the  \emph{Scala} WebApp within a container exposing port 80
+\end{itemize}
+We used a public Github account to version the \emph{Scala} source code and trigger the \emph{Jenkins} built.
+
+This was our experience:
+\begin{itemize}
+\item It does not come with a 3.8 kernel, we installed it  manually.
+\item CloudInit did not install \emph{Docker}, we installed it  manually.
+\item Rebooting the registry AMI kept the \emph{Docker} registry container running, both rebooting it on the AMI as through the AWS web interface.
+\end{itemize}
+\section{Conclusion}
+\label{sec-7}
 
 On our test machines we could install a sample \emph{Scala} WebApp, register the source code with \emph{Jenkins} and get \emph{Jenkins} build a docker container each time the source code changed in \emph{git}. As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
 
 We recommend \emph{docker} as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment.  
 \section{Open Questions}
-\label{sec-7}
+\label{sec-8}
 \subsection{Networking}
-\label{sec-7-1}
+\label{sec-8-1}
 \subsection{Logging}
-\label{sec-7-2}
+\label{sec-8-2}
 \subsection{Persistence}
-\label{sec-7-3}
-
- 
+\label{sec-8-3}
 
 \end{document}
