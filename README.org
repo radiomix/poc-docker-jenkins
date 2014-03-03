@@ -432,12 +432,23 @@ $ unzip -d /opt/ /tmp/master.zip
 *** Compiling the WebApp
 The first time this process may take several minutes to download /maven/ and the /Scala/-files. Later calls only compile the relevant jar- and war-files. To compile the WebApp we type:
 #+BEGIN_SRC sh
-$  cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
+$ cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
 #+END_SRC sh 
 
 [[http:///Lift/web.net/getting_started][/Lift/ web framework]]  will download /sbt/, /Scala/ and the necessary dependencies and compile the War-File */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war*. 
  
 By typing =/opt/lift_26_sbt-master/scala_210/lift_basic/sbt  start= we should be able to see the WebApp at [[http://localhost:8080]]. To exit just type =exit=. The source of this WebApp is under */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/*. To prove the concept, we will later just change /index.html/.
+*** Using Source Code Managemend
+We created a public  [[https://github.com/radiomix/scala-basic.git][github repository]] to account for changes in the sample WebApp and trigger building /Docker/ containers after a commit:
+#+BEGIN_SRC sh
+$ cd /opt/lift_26_sbt-master/scala_210/lift_basic/src
+$ git init
+$ git add *
+$ git commit -m "INITIAL IMPORT"
+$ git remote add origin https://github.com/radiomix/scala-blank.git
+$ git push -u origin master
+#+END_SRC sh 
+As the repo is not world writable, we provide the github user and password to push changes into the repo.
 ** Deploying the WebApp to /tomcat7/
 /Lift/ uses /sbt/ to compile the project and output a WAR- or JAR-file, which we want to copy into /tomcat7/'s webapp directory */var/lib/tomcat7/webapps/*. We recompile the package and deploy it statically into /tomcat/.
 #+BEGIN_SRC sh 
@@ -456,10 +467,11 @@ The command
 sudo docker build -rm -t USER/REPO:TAG docker-dir/ 
 #+END_SRC
 builds the WebApp container using the docker file inside =docker-dir/= and pushes it into repository =USER/REPO= with tag =TAG=. Creating directories for each docker file, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. 
-+ =01\_openjdk7/Dockerfile= creates an image with /Java/ and some utilities installed.
-+ =02\_tomcat7/Dockerfile= installs /tomcat7/ as the servlet engine.
-+ =03\_install\_scala/Dockerfile= installs /Scala/ and compiles a sample WebApp.
-+ =04\deploy\_scala/Dockerfile=  compiles the sample WebApp and copies the war-file into /tomcat7/ webapp directory.
++ =01\_openjdk7/Dockerfile= creates an image with /Java/ and some utilities installed
++ =02\_tomcat7/Dockerfile= installs /tomcat7/ as the servlet engine
++ =03\_install\_scala/Dockerfile= installs /Scala/ and compiles a sample WebApp
++ =04\deploy\_scala/Dockerfile=  compiles the sample WebApp and copies the war-file into /tomcat7/ webapp directory
++ =scala/Dockerfile= installs the dependencies to host the /Scala/ WebApp inside a /tomcat7/ container in a /Docker/ image
 
 Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the =RUN= commands from all the docker files into one single file.
 *** Starting the container
@@ -519,6 +531,8 @@ This was our experience:
 - It does not come with a 3.8 kernel, we installed it  manually.   
 - CloudInit did not install /Docker/, we installed it  manually.
 - Rebooting the registry AMI kept the /Docker/ registry container running, both rebooting it on the AMI as through the AWS web interface. 
+
+AWS Security Groups must take into account the ports /Docker/ uses, espacially registry port 5000.
 * Conclusion
 On our test machines we could install a sample /Scala/ WebApp, register the source code with /Jenkins/ and get /Jenkins/ build a docker container each time the source code changed in /git/. As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
 
