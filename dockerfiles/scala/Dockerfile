@@ -34,3 +34,19 @@ RUN wget -O /tmp/master.zip https://github.com/Lift/Lift_26_sbt/archive/master.z
 RUN unzip -d /opt/ /tmp/master.zip
 RUN rm -f /tmp/maset.zip
 
+# create user ubuntu with password '***REMOVED***'
+ENV USER_NAME test
+ENV USER_PASSWD ***REMOVED***
+ENV WEBAPP_BASIC /opt/lift_26_sbt-master/scala_210/lift_basic/
+ENV WEBAPP_BLANK /opt/lift_26_sbt-master/scala_210/lift_blanc/
+
+RUN useradd -d /home/$USER_NAME -c "$USER_NAME USER" -m -s /bin/bash -p $(echo "$USER_PASSWD" | openssl passwd -1 -stdin) $USER_NAME
+
+
+# link the web app dir to ubuntus home dir
+RUN ln -s $WEBAPP_BASIC /home/$USER_NAME/basic
+RUN ln -s $WEBAPP_BLANC /home/$USER_NAME/blanc
+
+# copy compile/deploy scripts to user home dir
+ADD utils/* /home/$USER_NAME/
+RUN chown -r $USER_NAME.$USERNAME /home/$USER_NAME/*
