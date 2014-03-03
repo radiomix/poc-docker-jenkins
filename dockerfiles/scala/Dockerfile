@@ -26,7 +26,6 @@ RUN apt-get install -y sudo
 
 
 # insall tomcat
-RUN apt-get update
 RUN apt-get install -y tomcat7
 
 # install scala/lift web app
