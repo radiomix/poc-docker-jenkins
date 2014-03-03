@@ -285,7 +285,7 @@ sudo docker push localhost.localdomain:5000/repo_name
 #+END_SRC
 The push command will fail, if no registry server answers locally on port 5000.
 ** Building a private registry
-[[http://blog.docker.io/2013/07/how-to-use-your-own-registry/][Sam Alba]], dotCloud's first engineer hire, describes how to build a registry container, provided =gunicorn= and =pip= is installed:
+There are two ways to run a registry server: as a container or as gunicorn application. [[http://blog.docker.io/2013/07/how-to-use-your-own-registry/][Sam Alba]], dotCloud's first engineer hire, describes how to build the application, provided =gunicorn= and =pip= is installed:
 #+BEGIN_SRC sh
 #install pip 
 sudo apt-get install python-pip
@@ -301,12 +301,12 @@ gunicorn --access-logfile - --log-level debug --debug \
 #+END_SRC
 
 To simplify things, the github repository comes with a Dockerfile do build a container from Ubuntu 13.4.
-Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
+Once a repository has a registry’s host name as part of the tag, we can push and pull it like any other repository. On the other hand our private registry will not be searchable (or indexed at all), and there will be no user name checking performed. Our registry will function completely independently from the Central Index at Docker.io.
 ** Changes to the registry building code
 The code posted by Sam Alba did not work out of the box neither on a Debian Wheezy (7.4) nor on an Ubuntu 12.4. We had to previously install and upgrade these packages on a docker host to get the /gunicorn/ application or the registry container running:
 *** Upgrade /pip/ 
 #+BEGIN_SRC sh
-wgethttps://raw.github.com/pypa/pip/master/contrib/get-pip.py -o get-pip.py
+wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O get-pip.py
 sudo python get-pip.py
 #+END_SRC
 *** Install /gcc/ 
@@ -337,6 +337,7 @@ sudo docker build -rm -t registry .
 sudo docker run -d -p 5000:5000 registry
 #+END_SRC
 This results in an image tagged /registry/ and a container running on the same docker host exposing port 5000.
+We provide a bash [[file:registry/buildRegistry.sh][shell script]] to complete the task.
 ** Registry as a Web Services 
 Starting from $12 per month for 5 repositories [[https://quay.io/][quay.io]] serves a private registry on the web. We did not find out, whether [[https://index.docker.io/][docker.io]] indexes quay.io hosted private repositories.
 ** Testing the private registry
