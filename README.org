@@ -541,3 +541,6 @@ We recommend /docker/ as a robust and convenient virtualization tool that create
 ** Networking
 ** Logging
 ** Persistence 
+** Hygiene
+- As we start and stop containers, we have to keep track of the containers to be keept and those dispensable. A job should delete these containers on a weekly basis
+- Images are beeing build. We have keep track of the images in use and those beeing keept for backup reasons only.
