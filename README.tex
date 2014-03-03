@@ -1,4 +1,4 @@
-% Created 2014-03-02 So 21:38
+% Created 2014-03-03 Mo 11:30
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -622,12 +622,26 @@ $ unzip -d /opt/ /tmp/master.zip
 The first time this process may take several minutes to download \emph{maven} and the \emph{Scala}-files. Later calls only compile the relevant jar- and war-files. To compile the WebApp we type:
 
 \begin{verbatim}
-$  cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
+$ cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
 \end{verbatim}
 
 \href{http:///Lift/web.net/getting_started}{/Lift/ web framework}  will download \emph{sbt}, \emph{Scala} and the necessary dependencies and compile the War-File \textbf{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/target/scala-2.10/lift-2.6-starter-template$_2$.10-0.0.3.war}. 
  
 By typing \texttt{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/sbt  start} we should be able to see the WebApp at \href{http://localhost:8080}{http://localhost:8080}. To exit just type \texttt{exit}. The source of this WebApp is under \textbf{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/}. To prove the concept, we will later just change \emph{index.html}.
+\subsubsection{Using Source Code Managemend}
+\label{sec-4-3-3}
+
+We created a public  \href{https://github.com/radiomix/scala-basic.git}{github repository} to account for changes in the sample WebApp:
+
+\begin{verbatim}
+$ cd /opt/lift_26_sbt-master/scala_210/lift_basic/src
+$ git init
+$ git add *
+$ git commit -m "INITIAL IMPORT"
+$ git remote add origin https://github.com/radiomix/scala-blank.git
+$ git push -u origin master
+\end{verbatim}
+As the repo is not world writable, we provide the github user and password to push changes into the repo.
 \subsection{Deploying the WebApp to \emph{tomcat7}}
 \label{sec-4-4}
 
@@ -643,6 +657,8 @@ $ service tomcat7 restart
 This copies the war-file and restarts \emph{tomcat7}. To see the WebApp direct your browser to \href{http://localhost:8080/lift_basic/}{http://localhost:8080/lift\_basic/}. There is no need to restart \emph{tomcat} manually, as the \emph{autoDeploy} attribute is set to ``true'' in file \textbf{/etc/tomcat7/server.xml}. \emph{tomcat} even unpacks war-files if attribute \emph{unpackWARs} is set to ``true''.
 \subsection{Building a container with the WebApp}
 \label{sec-4-5}
+
+We following Dockerfile will build an image containing the \emph{Scala} WebApp war-file under \emph{tomcat7}.
 \subsubsection{The Dockerfile}
 \label{sec-4-5-1}
 
