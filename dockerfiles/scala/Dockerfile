@@ -45,8 +45,11 @@ RUN useradd -d /home/$USER_NAME -c "$USER_NAME USER" -m -s /bin/bash -p $(echo "
 
 # link the web app dir to ubuntus home dir
 RUN ln -s $WEBAPP_BASIC /home/$USER_NAME/basic
-RUN ln -s $WEBAPP_BLANC /home/$USER_NAME/blanc
+RUN ln -s $WEBAPP_BLANK /home/$USER_NAME/blank
 
 # copy compile/deploy scripts to user home dir
-ADD utils/* /home/$USER_NAME/
-RUN chown -r $USER_NAME.$USERNAME /home/$USER_NAME/*
+ADD utils/compileWebAppBasic.sh /home/$USER_NAME/compileWebAppBasic.sh
+ADD utils/compileWebAppBlank.sh /home/$USER_NAME/compileWebAppBlank.sh
+ADD utils/deployWebAppBlank.sh /home/$USER_NAME/deployWebAppBlank.sh
+
+RUN chown -R $USER_NAME.$USERNAME /home/$USER_NAME/*
