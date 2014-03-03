@@ -1,4 +1,4 @@
-% Created 2014-03-03 Mo 11:30
+% Created 2014-03-03 Mo 23:44
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -427,7 +427,7 @@ The push command will fail, if no registry server answers locally on port 5000.
 \subsection{Building a private registry}
 \label{sec-3-2}
 
-\href{http://blog.docker.io/2013/07/how-to-use-your-own-registry/}{Sam Alba}, dotCloud's first engineer hire, describes how to build a registry container, provided \texttt{gunicorn} and \texttt{pip} is installed:
+There are two ways to run a registry server: as a container or as gunicorn application. \href{http://blog.docker.io/2013/07/how-to-use-your-own-registry/}{Sam Alba}, dotCloud's first engineer hire, describes how to build the application, provided \texttt{gunicorn} and \texttt{pip} is installed:
 
 \begin{verbatim}
 #install pip 
@@ -444,7 +444,7 @@ gunicorn --access-logfile - --log-level debug --debug \
 \end{verbatim}
 
 To simplify things, the github repository comes with a Dockerfile do build a container from Ubuntu 13.4.
-Once a repository has your registry’s host name as part of the tag, you can push and pull it like any other repository, but it will not be searchable (or indexed at all) in the Central Index, and there will be no user name checking performed. Your registry will function completely independently from the Central Index.
+Once a repository has a registry’s host name as part of the tag, we can push and pull it like any other repository. On the other hand our private registry will not be searchable (or indexed at all), and there will be no user name checking performed. Our registry will function completely independently from the Central Index at Docker.io.
 \subsection{Changes to the registry building code}
 \label{sec-3-3}
 
@@ -454,7 +454,7 @@ The code posted by Sam Alba did not work out of the box neither on a Debian Whee
 
 
 \begin{verbatim}
-wgethttps://raw.github.com/pypa/pip/master/contrib/get-pip.py -o get-pip.py
+wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O get-pip.py
 sudo python get-pip.py
 \end{verbatim}
 \subsubsection{Install \emph{gcc}}
@@ -497,6 +497,7 @@ sudo docker build -rm -t registry .
 sudo docker run -d -p 5000:5000 registry
 \end{verbatim}
 This results in an image tagged \emph{registry} and a container running on the same docker host exposing port 5000.
+We provide a bash \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/registry/buildRegistry.sh}{shell script} to complete the task.
 \subsection{Registry as a Web Services}
 \label{sec-3-6}
 
@@ -631,7 +632,7 @@ By typing \texttt{/opt/lift\_26\_sbt-master/scala\_210/lift\_basic/sbt  start} w
 \subsubsection{Using Source Code Managemend}
 \label{sec-4-3-3}
 
-We created a public  \href{https://github.com/radiomix/scala-basic.git}{github repository} to account for changes in the sample WebApp:
+We created a public  \href{https://github.com/radiomix/scala-basic.git}{github repository} to account for changes in the sample WebApp and trigger building \emph{Docker} containers after a commit:
 
 \begin{verbatim}
 $ cd /opt/lift_26_sbt-master/scala_210/lift_basic/src
@@ -669,10 +670,11 @@ sudo docker build -rm -t USER/REPO:TAG docker-dir/
 \end{verbatim}
 builds the WebApp container using the docker file inside \texttt{docker-dir/} and pushes it into repository \texttt{USER/REPO} with tag \texttt{TAG}. Creating directories for each docker file, we can split building the image into different tasks. This eases testing of the \texttt{RUN} commands inside the docker files. 
 \begin{itemize}
-\item \texttt{01\textbackslash{}\_openjdk7/Dockerfile} creates an image with \emph{Java} and some utilities installed.
-\item \texttt{02\textbackslash{}\_tomcat7/Dockerfile} installs \emph{tomcat7} as the servlet engine.
-\item \texttt{03\textbackslash{}\_install\textbackslash{}\_scala/Dockerfile} installs \emph{Scala} and compiles a sample WebApp.
-\item \texttt{04\textbackslash{}deploy\textbackslash{}\_scala/Dockerfile}  compiles the sample WebApp and copies the war-file into \emph{tomcat7} webapp directory.
+\item \texttt{01\textbackslash{}\_openjdk7/Dockerfile} creates an image with \emph{Java} and some utilities installed
+\item \texttt{02\textbackslash{}\_tomcat7/Dockerfile} installs \emph{tomcat7} as the servlet engine
+\item \texttt{03\textbackslash{}\_install\textbackslash{}\_scala/Dockerfile} installs \emph{Scala} and compiles a sample WebApp
+\item \texttt{04\textbackslash{}deploy\textbackslash{}\_scala/Dockerfile}  compiles the sample WebApp and copies the war-file into \emph{tomcat7} webapp directory
+\item \texttt{scala/Dockerfile} installs the dependencies to host the \emph{Scala} WebApp inside a \emph{tomcat7} container in a \emph{Docker} image
 \end{itemize}
 
 Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the \texttt{RUN} commands from all the docker files into one single file.
@@ -755,6 +757,8 @@ This was our experience:
 \item CloudInit did not install \emph{Docker}, we installed it  manually.
 \item Rebooting the registry AMI kept the \emph{Docker} registry container running, both rebooting it on the AMI as through the AWS web interface.
 \end{itemize}
+
+AWS Security Groups must take into account the ports \emph{Docker} uses, espacially registry port 5000.
 \section{Conclusion}
 \label{sec-7}
 
@@ -769,5 +773,12 @@ We recommend \emph{docker} as a robust and convenient virtualization tool that c
 \label{sec-8-2}
 \subsection{Persistence}
 \label{sec-8-3}
+\subsection{Hygiene}
+\label{sec-8-4}
+
+\begin{itemize}
+\item As we start and stop containers, we have to keep track of the containers to be keept and those dispensable. A job should delete these containers on a weekly basis
+\item Images are beeing build. We have keep track of the images in use and those beeing keept for backup reasons only.
+\end{itemize}
 
 \end{document}
