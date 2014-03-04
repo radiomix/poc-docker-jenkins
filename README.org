@@ -483,7 +483,7 @@ sudo docker build -rm -t USER/REPO:TAG docker-dir/
 #+END_SRC
 builds the WebApp container using the docker file inside =docker-dir/= and pushes it into repository =USER/REPO= with tag =TAG=. 
 
-*** Multiple  Dockerfiles
+*** Multiple  Dockerfiles 
 Creating directories for each build step, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. 
 + =01\_openjdk7/Dockerfile= creates an image with /Java/ and some utilities installed
 + =02\_tomcat7/Dockerfile= installs /tomcat7/ as the servlet engine
@@ -545,7 +545,8 @@ Within the same directory we double the build process resulting in just another 
 jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
 jenkins: $ sudo docker push registry.local:5000/ubuntu-12-04/scala-ver-x
 #+END_SRC
-The second command pushes the image into to registry. If we omit the version part it is automatically tagged =latest=. 
+The second command pushes the image into to registry. If we omit the version part it is automatically tagged =latest=.
+We provide a Dockerfile  [[Dockerfile][file:image-builds/scala/Dockerfile]]  to build the /Scala/ WebApp from a fresh cloned git repository.   
 ** Start the container
 On our production machine we pull the latest image, stop the old one and start the new one, exposing port 8080:
 #+BEGIN_SRC sh
@@ -570,13 +571,24 @@ This was our experience:
 
 AWS Security Groups must take into account the ports /Docker/ uses, espacially registry port 5000.
 * Conclusion
-On our test machines we could install a sample /Scala/ WebApp, register the source code with /Jenkins/ and get /Jenkins/ build a docker container each time the source code changed in /git/. As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
+On our test machines we could install a sample /Scala/ WebApp, register the source code with github and build a docker image each time the source code changed in /git/. We did not use /Jenkins/ to build the image, but called a script by hand. 
+We recommend, to split such production images into two parts, a "base image" providing version zero and "deployment image", wich gets rebuild each time the source code changes in /git/. 
 
-We recommend /docker/ as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment.  
+As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
+
+A project may provide it's configuration in a proprietary /git/ repository, delivering the config files to be added by the =ADD= command in a Dockerfile. The build process then takes place within a fresh cloned version of this repo. 
+
+We recommend /docker/ as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment essentially.  
 * Open Questions
 ** Networking
+- Does the container get its own NIC or does it only expose ports?
+- Which services are on what ports on the docker host as well as in the container? 
 ** Logging
-** Persistence 
+- How is logging done on the docker host as well as in the container? 
+** Persistence
+- What volumes are added to a container to store its data persistently? 
+- What happens with a write-processe if either the docker host or the container gets down? This could happen, if an AMI gets moved by AWS within an availability zone. 
 ** Hygiene
-- As we start and stop containers, we have to keep track of the containers to be keept and those dispensable. A job should delete these containers on a weekly basis
-- Images are beeing build. We have keep track of the images in use and those beeing keept for backup reasons only.
+- As we start and stop containers, we have to keep track of those to be keept and those dispensable. 
+- The same holds true for images.
+- We need a way to tag images properly for later searches.

@@ -1,4 +1,4 @@
-% Created 2014-03-04 Di 16:43
+% Created 2014-03-04 Di 23:25
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -499,7 +499,7 @@ sudo docker run -d -p 5000:5000 registry
 \end{verbatim}
 This results in an image tagged \emph{registry} and a container exposing port 5000 running on the same machine.
 
-We provide a bash \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/registry/buildRegistry.sh}{shell script} to complete the task.
+We provide a bash \href{file://.registry/buildRegistry.sh}{shell script} to complete the task.
 \subsection{Registry as a Web Services}
 \label{sec-3-6}
 
@@ -671,7 +671,7 @@ The command
 sudo docker build -rm -t USER/REPO:TAG docker-dir/
 \end{verbatim}
 builds the WebApp container using the docker file inside \texttt{docker-dir/} and pushes it into repository \texttt{USER/REPO} with tag \texttt{TAG}. 
-\subsubsection{Multiple  Dockerfiles}
+\subsubsection{Multiple  Dockerfiles }
 \label{sec-4-5-2}
 
 Creating directories for each build step, we can split building the image into different tasks. This eases testing of the \texttt{RUN} commands inside the docker files. 
@@ -759,7 +759,8 @@ Within the same directory we double the build process resulting in just another 
 jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
 jenkins: $ sudo docker push registry.local:5000/ubuntu-12-04/scala-ver-x
 \end{verbatim}
-The second command pushes the image into to registry. If we omit the version part it is automatically tagged \texttt{latest}. 
+The second command pushes the image into to registry. If we omit the version part it is automatically tagged \texttt{latest}.
+We provide a Dockerfile  \hyperref[Dockerfile]{file:image-builds/scala/Dockerfile}  to build the \emph{Scala} WebApp from a fresh cloned git repository.   
 \subsection{Start the container}
 \label{sec-6-4}
 
@@ -794,23 +795,43 @@ AWS Security Groups must take into account the ports \emph{Docker} uses, espacia
 \section{Conclusion}
 \label{sec-8}
 
-On our test machines we could install a sample \emph{Scala} WebApp, register the source code with \emph{Jenkins} and get \emph{Jenkins} build a docker container each time the source code changed in \emph{git}. As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
+On our test machines we could install a sample \emph{Scala} WebApp, register the source code with github and build a docker image each time the source code changed in \emph{git}. We did not use \emph{Jenkins} to build the image, but called a script by hand. 
+We recommend, to split such production images into two parts, a ``base image'' providing version zero and ``deployment image'', wich gets rebuild each time the source code changes in \emph{git}. 
 
-We recommend \emph{docker} as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment.  
+As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
+
+A project may provide it's configuration in a proprietary \emph{git} repository, delivering the config files to be added by the \texttt{ADD} command in a Dockerfile. The build process then takes place within a fresh cloned version of this repo. 
+
+We recommend \emph{docker} as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment essentially.  
 \section{Open Questions}
 \label{sec-9}
 \subsection{Networking}
 \label{sec-9-1}
+
+\begin{itemize}
+\item Does the container get its own NIC or does it only expose ports?
+\item Which services are on what ports on the docker host as well as in the container?
+\end{itemize}
 \subsection{Logging}
 \label{sec-9-2}
+
+\begin{itemize}
+\item How is logging done on the docker host as well as in the container?
+\end{itemize}
 \subsection{Persistence}
 \label{sec-9-3}
+
+\begin{itemize}
+\item What volumes are added to a container to store its data persistently?
+\item What happens with a write-processe if either the docker host or the container gets down? This could happen, if an AMI gets moved by AWS within an availability zone.
+\end{itemize}
 \subsection{Hygiene}
 \label{sec-9-4}
 
 \begin{itemize}
-\item As we start and stop containers, we have to keep track of the containers to be keept and those dispensable. A job should delete these containers on a weekly basis
-\item Images are beeing build. We have keep track of the images in use and those beeing keept for backup reasons only.
+\item As we start and stop containers, we have to keep track of those to be keept and those dispensable.
+\item The same holds true for images.
+\item We need a way to tag images properly for later searches.
 \end{itemize}
 
 \end{document}
