@@ -11,8 +11,7 @@
 FROM debian:fresh
 
 # who we are
-MAINTAINER Michael Klöckner <mkl@im7.de>
-
+MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 #
 RUN apt-get update
 RUN apt-get install -y apt-utils
