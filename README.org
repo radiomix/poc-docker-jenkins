@@ -3,6 +3,19 @@
 #
 #+Options: toc:2
 #
+
+# MARKUS FIX:
+#  LaTeX_CLASS: elemica-com-article
+#+TITLE: Contious Integration with Docker
+#+AUTHOR: Michael Klöckner
+#+DATE: 2014-01-29
+#+DESCRIPTION: Build a Docker Registry to maintain immutable images
+#+KEYWORDS: Elemica 2.0
+#+LANGUAGE: english
+#+LaTeX_CLASS_OPTIONS: [captions=tableheading]
+#+STARTUP: overview
+#+TAGS: PROJECT(p) HOME(h) OFFICE(o) PHONE(t) ERRANDS(e)
+#+STARTUP: 
 #
 #
 
@@ -336,9 +349,9 @@ cd docker-registry
 sudo docker build -rm -t registry .
 sudo docker run -d -p 5000:5000 registry
 #+END_SRC
-This results in an image tagged /registry/ and a container running on the same docker host exposing port 5000.
-We provide a bash [[file:registry/buildRegistry.sh][shell script]] to complete the task.
+This results in an image tagged /registry/ and a container exposing port 5000 running on the same machine.
 
+We provide a bash [[file:registry/buildRegistry.sh][shell script]] to complete the task.
 ** Registry as a Web Services 
 Starting from $12 per month for 5 repositories [[https://quay.io/][quay.io]] serves a private registry on the web. We did not find out, whether [[https://index.docker.io/][docker.io]] indexes quay.io hosted private repositories.
 ** Testing the private registry
@@ -440,7 +453,7 @@ $ cd /opt/lift_26_sbt-master/scala_210/lift_basic/ && ./sbt compile
 [[http:///Lift/web.net/getting_started][/Lift/ web framework]]  will download /sbt/, /Scala/ and the necessary dependencies and compile the War-File */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/target/scala-2.10/lift-2.6-starter-template_2.10-0.0.3.war*. 
  
 By typing =/opt/lift_26_sbt-master/scala_210/lift_basic/sbt  start= we should be able to see the WebApp at [[http://localhost:8080]]. To exit just type =exit=. The source of this WebApp is under */opt/lift\_26\_sbt-master/scala\_210/lift\_basic/src/main/webapp/*. To prove the concept, we will later just change /index.html/.
-*** Using Source Code Managemend
+*** Source Code Managemend
 We created a public  [[https://github.com/radiomix/scala-basic.git][github repository]] to account for changes in the sample WebApp and trigger building /Docker/ containers after a commit:
 #+BEGIN_SRC sh
 $ cd /opt/lift_26_sbt-master/scala_210/lift_basic/src
@@ -468,14 +481,17 @@ The command
 #+BEGIN_SRC sh
 sudo docker build -rm -t USER/REPO:TAG docker-dir/ 
 #+END_SRC
-builds the WebApp container using the docker file inside =docker-dir/= and pushes it into repository =USER/REPO= with tag =TAG=. Creating directories for each docker file, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. 
+builds the WebApp container using the docker file inside =docker-dir/= and pushes it into repository =USER/REPO= with tag =TAG=. 
+
+*** Multiple  Dockerfiles
+Creating directories for each build step, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. 
 + =01\_openjdk7/Dockerfile= creates an image with /Java/ and some utilities installed
 + =02\_tomcat7/Dockerfile= installs /tomcat7/ as the servlet engine
 + =03\_install\_scala/Dockerfile= installs /Scala/ and compiles a sample WebApp
 + =04\deploy\_scala/Dockerfile=  compiles the sample WebApp and copies the war-file into /tomcat7/ webapp directory
 + =scala/Dockerfile= installs the dependencies to host the /Scala/ WebApp inside a /tomcat7/ container in a /Docker/ image
 
-Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the =RUN= commands from all the docker files into one single file.
+Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the =RUN= commands from all the docker files into one single file as in the previous section.
 *** Starting the container
 The sample WebApp gets served by the /tomcat7/ instance on port 8080. In order to expose this container port by the docker host we run the container  typing:
 #+BEGIN_SRC sh
@@ -497,7 +513,6 @@ apt-get install jenkins
 #+END_SRC 
 
 What does this package do?
-
 - /Jenkins/ will be launched as a daemon up on start. See /etc/init.d/jenkins for more details.
 - The 'jenkins' user is created to run this service.
 - Log file will be placed in /var/log/jenkins/jenkins.log/. Check this file if you are troubleshooting Jenkins.
@@ -509,18 +524,37 @@ We want to run /Jenkins/ on port 8090:
 #+BEGIN_SRC sh
 sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
 #+END_SRC 
-** Build a container and publish it into the registry
-Each time the WebApp has changed in git, /Jenkins/ builds a new container,  consisting of three parts:
-1. Deploying the WebApp-Files into the latest container.
-2. Commit the newly build container and tag it properly.
-3. Start the newly tagged container.
 
-We start this container, exposing port 8090:
+* Deployment Scenario
+Each time the WebApp has changed, it will be committed into a /git/ repository. Via a web hook, /Jenkins/ get's triggered to build a container with the committed source code:
+ - Pull the base image out of the registry 
+ - Build a /Docker/ container and inject the committed source code
+ - Tag this container and push it into the registry
+ - Start the newly tagged container on the production server
+** Pull the base image
+We use the =FROM ubuntu/scala-base= statement within a  Dockerfile to indicate the proper base image.
+** Build the container
+The same Dockerfile is used to build the container with /tomcat7/ and the /Scala/ WebApp installed. After pulling the source code from the /git/ repo we compile it and copy the war-file into /tomcat7/ webapp directory. /Docker/ expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
 #+BEGIN_SRC sh
-sudo docker run -p :8090:8090 -i -t GUID /bin/bash
+jenkins: $ sudo docker build -rm -t ubuntu/12-04:scala-ver-x .
+#+END_SRC
+Note the "." at the end of the line, indicating current directory! This builds a container and tags it =ubuntu/12-04:scala-ver-x=. It deletes the intermediate containers.
+** Commit the container
+Within the same directory we double the build process resulting in just another tag, and then push this image to the registry:
+#+BEGIN_SRC sh
+jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
+jenkins: $ sudo docker push registry.local:5000/ubuntu-12-04/scala-ver-x
+#+END_SRC
+The second command pushes the image into to registry. If we omit the version part it is automatically tagged =latest=. 
+** Start the container
+On our production machine we pull the latest image, stop the old one and start the new one, exposing port 8080:
+#+BEGIN_SRC sh
+production: $ sudo docker pull  registry.local:5000/ubuntu-12-04/scala-ver-x
+production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-x-1
+production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x 
 #+END_SRC 
+Again, omitting the version part would result in pulling the latest image.
 # LocalWords:  WebApp
-** Launch the newly build container
 * AWS
 After testing the /Docker/ installation locally we moved to Amazon Web Services launching four AMI  of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit), attached an Elastic IP to each and run them as:
  - a /Docker/ registry server to keep the /Docker/ images exposing port 5000
