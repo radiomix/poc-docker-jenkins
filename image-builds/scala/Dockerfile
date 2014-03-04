@@ -12,7 +12,7 @@
 FROM registry.im7.de:5000/ubuntu/12.04
 
 # who we are
-MAINTAINER Michael Klöckner <mkl@im7.de>
+MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 # lazy of typing the same stuff:
 ENV APT_INST apt-get install -y --no-install-recommends
@@ -57,7 +57,7 @@ RUN rm -f /tmp/master.zip
 #
 #FROM FOO
 # who we are
-#MAINTAINER Michael Klöckner <mkl@im7.de>
+#MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 #####################################
 
 # remove old web app source 

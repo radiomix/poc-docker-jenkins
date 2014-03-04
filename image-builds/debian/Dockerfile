@@ -11,6 +11,6 @@
 FROM debian:experimental
 
 # who we are
-MAINTAINER Michael Klöckner <mkl@im7.de>
+MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 #

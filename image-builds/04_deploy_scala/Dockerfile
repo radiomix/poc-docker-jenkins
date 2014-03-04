@@ -12,7 +12,7 @@
 FROM debian/scala:fresh_scala
 
 # who we are
-MAINTAINER Michael Klöckner <mkl@im7.de>
+MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 # clean up previous compiles
 RUN cd /opt/lift_26_sbt-master/scala_210/lift_blank/ && ./sbt clean

@@ -29,7 +29,7 @@ As proposed by [[http://deeprecursion.com/][Markus Fix]] *we build immutable* /D
 Chapter two shows different ways to install /Docker/ and its prerequisites. It then gives a short introduction into basic /Docker/ commands. Chapter three deals with the private registry. It condenses the main work we did. Chapter four and five combine a sample /Scala/ WebApp with a /Jenkins/ server. The next chapter provides our experience with running the services on Amazon Web Service. We add our conclusions and open questions as extra chapters.  
 ** Author
  - Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main, 
- - Email:mkl@im7.de
+ - Email: mkl AT im7 DOT de
  - Phone: +49 69 9866 1103
 ** /Docker/ version
    We installed /Docker/ version 0.8 in 2014/02.
@@ -108,7 +108,7 @@ Docker.io provides an installation guide for Amazon Web Services EC2.
 If this is your first AWS instance, you may need to set up your Security Group to allow SSH. By default all incoming ports to your new instance will be blocked by the AWS Security Group, so you might just get
 timeouts when you try to connect. Installing with get.docker.io (as above) will create a service named /lxc-docker/. It will also set up a /Docker/ group and you may want to add the ubuntu user to it so that you don't have to use sudo for every /Docker/ command. 
 
-We found, that launching an AWS instance of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit) does not come with a 3.8 kernel and CloudInit did not install /Docker/, so we had to manually install both manually.   
+We found, that launching an AWS instance of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit) does not come with a 3.8 kernel and CloudInit did not install /Docker/, so we had to install both manually.   
 *** Configuration 
 - The daemon's config file is placed in /etc/default/docker/.  
 - Images, containers and their configurations are placed under /var/lib/docker/. 

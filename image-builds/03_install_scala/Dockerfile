@@ -11,7 +11,7 @@
 FROM debian/tomcat7:fresh_tomcat7
 
 # who we are
-MAINTAINER Michael Klöckner <mkl@im7.de>
+MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 # install scala/lift web app
 RUN wget -O /tmp/master.zip https://github.com/Lift/Lift_26_sbt/archive/master.zip
