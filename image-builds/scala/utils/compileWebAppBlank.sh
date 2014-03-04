@@ -7,6 +7,8 @@
 echo "compiling war file for project blank"
 echo ""
 
-cd ~/blank
-./sbt  compile && ./sbt package
+cd  /opt/lift_26_sbt-master/scala_210/lift_blank/
+./sbt  compile 
+./sbt package
 
+echo "EXIT COMPILED "
