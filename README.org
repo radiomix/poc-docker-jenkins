@@ -110,8 +110,8 @@ timeouts when you try to connect. Installing with get.docker.io (as above) will 
 
 We found, that launching an AWS instance of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit) does not come with a 3.8 kernel and CloudInit did not install /Docker/, so we had to install both manually.   
 *** Configuration 
-- The daemon's config file is placed in /etc/default/docker/.  
-- Images, containers and their configurations are placed under /var/lib/docker/. 
+- The daemon's config file is placed in /etc/default/Docker/.  
+- Images, containers and their configurations are placed under /var/lib/Docker/. 
 ** Play with /Docker/
 We describe some basic /Docker/ commands.
 *** Check your /Docker/ installation.
@@ -240,10 +240,10 @@ The complete syntax is
 If host-dir is missing from the command, then docker creates a new volume. If host-dir is present but points to a non-existent directory on the host, Docker will automatically create this directory and use it as the source of the bind-mount.
 Note that this is not available from a Dockerfile due the portability and sharing purpose of it. The host-dir volumes are entirely host-dependent and might not work on any other machine. [[*Container%20and%20Images][Section Container and Images]] describes, where /Docker/ stores the volumes mounted by the container.
 ** Build your a base image
-Docker.io provides a way to create a [[http://docs.docker.io/en/latest/articles/baseimages/][base image]]. The base image heavily depends on the distribution, the host is running. The example script [[https://github.com/dotcloud/docker/blob/master/contrib/mkimage-debootstrap.sh][mkimage-debootstrap.sh]] creates a debian base image.
+Docker.io provides a way to create a [[http://docs.docker.io/en/latest/articles/baseimages/][base image]]. The base image heavily depends on the distribution, the host is running. The example script [[https://github.com/dotcloud/Docker/blob/master/contrib/mkimage-debootstrap.sh][mkimage-debootstrap.sh]] creates a debian base image.
 *** Download the script
 #+BEGIN_SRC sh
-$ wget https://raw.github.com/dotcloud/docker/master/contrib/mkimage-debootstrap.sh
+$ wget https://raw.github.com/dotcloud/Docker/master/contrib/mkimage-debootstrap.sh
 $ chmod +x mkimage-debootstrap.sh
 #+END_SRC
 This downloads the build-script for a debian /Docker/ base image.
@@ -264,14 +264,14 @@ In Docker terminology, a read-only Layer is called an image. An image never chan
 Each image may depend on one more image which forms the layer beneath it. We sometimes say that the lower image is the parent of the upper image. An image that has *no parent* is a *base image*.
 All images are identified by a 64 hexadecimal digit string (internally a 256bit value). To simplify their use, a short ID of the first 12 characters can be used on the command line. There is a small possibility of short id collisions, so the docker server will always return the long ID.
 ** Container and Images
-As /Docker/ is under heavy development, the file system storing /Docker/ related information changes rapidly. The main directory to look for /Docker/ relevant bits and bytes is /var/lib/docker/. In this section *GUID* is the full blown container id as given by =docker ps -a -no-trunc=.
+As /Docker/ is under heavy development, the file system storing /Docker/ related information changes rapidly. The main directory to look for /Docker/ relevant bits and bytes is /var/lib/Docker/. In this section *GUID* is the full blown container id as given by =docker ps -a -no-trunc=.
 *** LXC configuration
-Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], /Docker/ configures each container partly by setting lxc options in /var/lib/docker/container/GUID/config.lxc/. 
+Using the Linux Container package [[/lxc/][http://linuxcontainers.org/]], /Docker/ configures each container partly by setting lxc options in /var/lib/Docker/container/GUID/config.lxc/. 
 *** [#A] Container Root File System
-The corresponding root file system is stored in /var/lib/docker/devicemapper/mnt/GUID/rootfs/.
+The corresponding root file system is stored in /var/lib/Docker/devicemapper/mnt/GUID/rootfs/.
 Here GUID is the full blown container id as given by =docker ps -a -no-trunc=  
 *** Container Volumes
-    If a container mounts a volume from inside the files on that volume are stored under /var/lib/docker/vfs/dir/GUID/. Data stored under these volumes are persistent between container runs. There is a way to share these volumes between containers. 
+    If a container mounts a volume from inside the files on that volume are stored under /var/lib/Docker/vfs/dir/GUID/. Data stored under these volumes are persistent between container runs. There is a way to share these volumes between containers. 
 *** Removing a Container or an Image
 To remove a container from a repository we list the containers and type:
 #+BEGIN_SRC sh
@@ -355,7 +355,7 @@ We provide a bash [[file:registry/buildRegistry.sh][shell script]] to complete t
 ** Registry as a Web Services 
 Starting from $12 per month for 5 repositories [[https://quay.io/][quay.io]] serves a private registry on the web. We did not find out, whether [[https://index.docker.io/][docker.io]] indexes quay.io hosted private repositories.
 ** Testing the private registry
-Using two machines, *registry.local* and *host01.local* both beeing known by local DNS, we build /docker/ images on *host01.local* and store them on *registry.local* running the registry on port 5000.  Suppose, we just successfully built an image from a Dockerfile or committed a container -resulting in an image. Let's see, how to tag the image *foo*, push it into the registry, delete it locally and pull it out again later. 
+Using two machines, *registry.local* and *host01.local* both beeing known by local DNS, we build /Docker/ images on *host01.local* and store them on *registry.local* running the registry on port 5000.  Suppose, we just successfully built an image from a Dockerfile or committed a container -resulting in an image. Let's see, how to tag the image *foo*, push it into the registry, delete it locally and pull it out again later. 
 
 It is essential to know the exact tag for the image, as the private registry does not allow searching of tags or images. 
 *** Tag the image 
@@ -527,62 +527,102 @@ sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
 
 * Deployment Scenario
 Each time the WebApp has changed, it will be committed into a /git/ repository. Via a web hook, /Jenkins/ get's triggered to build a container with the committed source code:
- - Pull the base image out of the registry 
- - Build a /Docker/ container and inject the committed source code
- - Tag this container and push it into the registry
+ - Get the base image 
+  - out of the registry or
+  - imported as a tar file 
+ - Build a /Docker/ container with the source code and tag it 
+  - push it into the registry or
+  - export it as a tar file
  - Start the newly tagged container on the production server
-** Pull the base image
-We use the =FROM ubuntu/scala-base= statement within a  Dockerfile to indicate the proper base image.
+** Get the base image
+We use the =FROM ubuntu/scala-base= statement within a  Dockerfile to indicate the proper base image. If no registry server is used, we import the base image by typing =cat foo.bar.tar | sudo docker import repos/user:tag=.
 ** Build the container
-The same Dockerfile is used to build the container with /tomcat7/ and the /Scala/ WebApp installed. After pulling the source code from the /git/ repo we compile it and copy the war-file into /tomcat7/ webapp directory. /Docker/ expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
+The same Dockerfile is used to build the container with /tomcat7/ and the /Scala/ WebApp installed. After pulling the source code from a /git/ repo we compile it and copy the war-file into /tomcat7/ webapp directory. /Docker/ expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
 #+BEGIN_SRC sh
 jenkins: $ sudo docker build -rm -t ubuntu/12-04:scala-ver-x .
 #+END_SRC
 Note the "." at the end of the line, indicating current directory! This builds a container and tags it =ubuntu/12-04:scala-ver-x=. It deletes the intermediate containers.
 ** Commit the container
-Within the same directory we double the build process resulting in just another tag, and then push this image to the registry:
+Within the same directory we double the build process resulting in just another tag. We then push the image into a registry or export it as a file. 
+*** Push the image to the registry:
 #+BEGIN_SRC sh
 jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
 jenkins: $ sudo docker push registry.local:5000/ubuntu-12-04/scala-ver-x
 #+END_SRC
-The second command pushes the image into to registry. If we omit the version part it is automatically tagged =latest=.
-We provide a Dockerfile  [[Dockerfile][file:image-builds/scala/Dockerfile]]  to build the /Scala/ WebApp from a fresh cloned git repository.   
+The second command pushes the image into the registry. If we omit the version part it is automatically tagged =latest=.
+We provide a Dockerfile  [[Dockerfile][file:image-builds/scala/Dockerfile]] to build the /Scala/ WebApp from a fresh cloned git repository. The alternative way is to   
+*** Export the image as a file
+#+BEGIN_SRC sh
+jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
+jenkins: $ sudo docker export registry.local:5000/ubuntu-12-04/scala-ver-x > ubuntu-12-04.scala-ver-x.tar
+#+END_SRC
+We could also export a container after we adjusted it manually.
 ** Start the container
-On our production machine we pull the latest image, stop the old one and start the new one, exposing port 8080:
+On our production machine we get the latest image, stop the old one and start the new one, exposing port 8080. Again we have two ways of doing so. Using a registry server we want to
+*** Pull the image and start it
 #+BEGIN_SRC sh
 production: $ sudo docker pull  registry.local:5000/ubuntu-12-04/scala-ver-x
-production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-x-1
+production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-y
 production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x 
 #+END_SRC 
-Again, omitting the version part would result in pulling the latest image.
+Again, omitting the version part would result in pulling the latest image. Without a registry server we just 
+*** Import the image and start it
+To import the image from a local file we replace the first line in the above example with the import command. 
+#+BEGIN_SRC sh
+production: $ cat ubuntu-12-04.scala-ver-x.tar |  sudo docker import  registry.local:5000/ubuntu-12-04/scala-ver-x
+production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-y
+production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x 
+#+END_SRC 
+
 # LocalWords:  WebApp
 * AWS
 After testing the /Docker/ installation locally we moved to Amazon Web Services launching four AMI  of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit), attached an Elastic IP to each and run them as:
  - a /Docker/ registry server to keep the /Docker/ images exposing port 5000
  - a development server  without /Docker/ installed running /tomcat7/ to develop the  /Scala/ WebApp on port 80
- - a /Jenkins/ server with /Docker/ installed, to build the /Docker/ images and push them to the registry server on port 8080
+ - a /Jenkins/ server with /Docker/ installed, to build the /Docker/ images and push them to the registry server on port 5000
  - a production server with only /Docker/ installed, pulling the /Docker/ images from the registry server and running the  /Scala/ WebApp within a container exposing port 80
 We used a public Github account to version the /Scala/ source code and trigger the /Jenkins/ built.
 
 This was our experience:
-- It does not come with a 3.8 kernel, we installed it  manually.   
+- The AMI we used (Ubuntu 12.04 LTS) does not come with a 3.8 kernel, we installed it  manually.   
 - CloudInit did not install /Docker/, we installed it  manually.
-- Rebooting the registry AMI kept the /Docker/ registry container running, both rebooting it on the AMI as through the AWS web interface. 
+- Rebooting the registry AMI kept the /Docker/ registry container running, both rebooting it within a shell as through the AWS web interface. 
 
 AWS Security Groups must take into account the ports /Docker/ uses, espacially registry port 5000.
+
 * Conclusion
-On our test machines we could install a sample /Scala/ WebApp, register the source code with github and build a docker image each time the source code changed in /git/. We did not use /Jenkins/ to build the image, but called a script by hand. 
-We recommend, to split such production images into two parts, a "base image" providing version zero and "deployment image", wich gets rebuild each time the source code changes in /git/. 
+/Docker/ is a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment essentially.  
 
-As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally.
+On our test machines as well as in an AWS cloud we installed a sample /Scala/ WebApp, registered the source code with github and built a docker image each time the source code changed in /git/. We did not use /Jenkins/ to build the image, but called a script by hand. 
 
-A project may provide it's configuration in a proprietary /git/ repository, delivering the config files to be added by the =ADD= command in a Dockerfile. The build process then takes place within a fresh cloned version of this repo. 
+Building immutable images means running the build process for each release. This is cost and time intensive. Building just a container cuts time and costs effectively. The build process is not run as frequently as a machine reboot and may use resources an every day working AMI should not depend on. 
 
-We recommend /docker/ as a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment essentially.  
+We recommend splitting the build process into different parts:
+- a version zero AMI providing /Docker/ and necessary tools such as /git/, /vi/, /ssh/, . . . 
+- a /Docker/ base container providing version zero of  the application
+- a /Docker/ deployment container being rebuild each time a new release is deployed. 
+
+As a private registry server does not index the images, proper tagging is essential to pulling the proper container image. Once the image is pulled, it is indexed locally. But each time a machine boots on the cloud it depends on the registry server being alive. For each working environment development, staging and testing we would need a different registry server. 
+
+We therefor recommend to provide the AMIs with at least the base container and only fetch deltas to the deployment container at boot time. Though building such an AMI is expensive, this only takes place rarely.
+
+An alternative way to load containers onto a /Docker/ host are the =docker export= and =docker import= commands allowing for a convenient way to store images as a tar-file somewhere on the file system. We recommend storing the containers in an Amazon S3 bucket.
+
+An application may provide it's configuration in a proprietary /git/ repository, delivering the config files to be added during the build process, which then takes place within a fresh cloned version of this repo. 
+
+
+Using a tool like /Packer/ would ease creating the different AMI needed.
+- /Packer/ creates a base AMI ready to run /Docker/, a /Docker/ host.
+- /Packer/ builds a /Docker/ base container running the application in version zero.
+- /Packer/ imports the base container into a /Docker/ host and freezes this AMI.
+- /Docker/ host only gets the latest release of the application container -either from the registry or by importing it locally- and starts it.
+Fetching the latest release of the application results in an immutable image although different deltas are pulled because each delta down to version zero of the application is itself an  immutable image.
+
 * Open Questions
 ** Networking
 - Does the container get its own NIC or does it only expose ports?
-- Which services are on what ports on the docker host as well as in the container? 
+- Which services are on what ports on the docker host as well as in the container?
+- What is the standard maintenance port?
 ** Logging
 - How is logging done on the docker host as well as in the container? 
 ** Persistence
