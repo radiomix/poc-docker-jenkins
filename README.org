@@ -623,12 +623,13 @@ Fetching the latest release of the application results in an immutable image alt
 - Does the container get its own NIC or does it only expose ports?
 - Which services are on what ports on the docker host as well as in the container?
 - What is the standard maintenance port?
+- What firewall rules are involved?
 ** Logging
 - How is logging done on the docker host as well as in the container? 
 ** Persistence
 - What volumes are added to a container to store its data persistently? 
 - What happens with a write-processe if either the docker host or the container gets down? This could happen, if an AMI gets moved by AWS within an availability zone. 
-** Hygiene
+** Cleaning Up
 - As we start and stop containers, we have to keep track of those to be keept and those dispensable. 
 - The same holds true for images.
 - We need a way to tag images properly for later searches.

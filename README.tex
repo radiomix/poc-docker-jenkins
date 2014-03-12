@@ -1,4 +1,4 @@
-% Created 2014-03-08 Sa 23:41
+% Created 2014-03-12 Mi 11:24
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -865,6 +865,8 @@ Fetching the latest release of the application results in an immutable image alt
 \begin{itemize}
 \item Does the container get its own NIC or does it only expose ports?
 \item Which services are on what ports on the docker host as well as in the container?
+\item What is the standard maintenance port?
+\item What firewall rules are involved?
 \end{itemize}
 \subsection{Logging}
 \label{sec-9-2}
@@ -879,7 +881,7 @@ Fetching the latest release of the application results in an immutable image alt
 \item What volumes are added to a container to store its data persistently?
 \item What happens with a write-processe if either the docker host or the container gets down? This could happen, if an AMI gets moved by AWS within an availability zone.
 \end{itemize}
-\subsection{Hygiene}
+\subsection{Cleaning Up}
 \label{sec-9-4}
 
 \begin{itemize}
