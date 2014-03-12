@@ -1,4 +1,4 @@
-% Created 2014-03-12 Mi 11:24
+% Created 2014-03-12 Mi 13:26
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -730,80 +730,98 @@ sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
 \section{Deployment Scenario}
 \label{sec-6}
 
-Each time the WebApp has changed, it will be committed into a \emph{git} repository. Via a web hook, \emph{Jenkins} get's triggered to build a container with the committed source code:
+Each time the WebApp has changed, it will be committed into a \emph{git} repository. Via a web hook, \emph{Jenkins} get's triggered to build a container with the committed source code. There are two ways to move the container around the net:
 \begin{itemize}
-\item Get the base image
+\item a registry server provides containers on the net.
+\item an export/import mechanism stores containers as tar-files on the net.
+\end{itemize}
+Subsequently getting  the base image can be done: 
 \begin{itemize}
 \item out of the registry or
 \item imported as a tar file
 \end{itemize}
-\item Build a \emph{Docker} container with the source code and tag it
+Again moving a \emph{Docker} container around the net can mean: 
 \begin{itemize}
-\item push it into the registry or
-\item export it as a tar file
+\item push it into the registry and pull it out again later
+\item export it as a tar file and import this tar file later
 \end{itemize}
-\item Start the newly tagged container on the production server
-\end{itemize}
-\subsection{Get the base image}
+\subsection{Build and Tag the container}
 \label{sec-6-1}
 
-We use the \texttt{FROM ubuntu/scala-base} statement within a  Dockerfile to indicate the proper base image. If no registry server is used, we import the base image by typing \texttt{cat foo.bar.tar | sudo docker import repos/user:tag}.
-\subsection{Build the container}
-\label{sec-6-2}
-
-The same Dockerfile is used to build the container with \emph{tomcat7} and the \emph{Scala} WebApp installed. After pulling the source code from a \emph{git} repo we compile it and copy the war-file into \emph{tomcat7} webapp directory. \emph{Docker} expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
+After pulling the source code from a \emph{git} repo a Dockerfile is used to build the container with \emph{tomcat7} and the \emph{Scala} WebApp installed. Within this build process, the \emph{Scala} WebApp gets  compile and its jar-file copied into \emph{tomcat7} webapp directory. \emph{Docker} expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
 
 \begin{verbatim}
 jenkins: $ sudo docker build -rm -t ubuntu/12-04:scala-ver-x .
 \end{verbatim}
 Note the ``.'' at the end of the line, indicating current directory! This builds a container and tags it \texttt{ubuntu/12-04:scala-ver-x}. It deletes the intermediate containers.
-\subsection{Commit the container}
-\label{sec-6-3}
+\subsection{Deploying with a registry server}
+\label{sec-6-2}
 
-Within the same directory we double the build process resulting in just another tag. We then push the image into a registry or export it as a file. 
-\subsubsection{Push the image to the registry:}
-\label{sec-6-3-1}
+Suppose we use the registry server \texttt{registry.local} listening on port 5000.
+\subsubsection{Push the image to the registry}
+\label{sec-6-2-1}
 
+We tag the container properly by just rebuilding it resulting in just a second tag for the same container an then push the image into a registry.
 
 \begin{verbatim}
 jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
 jenkins: $ sudo docker push registry.local:5000/ubuntu-12-04/scala-ver-x
 \end{verbatim}
-The second command pushes the image into the registry. If we omit the version part it is automatically tagged \texttt{latest}.
-We provide a Dockerfile  \hyperref[Dockerfile]{file:image-builds/scala/Dockerfile} to build the \emph{Scala} WebApp from a fresh cloned git repository. The alternative way is to   
-\subsubsection{Export the image as a file}
+The second command pushes the image into the registry. We provide a Dockerfile  \hyperref[Dockerfile]{file:image-builds/scala/Dockerfile} to build the \emph{Scala} WebApp from a fresh cloned git repository.
+\subsubsection{Move the container to production}
+\label{sec-6-2-2}
+
+On the production server we simply pull the newly build container:
+
+\begin{verbatim}
+prod: $ sudo docker pull registry.local:5000/ubuntu-12-04/scala-ver-x
+\end{verbatim}
+\subsection{Deploying with a tar file}
+\label{sec-6-3}
+
+Suppose we export and import containers to some storage on the net being accessible via \href{http://storage.local}{http://storage.local}.
+\subsubsection{Export the container to the storage device}
+\label{sec-6-3-1}
+
+We spot the container to be exported, obviously the last one after a successful build.
+
+\begin{verbatim}
+jenkins: $ sudo docker ps -a
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED          STATUS     PORTS     NAMES
+ac3a595c294c        ubuntu/scala:ver-x  /bin/bash           8 minutes ago    Exit 1               prickly_lovelace    
+6a569d77e974        ubuntu:12.04        /bin/bash           16 hours ago     Exit 0               backstabbing_pike 
+
+jenkins: $ sudo docker export  ac3a595c294c > scala-ver-x.tgz
+jenkins: $ scp scala-ver-x.tgz http://storage.local/scala-ver-x.tgz
+\end{verbatim}
+\subsubsection{Move the container to production}
 \label{sec-6-3-2}
 
+We import the container from that storage device by typing 
 
 \begin{verbatim}
-jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
-jenkins: $ sudo docker export registry.local:5000/ubuntu-12-04/scala-ver-x > ubuntu-12-04.scala-ver-x.tar
+prod: $ sudo docker import http://my.storage.server.com/ubuntu-12-04/scala-ver-x.tgz
 \end{verbatim}
-We could also export a container after we adjusted it manually.
-\subsection{Start the container}
+We could also split this into first loading the container tar file locally and then import it typing:
+
+\begin{verbatim}
+prod: $ sudo docker wget http://storage.local/ubuntu-12-04/scala-ver-x.tgz -O scala-ver-x.tgz
+prod: $ cat scala-ver-x.tgz | sudo docker import - ubuntu-12-04/scala-ver-x
+\end{verbatim}
+There are multiple ways to save the container tar file locally.
+\subsection{Restart the new container}
 \label{sec-6-4}
 
-On our production machine we get the latest image, stop the old one and start the new one, exposing port 8080. Again we have two ways of doing so. Using a registry server we want to
-\subsubsection{Pull the image and start it}
+
+\begin{verbatim}
+prod: sudo docker stop registry.local:5000/ubuntu-12-04/scala-ver-y
+prod: sudo docker stop registry.local:5000/ubuntu-12-04/scala-ver-x
+\end{verbatim}
+\subsubsection{\textbf{TODO} provide a script for container export/import}
 \label{sec-6-4-1}
-
-
-\begin{verbatim}
-production: $ sudo docker pull  registry.local:5000/ubuntu-12-04/scala-ver-x
-production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-y
-production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x
-\end{verbatim}
-Again, omitting the version part would result in pulling the latest image. Without a registry server we just 
-\subsubsection{Import the image and start it}
+\subsubsection{\textbf{TODO} provide a script for container restart}
 \label{sec-6-4-2}
-
-To import the image from a local file we replace the first line in the above example with the import command. 
-
-\begin{verbatim}
-production: $ cat ubuntu-12-04.scala-ver-x.tar |  sudo docker import  registry.local:5000/ubuntu-12-04/scala-ver-x
-production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-y
-production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x
-\end{verbatim}
 \section{AWS}
 \label{sec-7}
 

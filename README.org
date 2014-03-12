@@ -526,55 +526,68 @@ sed -i s/HTTP_PORT=8080/HTTP_PORT=8090/ /etc/default/jenkins
 #+END_SRC 
 
 * Deployment Scenario
-Each time the WebApp has changed, it will be committed into a /git/ repository. Via a web hook, /Jenkins/ get's triggered to build a container with the committed source code:
- - Get the base image 
+Each time the WebApp has changed, it will be committed into a /git/ repository. Via a web hook, /Jenkins/ get's triggered to build a container with the committed source code. There are two ways to move the container around the net:
+- a registry server provides containers on the net.
+- an export/import mechanism stores containers as tar-files on the net.
+Subsequently getting  the base image can be done: 
   - out of the registry or
   - imported as a tar file 
- - Build a /Docker/ container with the source code and tag it 
-  - push it into the registry or
-  - export it as a tar file
- - Start the newly tagged container on the production server
-** Get the base image
-We use the =FROM ubuntu/scala-base= statement within a  Dockerfile to indicate the proper base image. If no registry server is used, we import the base image by typing =cat foo.bar.tar | sudo docker import repos/user:tag=.
-** Build the container
-The same Dockerfile is used to build the container with /tomcat7/ and the /Scala/ WebApp installed. After pulling the source code from a /git/ repo we compile it and copy the war-file into /tomcat7/ webapp directory. /Docker/ expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
+Again moving a /Docker/ container around the net can mean: 
+  - push it into the registry and pull it out again later
+  - export it as a tar file and import this tar file later
+** Build and Tag the container
+After pulling the source code from a /git/ repo a Dockerfile is used to build the container with /tomcat7/ and the /Scala/ WebApp installed. Within this build process, the /Scala/ WebApp gets  compile and its jar-file copied into /tomcat7/ webapp directory. /Docker/ expexts the build process to take place in a context, which in our case is the directory containing the proper Dockerfile. We then type:
 #+BEGIN_SRC sh
 jenkins: $ sudo docker build -rm -t ubuntu/12-04:scala-ver-x .
 #+END_SRC
 Note the "." at the end of the line, indicating current directory! This builds a container and tags it =ubuntu/12-04:scala-ver-x=. It deletes the intermediate containers.
-** Commit the container
-Within the same directory we double the build process resulting in just another tag. We then push the image into a registry or export it as a file. 
-*** Push the image to the registry:
+** Deploying with a registry server
+Suppose we use the registry server =registry.local= listening on port 5000.
+*** Push the image to the registry
+We tag the container properly by just rebuilding it resulting in just a second tag for the same container an then push the image into a registry.
 #+BEGIN_SRC sh
 jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
 jenkins: $ sudo docker push registry.local:5000/ubuntu-12-04/scala-ver-x
 #+END_SRC
-The second command pushes the image into the registry. If we omit the version part it is automatically tagged =latest=.
-We provide a Dockerfile  [[Dockerfile][file:image-builds/scala/Dockerfile]] to build the /Scala/ WebApp from a fresh cloned git repository. The alternative way is to   
-*** Export the image as a file
+The second command pushes the image into the registry. We provide a Dockerfile  [[Dockerfile][file:image-builds/scala/Dockerfile]] to build the /Scala/ WebApp from a fresh cloned git repository.
+*** Move the container to production
+On the production server we simply pull the newly build container:
 #+BEGIN_SRC sh
-jenkins: $ sudo docker build -rm -t registry.local:5000/ubuntu-12-04/scala-ver-x
-jenkins: $ sudo docker export registry.local:5000/ubuntu-12-04/scala-ver-x > ubuntu-12-04.scala-ver-x.tar
-#+END_SRC
-We could also export a container after we adjusted it manually.
-** Start the container
-On our production machine we get the latest image, stop the old one and start the new one, exposing port 8080. Again we have two ways of doing so. Using a registry server we want to
-*** Pull the image and start it
-#+BEGIN_SRC sh
-production: $ sudo docker pull  registry.local:5000/ubuntu-12-04/scala-ver-x
-production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-y
-production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x 
+prod: $ sudo docker pull registry.local:5000/ubuntu-12-04/scala-ver-x
 #+END_SRC 
-Again, omitting the version part would result in pulling the latest image. Without a registry server we just 
-*** Import the image and start it
-To import the image from a local file we replace the first line in the above example with the import command. 
+** Deploying with a tar file
+Suppose we export and import containers to some storage on the net being accessible via http://storage.local.
+*** Export the container to the storage device
+We spot the container to be exported, obviously the last one after a successful build.
 #+BEGIN_SRC sh
-production: $ cat ubuntu-12-04.scala-ver-x.tar |  sudo docker import  registry.local:5000/ubuntu-12-04/scala-ver-x
-production: $ sudo docker stop  registry.local:5000/ubuntu-12-04/scala-ver-y
-production: $ sudo docker run -d -p :8080:8080 -i -t  registry.local:5000/ubuntu-12-04/scala-ver-x 
-#+END_SRC 
+jenkins: $ sudo docker ps -a
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED          STATUS     PORTS     NAMES
+ac3a595c294c        ubuntu/scala:ver-x  /bin/bash           8 minutes ago    Exit 1               prickly_lovelace    
+6a569d77e974        ubuntu:12.04        /bin/bash           16 hours ago     Exit 0               backstabbing_pike 
 
-# LocalWords:  WebApp
+jenkins: $ sudo docker export  ac3a595c294c > scala-ver-x.tgz
+jenkins: $ scp scala-ver-x.tgz http://storage.local/scala-ver-x.tgz 
+#+END_SRC
+*** Move the container to production
+We import the container from that storage device by typing 
+#+BEGIN_SRC sh
+prod: $ sudo docker import http://my.storage.server.com/ubuntu-12-04/scala-ver-x.tgz
+#+END_SRC
+We could also split this into first loading the container tar file locally and then import it typing:
+#+BEGIN_SRC sh
+prod: $ sudo docker wget http://storage.local/ubuntu-12-04/scala-ver-x.tgz -O scala-ver-x.tgz
+prod: $ cat scala-ver-x.tgz | sudo docker import - ubuntu-12-04/scala-ver-x
+#+END_SRC
+There are multiple ways to save the container tar file locally.
+** Restart the new container
+#+BEGIN_SRC sh
+prod: sudo docker stop registry.local:5000/ubuntu-12-04/scala-ver-y
+prod: sudo docker stop registry.local:5000/ubuntu-12-04/scala-ver-x
+#+END_SRC s
+*** TODO provide a script for container export/import
+
+*** TODO provide a script for container restart
 * AWS
 After testing the /Docker/ installation locally we moved to Amazon Web Services launching four AMI  of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit), attached an Elastic IP to each and run them as:
  - a /Docker/ registry server to keep the /Docker/ images exposing port 5000
