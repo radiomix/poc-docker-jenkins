@@ -1,4 +1,4 @@
-% Created 2014-03-12 Mi 13:26
+% Created 2014-03-13 Do 18:17
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -822,8 +822,90 @@ prod: sudo docker stop registry.local:5000/ubuntu-12-04/scala-ver-x
 \label{sec-6-4-1}
 \subsubsection{\textbf{TODO} provide a script for container restart}
 \label{sec-6-4-2}
-\section{AWS}
+\section{Packer}
 \label{sec-7}
+
+We use \emph{Packer} to build the \emph{Docker}-capable AMI and the container running the \emph{Scala} WebApp.
+\subsection{Installation}
+\label{sec-7-1}
+
+Following the steps in the \emph{Packer}  \href{http://www.packer.io/intro/getting-started/setup.html}{documentation} we download the appropriate binary, unzip it and check the installation by typing \texttt{packer}.
+\subsection{}
+
+\emph{Packer} configures AMIs within json files. Source AMIs must be of virtualisation type `paravirtual'.  The AWS-user, whos credetials are used as parameters to run the build process, needs some IAM rights:
+
+\begin{verbatim}
+"Effect": "Allow",
+      "Action" : [
+        "ec2:AttachVolume",
+        "ec2:CreateVolume",
+        "ec2:DeleteVolume",
+        "ec2:DescribeVolumes",
+        "ec2:DetachVolume",
+
+        "ec2:DescribeInstances",
+
+        "ec2:CreateSnapshot",
+        "ec2:DeleteSnapshot",
+        "ec2:DescribeSnapshots",
+
+        "ec2:DescribeImages",
+        "ec2:RegisterImage",
+
+        "ec2:CreateTags"
+      ],
+      "Resource" : "*"
+\end{verbatim}
+\subsection{Building a \emph{Docker}-capable AMI}
+\label{sec-7-3}
+
+We used the following json file to build the \emph{Docker}-capable AMI:
+
+\begin{verbatim}
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "security_group_id": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-west-2",
+    "source_ami": "ami-fa9cf1ca",
+    "instance_type": "t1.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "docker-server-empty-{{timestamp}}",
+    "security_group_id": "{{user `security_group_id`}}"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "sudo apt-get update",
+      "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
+      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
+      "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
+      "sudo apt-get update",
+      "echo 'STARTING DOCKER INSTALLATION'",
+      "sudo apt-get install lxc-docker",
+      "sudo apt-get update",
+      "sudo reboot"
+    ]
+  }]
+}
+\end{verbatim}
+Note the \texttt{variables} section, defining three variables that we do not want to store in the json file for security reasons. Suppose the above json file is called docker.json, we start the build process typing:
+
+\begin{verbatim}
+$ packer build -var 'aws_access_key=YOUR_AWS_ACCESS_KEY' \ 
+    -var 'aws_secret_key=YOUR_AWS_SECRETE_KEY' \
+    -var 'security_group_id=YOUR_SECURITY_GROUP_ID' \ 
+    docker.json
+\end{verbatim}
+\section{AWS}
+\label{sec-8}
 
 After testing the \emph{Docker} installation locally we moved to Amazon Web Services launching four AMI  of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit), attached an Elastic IP to each and run them as:
 \begin{itemize}
@@ -843,7 +925,7 @@ This was our experience:
 
 AWS Security Groups must take into account the ports \emph{Docker} uses, espacially registry port 5000.
 \section{Conclusion}
-\label{sec-8}
+\label{sec-9}
 
 \emph{Docker} is a robust and convenient virtualization tool that creates immutable images and speeds up software development and deployment essentially.  
 
@@ -876,9 +958,9 @@ Using a tool like \emph{Packer} would ease creating the different AMI needed.
 \end{itemize}
 Fetching the latest release of the application results in an immutable image although different deltas are pulled because each delta down to version zero of the application is itself an  immutable image.
 \section{Open Questions}
-\label{sec-9}
+\label{sec-10}
 \subsection{Networking}
-\label{sec-9-1}
+\label{sec-10-1}
 
 \begin{itemize}
 \item Does the container get its own NIC or does it only expose ports?
@@ -887,20 +969,20 @@ Fetching the latest release of the application results in an immutable image alt
 \item What firewall rules are involved?
 \end{itemize}
 \subsection{Logging}
-\label{sec-9-2}
+\label{sec-10-2}
 
 \begin{itemize}
 \item How is logging done on the docker host as well as in the container?
 \end{itemize}
 \subsection{Persistence}
-\label{sec-9-3}
+\label{sec-10-3}
 
 \begin{itemize}
 \item What volumes are added to a container to store its data persistently?
 \item What happens with a write-processe if either the docker host or the container gets down? This could happen, if an AMI gets moved by AWS within an availability zone.
 \end{itemize}
 \subsection{Cleaning Up}
-\label{sec-9-4}
+\label{sec-10-4}
 
 \begin{itemize}
 \item As we start and stop containers, we have to keep track of those to be keept and those dispensable.
