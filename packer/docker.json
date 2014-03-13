@@ -12,6 +12,9 @@
     "source_ami": "ami-fa9cf1ca",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
+    "run_tags": {
+	"Name": "docker-server-empty-{{timestamp}}"
+    },
     "ami_name": "docker-server-empty-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
@@ -20,14 +23,19 @@
     "inline": [
       "sleep 30",
       "sudo apt-get update",
+      "sudo apt-get install -y mosh git vi wget lynx",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
-      "sudo apt-get update",
-      "echo 'STARTING DOCKER INSTALLATION'",
-      "sudo apt-get install lxc-docker",
-      "sudo apt-get update",
       "sudo reboot"
+    ]
+  },
+ {
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "sudo apt-get update",
+      "sudo apt-get install -y lxc-docker"
     ]
   }]
 }
