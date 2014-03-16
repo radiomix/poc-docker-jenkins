@@ -1,4 +1,4 @@
-% Created 2014-03-14 Fr 11:52
+% Created 2014-03-16 So 18:16
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -877,10 +877,10 @@ We used the following json file to build the \emph{Docker}-capable AMI:
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-        "Name": "docker-server-mosh-{{timestamp}}"
+        "Name": "docker-server-mkl-{{timestamp}}"
     },
-    "ami_name": "docker-server-mosh-{{timestamp}}",
-    "security_group_id": "sg-e6908584"
+    "ami_name": "docker-server-mkl-{{timestamp}}",
+    "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
     "type": "shell",
@@ -892,9 +892,10 @@ We used the following json file to build the \emph{Docker}-capable AMI:
       "sudo apt-get install -y git",
       "sudo apt-get install -y mosh",
       "sudo apt-get install -y lynx",
-      "which lynx mosh git vi wget",
+      "sudo apt-get install -y unzip",
+      "which lynx mosh git vi wget unzip",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
-      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
+      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",  
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
       "sudo reboot"
     ]
@@ -909,7 +910,8 @@ We used the following json file to build the \emph{Docker}-capable AMI:
       "sudo docker --version",
       "sudo service ssh restart"
     ]
-  }]
+  }
+ ]
 }
 \end{verbatim}
 Note the \texttt{variables} section, defining three variables that we do not want to store in the json file for security reasons. We use two provisioners of type shell to cope for the reboot after installing the appropriate kernel. Suppose the above json file is called docker.json, we start the build process typing:
