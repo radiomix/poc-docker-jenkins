@@ -351,7 +351,7 @@ sudo docker run -d -p 5000:5000 registry
 #+END_SRC
 This results in an image tagged /registry/ and a container exposing port 5000 running on the same machine.
 
-We provide a bash [[file:registry/buildRegistry.sh][shell script]] to complete the task.
+We provide a bash [[file:container_builds/registry/buildRegistry.sh][shell script]]  to complete the task.
 ** Registry as a Web Services 
 Starting from $12 per month for 5 repositories [[https://quay.io/][quay.io]] serves a private registry on the web. We did not find out, whether [[https://index.docker.io/][docker.io]] indexes quay.io hosted private repositories.
 ** Testing the private registry

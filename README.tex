@@ -1,4 +1,4 @@
-% Created 2014-03-16 So 18:16
+% Created 2014-03-19 Mi 10:48
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -499,7 +499,7 @@ sudo docker run -d -p 5000:5000 registry
 \end{verbatim}
 This results in an image tagged \emph{registry} and a container exposing port 5000 running on the same machine.
 
-We provide a bash \href{file://.registry/buildRegistry.sh}{shell script} to complete the task.
+We provide a bash \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/registry/buildRegistry.sh}{shell script}  to complete the task.
 \subsection{Registry as a Web Services}
 \label{sec-3-6}
 
@@ -830,7 +830,8 @@ We use \emph{Packer} to build the \emph{Docker}-capable AMI and the container ru
 \label{sec-7-1}
 
 Following the steps in the \emph{Packer}  \href{http://www.packer.io/intro/getting-started/setup.html}{documentation} we download the appropriate binary, unzip it and check the installation by typing \texttt{packer}.
-\subsection{}
+\subsection{AWS rights}
+\label{sec-7-2}
 
 \emph{Packer} configures AMIs within json files. Source AMIs must be of virtualisation type `paravirtual'.  The AWS-user, whos credetials are used as parameters to run the build process, needs some IAM rights:
 
@@ -904,6 +905,16 @@ We used the following json file to build the \emph{Docker}-capable AMI:
     "type": "shell",
     "inline": [
       "sleep 70",
+      "echo INSTALLING PACKER",
+      "wget https://dl.bintray.com/mitchellh/packer/0.5.2_linux_amd64.zip -O packer.zip",
+      "sudo unzip -d /usr/local/bin packer.zip",
+      "packer --version"
+    ]
+  },
+ {
+    "type": "shell",
+    "inline": [
+      "sleep 70",
       "sudo apt-get update",
       "echo INSTALLING DOCKER",
       "sudo apt-get install -y lxc-docker",
@@ -914,7 +925,7 @@ We used the following json file to build the \emph{Docker}-capable AMI:
  ]
 }
 \end{verbatim}
-Note the \texttt{variables} section, defining three variables that we do not want to store in the json file for security reasons. We use two provisioners of type shell to cope for the reboot after installing the appropriate kernel. Suppose the above json file is called docker.json, we start the build process typing:
+Note the \texttt{variables} section, defining three variables that we do not want to store in the json file for security reasons. We use three provisioners of type shell to cope for the reboot after installing the appropriate kernel, install \emph{Packer} and \emph{Docker}. Suppose the above json file is called docker.json, we start the build process typing:
 
 \begin{verbatim}
 $ packer build -var 'aws_access_key=YOUR_AWS_ACCESS_KEY' \ 
@@ -922,6 +933,11 @@ $ packer build -var 'aws_access_key=YOUR_AWS_ACCESS_KEY' \
     -var 'security_group_id=YOUR_SECURITY_GROUP_ID' \ 
     docker.json
 \end{verbatim}
+This AMI is capable of running \texttt{docker} as well as \texttt{packer}, thus we will build \emph{Docker} containers on this AMI.
+\subsection{Building a \emph{Docker} container}
+\label{sec-7-4}
+
+Suppose the above \emph{Packer} call provisioned an AMI with ID ami-f6e38dc6. This shall be the starting point to build \emph{Docker} containers:
 \section{AWS}
 \label{sec-8}
 
