@@ -8,8 +8,8 @@
 # Server:	http://localhost:8080/lift_blank
 
 
-# use our base image debian/fresh
-FROM debian/scala:fresh_scala
+# use our base image ubuntu/scala
+FROM ubuntu/scala
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>

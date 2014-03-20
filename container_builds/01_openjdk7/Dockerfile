@@ -7,8 +7,8 @@
 #
 
 
-# use our base image debian/fresh
-FROM debian:fresh
+# use our base image debian
+FROM ubuntu
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>

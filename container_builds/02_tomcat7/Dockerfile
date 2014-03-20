@@ -7,8 +7,8 @@
 #
 
 
-# use openjdk7 image debian/openjdk7:fresh_openjdk7
-FROM debian/openjdk7:fresh_openjdk7
+# use openjdk7 image ubuntu/openjdk7
+FROM ubuntu/openjdk7
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
