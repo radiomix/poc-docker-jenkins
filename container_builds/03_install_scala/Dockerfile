@@ -7,8 +7,8 @@
 #
 
 
-# use our base image debian/fresh
-FROM debian/tomcat7:fresh_tomcat7
+# use our base image ubuntu/tomcat7
+FROM ubuntu/tomcat7
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>

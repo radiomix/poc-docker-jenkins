@@ -9,7 +9,8 @@
 
 
 # pull the base image off the registry
-FROM registry.im7.de:5000/ubuntu/12.04
+#FROM registry.im7.de:5000/ubuntu/12.04
+FROM ubuntu
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
