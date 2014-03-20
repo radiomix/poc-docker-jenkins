@@ -32,7 +32,7 @@ Chapter two shows different ways to install /Docker/ and its prerequisites. It t
  - Email: mkl AT im7 DOT de
  - Phone: +49 69 9866 1103
 ** /Docker/ version
-   We installed /Docker/ version 0.8 in 2014/02.
+   We installed /Docker/ version 0.8 in 2014/02 and upgraded to version 0.9 in 2014/03.
 * /Docker/
 This chapter deals with installation issues and some basic /Docker/ commands. It is mainly take from the [[http://docs.docer.io/en/latest/][Docker documentation]]. 
 ** Installing Docker
@@ -284,6 +284,8 @@ docker images -a
 docker rmi USER/REPO:TAG
 #+END_SRC
 Here =USER/REPO:TAG= referes to the user part, the repository part and the tag part of a special image. Note that command =docker images -a= my list the same GUID multiple times as the same image may be tagged differently. Removing an image beeing tagged multiple times only results in deleting the tag, keeping the other tagged version(s) in the repository.   
+** Upgrading /Docker/
+We upgraded /Docker/ from version 0.8 to 0.9 and had to completely purge the old version together with its configuration files to get the new version running. We then rebooted the machine. 
 * Private Registry
 Right now (version 0.6), private repositories are only possible by hosting [[https://github.com/dotcloud/docker-registry][your private registry]]. 
 ** Pushing to a private repo
@@ -423,8 +425,8 @@ We need /jdk/ at least version 6, /wegt/, /zip/ and git:
 #+BEGIN_SRC sh
 $ apt-get update
 $ apt-get install -y apt-utils
-$ apt-get install -y openjdk-7-jre
-$ apt-get install -y openjdk-7-jdk
+$ apt-get install -y  --no-install-recommends openjdk-7-jre
+$ apt-get install -y  --no-install-recommends openjdk-7-jdk
 $ apt-get install -y wget
 $ apt-get install -y zip
 $ apt-get install -y git
@@ -483,15 +485,29 @@ sudo docker build -rm -t USER/REPO:TAG docker-dir/
 #+END_SRC
 builds the WebApp container using the docker file inside =docker-dir/= and pushes it into repository =USER/REPO= with tag =TAG=. 
 
-*** Multiple  Dockerfiles 
-Creating directories for each build step, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. 
-+ =01\_openjdk7/Dockerfile= creates an image with /Java/ and some utilities installed
-+ =02\_tomcat7/Dockerfile= installs /tomcat7/ as the servlet engine
-+ =03\_install\_scala/Dockerfile= installs /Scala/ and compiles a sample WebApp
-+ =04\deploy\_scala/Dockerfile=  compiles the sample WebApp and copies the war-file into /tomcat7/ webapp directory
-+ =scala/Dockerfile= installs the dependencies to host the /Scala/ WebApp inside a /tomcat7/ container in a /Docker/ image
+*** Multiple  Dockerfiles
+Creating directories for each build step, we can split building the image into different tasks. This eases testing of the =RUN= commands inside the docker files. As a drawback, each docker file expects the output of the previous build process to be tagged in a specific way. 
+- =container_builds/01_openjdk7/= [[file:container_builds/01_openjdk7/Dockerfile][Dockerfile]]
+ + Does not expect a specially  tagged image 
+ + creates an image with /Java/ and some utilities installed 
+ + should be tagged =ubuntu/openjdk7= for the next build step
+- =container_builds/2_tomcat7/= [[file:container_builds/02_tomcat7/Dockerfile][Dockerfile]]
+  + expects image =ubuntu/openjdk7= 
+  + installs /tomcat7/ as the servlet engine 
+  + should be tagged =ubuntu/tomcat7=
+- =container_builds/03_install_scala/= [[file:container_builds/03_install_scala/Dockerfile][Dockerfile]] 
+ + expects image =ubuntu/tomcat7= 
+ + installs /Scala/ and compiles a sample WebApp 
+ + should be tagged =ubuntu/scala=
+- =container_builds/04_deploy_scala/= [[file:container_builds/04_deploy_scala/Dockerfile][Dockerfile]]  
+ + expects image =ubuntu/scala= 
+ + compiles the sample WebApp and copies the war-file into /tomcat7/ webapp directory
 
-Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the =RUN= commands from all the docker files into one single file as in the previous section.
+Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the =RUN= commands from all the docker files into one single file. We did this with
+- =container_builds/scala/= [[file:container_builds/scala/Dockerfile][Dockerfile]] 
+ + does not expect a specially tagged image
+ + installs the  /Scala/ WebApp in a /Docker/ image, downloads a /git/ repository with the /Scala/ Webap source code, compiles the war file and provisions it inside a /tomcat7/ sevlet engine
+
 *** Starting the container
 The sample WebApp gets served by the /tomcat7/ instance on port 8080. In order to expose this container port by the docker host we run the container  typing:
 #+BEGIN_SRC sh

@@ -19,9 +19,9 @@ RUN apt-get install -y sudo
 RUN apt-get install -y unzip
 
 
-# create user ubuntu with password '***REMOVED***'
+# create user ubuntu with password 'werdenn123'
 ENV USER_NAME test
-ENV USER_PASSWD ***REMOVED***
+ENV USER_PASSWD werdenn123
 RUN useradd -d /home/$USER_NAME -c "$USER_NAME USER" -m -s /bin/bash -p $(echo "$USER_PASSWD" | openssl passwd -1 -stdin) $USER_NAME
 
 ADD ubuntu /etc/sudoers.d/90-ubuntu
