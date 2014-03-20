@@ -17,8 +17,8 @@ RUN apt-get update
 RUN apt-get install -y apt-utils
 
 # We need jdk at least version 6, wegt zip :
-RUN apt-get install -y openjdk-7-jre
-RUN apt-get install -y openjdk-7-jdk
+RUN apt-get install -y  --no-install-recommends openjdk-7-jre
+RUN apt-get install -y  --no-install-recommends openjdk-7-jdk
 RUN apt-get install -y wget
 RUN apt-get install -y zip
 RUN apt-get install -y git
