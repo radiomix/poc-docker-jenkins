@@ -43,9 +43,9 @@ RUN wget -O /tmp/master.zip https://github.com/Lift/Lift_26_sbt/archive/master.z
 RUN unzip -d /opt/ /tmp/master.zip
 RUN rm -f /tmp/master.zip
 
-# create user ubuntu with password 'werdenn123'
+# create user ubuntu with password '***REMOVED***'
 #ENV USER_NAME ubuntu
-#ENV USER_PASSWD werdenn123
+#ENV USER_PASSWD ***REMOVED***
 #RUN useradd -d /home/$USER_NAME -c "$USER_NAME USER" -m -s /bin/bash -p $(echo "$USER_PASSWD" | openssl passwd -1 -stdin) $USER_NAME
 
 #####################################
