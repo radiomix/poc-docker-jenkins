@@ -1,0 +1,55 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "security_group_id": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-west-2",
+    "source_ami": "ami-fa9cf1ca",
+    "instance_type": "t1.micro",
+    "ssh_username": "ubuntu",
+    "run_tags": {
+	"Name": "docker-chef-solo-mkl-{{timestamp}}"
+    },
+    "ami_name": "docker-chef-solo-mkl-{{timestamp}}",
+    "security_group_id": "{{user `security_group_id`}}"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "sudo apt-get update",
+      "sudo apt-get install -y wget",
+      "sudo apt-get install -y vi",
+      "sudo apt-get install -y git",
+      "sudo apt-get install -y mosh",
+      "sudo apt-get install -y lynx",
+      "sudo apt-get install -y unzip",
+      "which lynx mosh git vi wget unzip",
+      "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
+      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
+      "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
+      "sudo reboot"
+    ]
+  },
+ {
+    "type": "shell",
+    "inline": [
+      "sleep 70",
+      "sudo apt-get update",
+      "echo INSTALLING DOCKER",
+      "sudo apt-get install -y lxc-docker",
+      "sudo docker --version",
+      "sudo service ssh restart"
+    ]
+  },
+ {
+    "type": "chef-solo",
+    "cookbook_paths": ["cookbooks"]
+  }
+ ]
+}
