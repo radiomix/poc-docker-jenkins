@@ -1,4 +1,4 @@
-% Created 2014-03-20 Do 15:15
+% Created 2014-03-26 Mi 10:21
 \documentclass[captions=tableheading]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -503,7 +503,7 @@ sudo docker run -d -p 5000:5000 registry
 \end{verbatim}
 This results in an image tagged \emph{registry} and a container exposing port 5000 running on the same machine.
 
-We provide a bash \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/registry/buildRegistry.sh}{shell script}  to complete the task.
+We provide a bash \href{file:///home/heinz/docker/poc-docker-jenkins/container_builds/registry/buildRegistry.sh}{shell script}  to complete the task.
 \subsection{Registry as a Web Services}
 \label{sec-3-6}
 
@@ -680,25 +680,25 @@ builds the WebApp container using the docker file inside \texttt{docker-dir/} an
 
 Creating directories for each build step, we can split building the image into different tasks. This eases testing of the \texttt{RUN} commands inside the docker files. As a drawback, each docker file expects the output of the previous build process to be tagged in a specific way. 
 \begin{itemize}
-\item \texttt{container\_builds/01\_openjdk7/} \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/01_openjdk7/Dockerfile}{Dockerfile}
+\item \texttt{container\_builds/01\_openjdk7/} \href{file:///home/heinz/docker/poc-docker-jenkins/container_builds/01_openjdk7/Dockerfile}{Dockerfile}
 \begin{itemize}
 \item Does not expect a specially  tagged image
 \item creates an image with \emph{Java} and some utilities installed
 \item should be tagged \texttt{ubuntu/openjdk7} for the next build step
 \end{itemize}
-\item \texttt{container\_builds/2\_tomcat7/} \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/02_tomcat7/Dockerfile}{Dockerfile}
+\item \texttt{container\_builds/2\_tomcat7/} \href{file:///home/heinz/docker/poc-docker-jenkins/container_builds/02_tomcat7/Dockerfile}{Dockerfile}
 \begin{itemize}
 \item expects image \texttt{ubuntu/openjdk7}
 \item installs \emph{tomcat7} as the servlet engine
 \item should be tagged \texttt{ubuntu/tomcat7}
 \end{itemize}
-\item \texttt{container\_builds/03\_install\_scala/} \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/03_install_scala/Dockerfile}{Dockerfile}
+\item \texttt{container\_builds/03\_install\_scala/} \href{file:///home/heinz/docker/poc-docker-jenkins/container_builds/03_install_scala/Dockerfile}{Dockerfile}
 \begin{itemize}
 \item expects image \texttt{ubuntu/tomcat7}
 \item installs \emph{Scala} and compiles a sample WebApp
 \item should be tagged \texttt{ubuntu/scala}
 \end{itemize}
-\item \texttt{container\_builds/04\_deploy\_scala/} \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/04_deploy_scala/Dockerfile}{Dockerfile}
+\item \texttt{container\_builds/04\_deploy\_scala/} \href{file:///home/heinz/docker/poc-docker-jenkins/container_builds/04_deploy_scala/Dockerfile}{Dockerfile}
 \begin{itemize}
 \item expects image \texttt{ubuntu/scala}
 \item compiles the sample WebApp and copies the war-file into \emph{tomcat7} webapp directory
@@ -707,7 +707,7 @@ Creating directories for each build step, we can split building the image into d
 
 Note that each step in the installation process expects the previous image to be tagged properly. This can be avoided by concatenating the \texttt{RUN} commands from all the docker files into one single file. We did this with
 \begin{itemize}
-\item \texttt{container\_builds/scala/} \href{file:///debiandata/michael/elemica/docker/poc-docker-jenkins/container_builds/scala/Dockerfile}{Dockerfile}
+\item \texttt{container\_builds/scala/} \href{file:///home/heinz/docker/poc-docker-jenkins/container_builds/scala/Dockerfile}{Dockerfile}
 \begin{itemize}
 \item does not expect a specially tagged image
 \item installs the  \emph{Scala} WebApp in a \emph{Docker} image, downloads a \emph{git} repository with the \emph{Scala} Webap source code, compiles the war file and provisions it inside a \emph{tomcat7} sevlet engine
@@ -1030,12 +1030,14 @@ Fetching the latest release of the application results in an immutable image alt
 \item Which services are on what ports on the docker host as well as in the container?
 \item What is the standard maintenance port?
 \item What firewall rules are involved?
+\item Release changes by port switching, to allow two containers with the same application of different release numbers.
 \end{itemize}
 \subsection{Logging}
 \label{sec-10-2}
 
 \begin{itemize}
-\item How is logging done on the docker host as well as in the container?
+\item How is logging done on the \emph{Docker} host as well as in the container?
+\item Logfiles have to contain meta information about the container or the application, that is currently logging.
 \end{itemize}
 \subsection{Persistence}
 \label{sec-10-3}
