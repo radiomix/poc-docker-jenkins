@@ -709,7 +709,11 @@ This AMI is capable of running =docker= as well as =packer=, thus we will build 
 ** Building a /Docker/ container
 Suppose the above /Packer/ call provisioned an AMI with ID ami-f6e38dc6. This shall be the starting point to build /Docker/ containers:
 #+BEGIN_SRC sh
-#+END_SRC
+#+END_SRCa
+** Building a /Chef/ /Docker/ 
+We install this [[https://github.com/opscode-cookbooks/jetty/archive/master.zip][jetty cookbook]]  on a /Chef/ and /Docker/ capable AMI.
+#+BEGIN_SRC sh
+#+END_SRCa
 * AWS
 After testing the /Docker/ installation locally we moved to Amazon Web Services launching four AMI  of type Ubuntu Server 12.04 LTS (PV) - ami-fa9cf1ca (64-bit), attached an Elastic IP to each and run them as:
  - a /Docker/ registry server to keep the /Docker/ images exposing port 5000
@@ -759,8 +763,13 @@ Fetching the latest release of the application results in an immutable image alt
 - Which services are on what ports on the docker host as well as in the container?
 - What is the standard maintenance port?
 - What firewall rules are involved?
+- Release changes by port switching, to allow two containers with the same application of different release numbers.
 ** Logging
-- How is logging done on the docker host as well as in the container? 
+- How is logging done on the /Docker/ host as well as in the container? 
+- Logfiles should be persistent on the /Docker/ host to be readable after the container died.
+- Logfiles have to contain meta information about the container or the application, that is currently logging.
+
+
 ** Persistence
 - What volumes are added to a container to store its data persistently? 
 - What happens with a write-processe if either the docker host or the container gets down? This could happen, if an AMI gets moved by AWS within an availability zone. 
