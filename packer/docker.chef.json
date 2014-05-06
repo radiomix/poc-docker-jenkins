@@ -47,8 +47,8 @@
       "sudo apt-get update",
       "sudo apt-get safe-upgrade",
       "sudo apt-get install -y ruby ruby1.8-dev build-essentials libruby1.8 rubygems",
-      "sudo gem update --no-rdoc --no-ri"
-      "sudo gem install ohai chef --no-rdoc --no-ri"
+      "sudo gem update --no-rdoc --no-ri",
+      "sudo gem install ohai chef --no-rdoc --no-ri",
       "sudo chef-solo -v"
     ]
   }
