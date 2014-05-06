@@ -37,19 +37,20 @@
     ]
   },
  {
+    "type": "chef-solo",
+    "cookbook_paths": ["cookbooks"]
+  }, {
     "type": "shell",
     "inline": [
       "sleep 70",
+      "echo CONFIGURING CHEF SOLO",
       "sudo apt-get update",
-      "echo INSTALLING DOCKER",
-      "sudo apt-get install -y lxc-docker",
-      "sudo docker --version",
-      "sudo service ssh restart"
+      "sudo apt-get safe-upgrade",
+      "sudo apt-get install -y ruby ruby1.8-dev build-essentials libruby1.8 rubygems",
+      "sudo gem update --no-rdoc --no-ri"
+      "sudo gem install ohai chef --no-rdoc --no-ri"
+      "sudo chef-solo -v"
     ]
-  },
- {
-    "type": "chef-solo",
-    "cookbook_paths": ["cookbooks"]
   }
  ]
 }
