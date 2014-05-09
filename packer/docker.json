@@ -13,9 +13,9 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-	"Name": "docker-mkl-{{timestamp}}"
+	"Name": "docker-{{timestamp}}"
     },
-    "ami_name": "docker-mkl-{{timestamp}}",
+    "ami_name": "docker-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
