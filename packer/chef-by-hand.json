@@ -33,7 +33,7 @@
     "type": "shell",
     "inline": [
       "sleep 70",
-      "echo CONFIGURING CHEF SOLO",
+      "echo INSTALLING CHEF SOLO",
       "sudo apt-get update",
       "sudo apt-get install -y ruby",
       "sudo apt-get install -y ruby1.8-dev",

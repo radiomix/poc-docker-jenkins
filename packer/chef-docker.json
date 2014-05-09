@@ -9,13 +9,13 @@
     "access_key": "{{user `aws_access_key`}}",
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "us-west-2",
-    "source_ami": "ami-e7fb8cd7",
+    "source_ami": "ami-ed0a7cdd",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-	"Name": "chef-solo-{{timestamp}}"
+	"Name": "chef-docker-{{timestamp}}"
     },
-    "ami_name": "chef-solo-{{timestamp}}",
+    "ami_name": "chef-docker-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
@@ -30,6 +30,17 @@
       "echo RUNNIGN BASIC CHEF-SOLO CONFIG",
       "sudo chef-solo -c /home/ubuntu/chef/solo.rb"
     ]
+  },
+ {
+ "type": "shell",
+  "inline": [
+     "sleep 70",
+     "sudo apt-get update",
+     "echo INSTALLING DOCKER",
+     "sudo apt-get install -y lxc-docker",
+     "sudo docker --version",
+     "sudo service ssh restart"
+   ]
   }
  ]
 }
