@@ -13,9 +13,9 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-	"Name": "base-{{timestamp}}"
+	"Name": "base-ami-{{timestamp}}"
     },
-    "ami_name": "base-{timestamp}}",
+    "ami_name": "base-ami-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
@@ -31,16 +31,25 @@
       "sudo apt-get install -y mosh",
       "sudo apt-get install -y lynx",
       "sudo apt-get install -y unzip",
-      "sudo apt-get install -y exim4",
-      "sudo apt-get install -y logwatch",
-      "sudo apt-get install -y snort",
-      "sudo apt-get install -y rkhunter",
       "which lynx mosh git vi wget unzip",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
       "sudo reboot",
       "sudo uname -a"
+    ]
+  },
+  {
+  "type": "file",
+  "source": "hosts.im7",
+  "destination": "/tmp/hosts.im7"
+  },
+  {
+  "type": "shell",
+    "inline": [
+      "sleep 30",
+      "echo ADDING IM7 HOST NAMES TO ETC HOSTS",
+      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts"
     ]
   }
  ]
