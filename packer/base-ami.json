@@ -40,6 +40,13 @@
     ]
   },
   {
+  "type": "shell",
+    "inline": [
+      "sleep 70",
+      "echo WAITING FOR REEBOOT"
+    ]
+  },
+  {
   "type": "file",
   "source": "hosts.im7",
   "destination": "/tmp/hosts.im7"

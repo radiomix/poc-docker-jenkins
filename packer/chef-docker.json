@@ -9,7 +9,7 @@
     "access_key": "{{user `aws_access_key`}}",
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "us-west-2",
-    "source_ami": "ami-ed0a7cdd",
+    "source_ami": "ami-c30273f3",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
@@ -18,10 +18,22 @@
     "ami_name": "chef-docker-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
-  "provisioners": [{
-   "type": "chef-solo",
-   "cookbook_paths": ["cookbooks"]
-  },
+  "provisioners": [
+  {
+    "type": "shell",
+    "inline": [
+      "sleep 70",
+      "echo INSTALLING CHEF ",
+      "sudo apt-get update",
+      "sudo apt-get install -y ruby",
+      "sudo apt-get install -y ruby1.8-dev",
+      "sudo apt-get install -y build-essential",
+      "sudo apt-get install -y libruby1.8",
+      "sudo apt-get install -y rubygems",
+      "sudo gem update --no-rdoc --no-ri",
+      "sudo gem install ohai chef --no-rdoc --no-ri"
+    ]
+ },
   {
   "type": "shell",
     "inline": [
