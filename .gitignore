@@ -12,3 +12,6 @@
 # '#' files
 \#*
 .\#*
+
+# log files
+*log
