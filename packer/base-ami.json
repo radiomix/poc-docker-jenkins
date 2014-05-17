@@ -59,12 +59,10 @@
     "inline": [
       "sleep 30",
       "echo ADDING IM7 HOST NAMES TO ETC HOSTS",
-      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts"
-    ]
-  },
-  {
-  "type": "shell", 
-    "inline": [
+      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
+      "mkdir docker",
+      "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
+      "cd",
       "echo Installing CHEF",
       "curl -L https://www.opscode.com/chef/install.sh | sudo bash"
     ]
