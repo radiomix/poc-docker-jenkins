@@ -13,13 +13,13 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-	"Name": "base-ami-{{timestamp}}"
+	"Name": "base-ami-docker-chef{{timestamp}}"
     },
-    "ami_name": "base-ami-{{timestamp}}",
+    "ami_name": "base-ami-docker-chef{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
-    "type": "shell",
+    "type": "shell",  
     "inline": [
       "sleep 30",
       "sudo apt-get update",
@@ -31,6 +31,9 @@
       "sudo apt-get install -y mosh",
       "sudo apt-get install -y lynx",
       "sudo apt-get install -y unzip",
+      "sudo apt-get install -y debconf-utils",
+      "sudo DEBIAN_FRONTEND='noninteractive' apt-get install -y  logwatch",
+      "sudo DEBIAN_FRONTEND='noninteractive' apt-get install -y  snort",
       "which lynx mosh git vi wget unzip",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
@@ -40,24 +43,42 @@
     ]
   },
   {
-  "type": "shell",
+  "type": "shell",  
     "inline": [
       "sleep 70",
       "echo WAITING FOR REEBOOT"
     ]
   },
   {
-  "type": "file",
+  "type": "file",  
   "source": "hosts.im7",
   "destination": "/tmp/hosts.im7"
   },
   {
-  "type": "shell",
+  "type": "shell", 
     "inline": [
       "sleep 30",
       "echo ADDING IM7 HOST NAMES TO ETC HOSTS",
       "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts"
     ]
+  },
+  {
+  "type": "shell", 
+    "inline": [
+      "echo Installing CHEF",
+      "curl -L https://www.opscode.com/chef/install.sh | sudo bash"
+    ]
+  },
+ {
+ "type": "shell", 
+  "inline": [
+     "sleep 70",
+     "sudo apt-get update",
+     "echo INSTALLING DOCKER",
+     "sudo apt-get install -y lxc-docker",
+     "sudo docker --version",
+     "sudo service ssh restart"
+   ]
   }
  ]
 }
