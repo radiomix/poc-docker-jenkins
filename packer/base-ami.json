@@ -38,6 +38,7 @@
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
+      "sudo apt-get update",
       "sudo reboot",
       "sudo uname -a"
     ]
@@ -57,25 +58,19 @@
   {
   "type": "shell", 
     "inline": [
-      "sleep 30",
-      "echo ADDING IM7 HOST NAMES TO ETC HOSTS",
-      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
-      "mkdir docker",
-      "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
-      "cd",
-      "echo Installing CHEF",
-      "curl -L https://www.opscode.com/chef/install.sh | sudo bash"
-    ]
-  },
- {
- "type": "shell", 
-  "inline": [
-     "sleep 70",
-     "sudo apt-get update",
+     "sleep 30",
+     "echo ADDING IM7 HOST NAMES TO ETC HOSTS",
+     "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
+     "mkdir docker",
+     "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
+     "cd",
+     "echo Installing CHEF",
+     "curl -L https://www.opscode.com/chef/install.sh | sudo bash",
      "echo INSTALLING DOCKER",
      "sudo apt-get install -y lxc-docker",
      "sudo docker --version",
-     "sudo service ssh restart"
+     "sudo service ssh restart",
+     "sudo apt-get -y upgrade"
    ]
   }
  ]
