@@ -77,8 +77,9 @@
      "echo INSTALLING DOCKERIZE",
      "cd docker && git clone http://github.com/cambridge-healthcare/dockerize.git",
      "echo ADDING DOCKERIZE TO PATH",
-     "/tmp/dockerize.sh",
-     "rm -f /tmp/dockerize.txt"
+     "chmod a+x /tmp/dockerize.sh",
+     "sudo /tmp/dockerize.sh",
+     "rm -f /tmp/dockerize.sh"
    ]
   }
  ]
