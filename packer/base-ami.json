@@ -32,8 +32,6 @@
       "sudo apt-get install -y lynx",
       "sudo apt-get install -y unzip",
       "sudo apt-get install -y debconf-utils",
-      "sudo debian_frontend='noninteractive' apt-get install -y  logwatch",
-      "sudo debian_frontend='noninteractive' apt-get install -y  snort",
       "which lynx mosh git vi wget unzip",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36a1d7869245c8950f966e92d8576a8ba88d21e9",
