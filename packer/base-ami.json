@@ -13,7 +13,7 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-	"Name": "base-ami-docker-chef{{timestamp}}"
+	"name": "base-ami-dockerize-chef{{timestamp}}"
     },
     "ami_name": "base-ami-docker-chef{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
@@ -32,11 +32,11 @@
       "sudo apt-get install -y lynx",
       "sudo apt-get install -y unzip",
       "sudo apt-get install -y debconf-utils",
-      "sudo DEBIAN_FRONTEND='noninteractive' apt-get install -y  logwatch",
-      "sudo DEBIAN_FRONTEND='noninteractive' apt-get install -y  snort",
+      "sudo debian_frontend='noninteractive' apt-get install -y  logwatch",
+      "sudo debian_frontend='noninteractive' apt-get install -y  snort",
       "which lynx mosh git vi wget unzip",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
-      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
+      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36a1d7869245c8950f966e92d8576a8ba88d21e9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
       "sudo reboot",
       "sudo uname -a"
@@ -46,7 +46,7 @@
   "type": "shell",  
     "inline": [
       "sleep 70",
-      "echo WAITING FOR REEBOOT"
+      "echo waiting for reeboot"
     ]
   },
   {
@@ -58,19 +58,23 @@
   "type": "shell", 
     "inline": [
      "sleep 30",
-     "echo ADDING IM7 HOST NAMES TO ETC HOSTS",
+     "echo adding im7 host names to etc hosts",
      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
      "mkdir docker",
      "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd",
-     "echo Installing CHEF",
-     "curl -L https://www.opscode.com/chef/install.sh | sudo bash",
-     "echo INSTALLING DOCKER",
-      "sudo apt-get update",
+     "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
+     "echo installing docker",
+     "sudo apt-get update",
      "sudo apt-get install -y lxc-docker",
-     "sudo service ssh restart",
+     "sudo gpasswd -a ubuntu docker",
+     "docker --version",
+     "sudo service docker restart",
      "sudo apt-get -y upgrade",
-     "sudo docker --version"
+     "echo installing dockerize",
+     "cd docker && git clone http://github.com/cambridge-healthcare/dockerize.git",
+     "sudo bash -c  'cat ./dockerize.sh >> ~/.bashrc",
+     "dockerize"
    ]
   }
  ]
