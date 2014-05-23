@@ -36,15 +36,14 @@
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36a1d7869245c8950f966e92d8576a8ba88d21e9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
-      "sudo reboot",
       "sudo uname -a"
     ]
   },
   {
   "type": "shell",  
     "inline": [
-      "sleep 70",
-      "echo waiting for reeboot"
+      "sleep 10",
+      "echo WAITING for 10 sec"
     ]
   },
   {
@@ -53,26 +52,33 @@
   "destination": "/tmp/hosts.im7"
   },
   {
+   "type": "file",
+   "source": "dockerize.sh",
+   "destination": "/tmp/dockerize.sh"
+  },
+  {
   "type": "shell", 
     "inline": [
      "sleep 30",
-     "echo adding im7 host names to etc hosts",
+     "echo ADDING im7 HOST NAMES to etc hosts",
      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
+     "rm -f /tmp/hosts.im7",
      "mkdir docker",
      "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd",
      "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
-     "echo installing docker",
+     "echo INSTALLING DOCKER",
      "sudo apt-get update",
      "sudo apt-get install -y lxc-docker",
      "sudo gpasswd -a ubuntu docker",
-     "docker --version",
      "sudo service docker restart",
+     "docker --version",
      "sudo apt-get -y upgrade",
-     "echo installing dockerize",
+     "echo INSTALLING DOCKERIZE",
      "cd docker && git clone http://github.com/cambridge-healthcare/dockerize.git",
-     "sudo bash -c  'cat ./dockerize.sh >> ~/.bashrc",
-     "dockerize"
+     "echo ADDING DOCKERIZE TO PATH",
+     "/tmp/dockerize.sh",
+     "rm -f /tmp/dockerize.txt"
    ]
   }
  ]
