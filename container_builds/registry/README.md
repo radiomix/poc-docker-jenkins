@@ -4,7 +4,7 @@ docker registry
 Build a private registry from [Dotcloud Github Repo](https://github.com/dotcloud/docker-registry)
 
 
-Docker Version
+registry reachability
 ========
 
 We tested container samalba/docker-registry 
