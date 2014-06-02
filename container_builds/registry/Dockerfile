@@ -18,11 +18,20 @@ MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 ADD ./config.yml /docker-registry/config/config.yml
 ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
 ENV SETTINGS_FLAVOR dev
+ENV PRIVILEGED_KEY /registry-storage/registry.public.pem
+ENV SQLALCHEMY_INDEX_DATABASE sqlite:////registry-storage/docker-registry.db
+ENV STORAGE_PATH /registry-storage
+
 
 # add start script
 ADD start_script.sh /usr/local/bin/registry_start.sh
+
+#ENTRYPOINT can NOT be overridden with `docker run .... /my/command`
+#CMD IS overridden by `docker run .... /my/command`
 #ENTRYPOINT ["/usr/local/bin/registry_start.sh"]
 CMD ["/usr/local/bin/registry_start.sh"]
+
+
 
 EXPOSE 5000 80
 
