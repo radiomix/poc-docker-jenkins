@@ -13,7 +13,8 @@
 #MKL 
 export SEARCH_BACKEND=sqlalchemy
 export STORAGE_PATH=/registry-storage
-
+export DOCKER_REGISTRY_CONFIG=/docker-registry/config/config.yml
+export PRIVILEGED_KEY=/registry-storage/registry.public.pem
 # To specify another flavor, set the environment variable SETTINGS_FLAVOR
 export SETTINGS_FLAVOR=dev
 
