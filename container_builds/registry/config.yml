@@ -8,10 +8,10 @@ common:
     standalone: _env:STANDALONE:standalone
     index_endpoint: _env:INDEX_ENDPOINT
     disable_token_auth: _env:DISABLE_TOKEN_AUTH
-    privileged_key: _env:PRIVILEGED_KEY:/registry-storage/registry.public.pem
+    privileged_key: _env:PRIVILEGED_KEY:/registry-storage/registry.public.pem #MKL 
 
     search_backend: _env:SEARCH_BACKEND
-    sqlalchemy_index_database: _env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/docker-registry.db
+    sqlalchemy_index_database: _env:SQLALCHEMY_INDEX_DATABASE:sqlite:////registry-storage/docker-registry.db #MKL
 
     mirroring:
         source: _env:MIRROR_SOURCE # https://registry-1.docker.io
@@ -46,7 +46,7 @@ common:
 
 local: &local
     storage: local
-    storage_path: _env:STORAGE_PATH:/tmp/registry
+    storage_path: _env:STORAGE_PATH:/registry-storage #MKL
 
 
 s3: &s3
@@ -59,72 +59,6 @@ s3: &s3
     s3_secure: _env:AWS_SECURE:true
     s3_access_key: _env:AWS_KEY
     s3_secret_key: _env:AWS_SECRET
-
-# Google Cloud Storage Configuration
-# See:
-# https://developers.google.com/storage/docs/reference/v1/getting-startedv1#keys
-# for details on access and secret keys.
-gcs:
-    storage: gcs
-    boto_bucket: _env:GCS_BUCKET
-    storage_path: _env:STORAGE_PATH:/registry
-    gs_secure: _env:GCS_SECURE:true
-    gs_access_key: _env:GCS_KEY
-    gs_secret_key: _env:GCS_SECRET
-    # OAuth 2.0 authentication with the storage.
-    # oauth2 can be set to true or false. If it is set to true, gs_access_key,
-    # gs_secret_key and gs_secure are not needed.
-    # Client ID and Client Secret must be set into OAUTH2_CLIENT_ID and
-    # OAUTH2_CLIENT_SECRET environment variables.
-    # See: https://developers.google.com/accounts/docs/OAuth2.
-    oauth2: _env:GCS_OAUTH2:false
-
-# This flavor is for storing images in Openstack Swift
-swift: &swift
-    storage: swift
-    storage_path: _env:STORAGE_PATH:/registry
-    # keystone authorization
-    swift_authurl: _env:OS_AUTH_URL
-    swift_container: _env:OS_CONTAINER
-    swift_user: _env:OS_USERNAME
-    swift_password: _env:OS_PASSWORD
-    swift_tenant_name: _env:OS_TENANT_NAME
-    swift_region_name: _env:OS_REGION_NAME
-
-# This flavor stores the images in Glance (to integrate with openstack)
-# See also: https://github.com/dotcloud/openstack-docker
-glance: &glance
-    storage: glance
-    storage_alternate: _env:GLANCE_STORAGE_ALTERNATE:local
-    storage_path: _env:STORAGE_PATH:/tmp/registry
-
-openstack:
-    <<: *glance
-
-# This flavor stores the images in Glance (to integrate with openstack)
-# and tags in Swift.
-glance-swift: &glance-swift
-    <<: *swift
-    storage: glance
-    storage_alternate: swift
-
-openstack-swift:
-    <<: *glance-swift
-
-elliptics:
-    storage: elliptics
-    elliptics_nodes: _env:ELLIPTICS_NODES
-    elliptics_wait_timeout: _env:ELLIPTICS_WAIT_TIMEOUT:60
-    elliptics_check_timeout: _env:ELLIPTICS_CHECK_TIMEOUT:60
-    elliptics_io_thread_num: _env:ELLIPTICS_IO_THREAD_NUM:2
-    elliptics_net_thread_num: _env:ELLIPTICS_NET_THREAD_NUM:2
-    elliptics_nonblocking_io_thread_num: _env:ELLIPTICS_NONBLOCKING_IO_THREAD_NUM:2
-    elliptics_groups: _env:ELLIPTICS_GROUPS
-    elliptics_verbosity: _env:ELLIPTICS_VERBOSITY:4
-    elliptics_logfile: _env:ELLIPTICS_LOGFILE:/dev/stderr
-    elliptics_addr_family: _env:ELLIPTICS_ADDR_FAMILY:2
-
-
 
 # This is the default configuration when no flavor is specified
 # MKL 
