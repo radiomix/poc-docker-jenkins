@@ -8,10 +8,10 @@ common:
     standalone: _env:STANDALONE:standalone
     index_endpoint: _env:INDEX_ENDPOINT
     disable_token_auth: _env:DISABLE_TOKEN_AUTH
-    privileged_key: _env:PRIVILEGED_KEY:/registry-storage/registry.public.pem #MKL 
+    privileged_key: _env:PRIVILEGED_KEY:/tmp/registry/registry.public.pem #MKL 
 
     search_backend: _env:SEARCH_BACKEND
-    sqlalchemy_index_database: _env:SQLALCHEMY_INDEX_DATABASE:sqlite:////registry-storage/docker-registry.db #MKL
+    sqlalchemy_index_database: _env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/registry/docker-registry.db #MKL
 
     mirroring:
         source: _env:MIRROR_SOURCE # https://registry-1.docker.io
@@ -46,7 +46,7 @@ common:
 
 local: &local
     storage: local
-    storage_path: _env:STORAGE_PATH:/registry-storage #MKL
+    storage_path: _env:STORAGE_PATH:/tmp/registry #MKL
 
 
 s3: &s3
@@ -65,7 +65,7 @@ s3: &s3
 dev: &dev
     <<: *local
     search_backend: _env:SEARCH_BACKEND:sqlalchemy
-    storage_path: _env:STORAGE_PATH:/registry-storage
+    storage_path: _env:STORAGE_PATH:/tmp/registry
 
 # This flavor is automatically used by unit tests
 test:
