@@ -6,10 +6,16 @@
 # Version:	0.7
 # 
 # We let docker build a new registry container and tag it my-registry:base
+# We don`t use the cache but build from scratch
 # We could as well just pull samalba/docker-registry from docker.io
 #
 
 
+# set container config variables, that are used in config.yml 
+source ./config.sh
+
+# use this to pass docker build options like --no-cache
+BUILD_OPT=" --no-cache --rm "
 
 
 # test for input parameter
@@ -53,7 +59,7 @@ case "$1" in
 	cd /tmp/docker-registry; sudo  cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml config/config.yml
 
 	# build a docker image
-	sudo cd /tmp/docker-registry; sudo docker build -rm -t my-registry:base . 
+	sudo cd /tmp/docker-registry; sudo docker build $BUILD_OPT --rm -t my-registry:base . 
 	sudo docker images 
 
 
@@ -77,8 +83,9 @@ build.sh -h --help      this message
 esac
 
 
+BUILD_OPT_MASTER=" --no-cache --rm "
 # build docker registry with apache
-sudo docker build -t my-registry:mkl . 
+sudo docker build $BUILD_OPT_MASTER -t my-registry:mkl . 
 
 ## we are done: 
 echo ""
@@ -86,6 +93,9 @@ echo ""
 echo " WE ARE DONE: "
 #echo " to run the REGISTRY as a GUNICORN APPLICATION type:"
 #echo "sudo gunicorn --access-logfile - --log-level debug --debug -b 0.0.0.0:5000 -w 1 wsgi:application"
+echo ""
+echo "If you want the config variables in config.sh to take effect type:"
+echo "source ./config.sh"
 echo ""
 echo "to run REGISTRY as a DOCKER CONTAINER interactively type:"
 echo "sudo docker run -i -t -p 5000:5000 my-registry:mkl /bin/bash "
