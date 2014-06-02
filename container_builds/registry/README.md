@@ -15,11 +15,6 @@ build.sh -b --build     build a fresh registry container and configure it
 build.sh -p --pull      pull container samalba/docker-registry and configure it
 build.sh -h --help      this message
 ```
-config.sh
-===
-This script exports variable that are read by the container config file,
-thus we can configure the container before starting it by sourcing this file.
-
 
 registry reachability
 ========
