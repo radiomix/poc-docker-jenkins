@@ -14,13 +14,13 @@ MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 
 ## REGISTRY CODE
-#add config file
-ADD ./config.yml /docker-registry/config/config.yml
 ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
+ADD ./config.yml /docker-registry/config/config.yml
 ENV SETTINGS_FLAVOR dev
-ENV PRIVILEGED_KEY /registry-storage/registry.public.pem
-ENV SQLALCHEMY_INDEX_DATABASE sqlite:////registry-storage/docker-registry.db
-ENV STORAGE_PATH /registry-storage
+ADD ./registry.public.pem /docker-registry/
+ENV PRIVILEGED_KEY /docker-registry/registry.public.pem
+ENV SQLALCHEMY_INDEX_DATABASE sqlite:////tmp/docker-registry.db
+ENV STORAGE_PATH /tmp/
 
 
 # add start script

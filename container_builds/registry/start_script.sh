@@ -5,7 +5,6 @@
 #
 
 
-service apache2 start
-docker-registry &
+docker-registry 
 exit
 
