@@ -13,7 +13,7 @@ Usage
 ```bash
 build.sh -b --build     build a fresh registry container and configure it
 build.sh -p --pull      pull container samalba/docker-registry and configure it
-build.sh -h --help      this 
+build.sh -h --help      this message
 ```
 config.sh
 ===
