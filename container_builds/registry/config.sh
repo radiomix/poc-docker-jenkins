@@ -1,15 +1,13 @@
 #!/bin/bash
 
 #
-# This script contains start commands for the docker registry
+# This script contains variables for the docker registry container.
 #
-
-
 
 
 #MKL 2014.06.02
 
-# These environment variables will be passed to the container
+# These environment variables will be passed to the container`s config file 
 # For a complete explanation look at https://github.com/dotcloud/docker-registry/blob/master/config/config_sample.yml
 
 #MKL 

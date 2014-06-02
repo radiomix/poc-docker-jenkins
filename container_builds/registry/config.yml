@@ -5,7 +5,7 @@
 common:
     loglevel: _env:LOGLEVEL:debug
     storage_redirect: _env:STORAGE_REDIRECT
-    standalone: _env:STANDALONE
+    standalone: _env:STANDALONE:standalone
     index_endpoint: _env:INDEX_ENDPOINT
     disable_token_auth: _env:DISABLE_TOKEN_AUTH
     privileged_key: _env:PRIVILEGED_KEY
@@ -127,9 +127,11 @@ elliptics:
 
 
 # This is the default configuration when no flavor is specified
+# MKL 
 dev: &dev
     <<: *local
     search_backend: _env:SEARCH_BACKEND:sqlalchemy
+    storage_path: _env:STORAGE_PATH:/registry-storage
 
 # This flavor is automatically used by unit tests
 test:
