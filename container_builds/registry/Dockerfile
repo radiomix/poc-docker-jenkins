@@ -16,7 +16,7 @@ MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 ## REGISTRY CODE
 #add config file
 ADD ./config.yml /docker-registry/config/config.yml
-ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config_sample.yml
+ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
 ENV SETTINGS_FLAVOR dev
 
 # add start script
