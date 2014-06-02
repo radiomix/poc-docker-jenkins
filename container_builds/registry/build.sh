@@ -5,18 +5,21 @@
 # Author:	Michael Klöckner
 # Version:	0.7
 # 
-# We let docker build a new registry container and tag it my-registry:base
+# We let docker build a new registry container and tag it $REG_NAME$REG_BASE_TAG
+# We then configure it for our needs and tag it $REG_NAME$REG_RUN_TAG
 # We don`t use the cache but build from scratch
 # We could as well just pull samalba/docker-registry from docker.io
 #
 
 
-# set container config variables, that are used in config.yml 
-source ./config.sh
+# This is how we call the base container
+REG_NAME="my-registry"
+# This is the tag
+REG_BASE_TAG=":base"
+REG_RUN_TAG=":run"
 
 # use this to pass docker build options like --no-cache
 BUILD_OPT=" --no-cache --rm "
-
 
 # test for input parameter
 case "$1" in
@@ -59,7 +62,7 @@ case "$1" in
 	cd /tmp/docker-registry; sudo  cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml config/config.yml
 
 	# build a docker image
-	sudo cd /tmp/docker-registry; sudo docker build $BUILD_OPT --rm -t my-registry:base . 
+	sudo cd /tmp/docker-registry; sudo docker build $BUILD_OPT --rm -t $REG_NAME$REG_BASE_TAG  . 
 	sudo docker images 
 
 
@@ -68,14 +71,19 @@ case "$1" in
  -p|--pull)
 	echo " Pulling Registry "
 	sudo docker pull samalba/docker-registry
-	sudo docker tag samalba/docker-registry my-registry:base
+	sudo docker tag samalba/docker-registry $REG_NAME$REG_BASE_TAG 
+        ;;
+# ----------------------------------------------------------- #
+ -c|--configure)
+	echo " Configure Registry "
         ;;
 # ----------------------------------------------------------- #
  -h|--help|*)
   echo "
  usage: 
-build.sh -b --build  	build a fresh registry container and configure it
-build.sh -p --pull	pull container samalba/docker-registry and configure it
+build.sh -b --build  	build a fresh base registry container and configure it
+build.sh -p --pull	pull container samalba/docker-registry as base and configure it
+build.sh -c --configure	use the base registry and configure it
 build.sh -h --help      this message
       "
   exit
@@ -85,7 +93,7 @@ esac
 
 BUILD_OPT_MASTER=" --no-cache --rm "
 # build docker registry with apache
-sudo docker build $BUILD_OPT_MASTER -t my-registry:mkl . 
+sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
 
 ## we are done: 
 echo ""
@@ -96,9 +104,9 @@ echo " WE ARE DONE: "
 echo ""
 echo ""
 echo "to run REGISTRY as a DOCKER CONTAINER interactively type:"
-echo "sudo docker run -i -t -p 5000:5000 -v /registry-storage:/registry-storage my-registry:mkl /bin/bash "
+echo "sudo docker run -i -t -p 5000:5000 -v /registry-storage:/registry-storage  $REG_NAME$REG_RUN_TAG /bin/bash "
 echo " within the container you start the registry app typing: docker-registry"
 echo ""
 echo "to run REGISTRY as a DOCKER CONTAINER as a daemon type:"
-echo "sudo docker run -d -p 5000:5000 -v /registry-storage:/registry-storage my-registry:mkl "
+echo "sudo docker run -d -p 5000:5000 -v /registry-storage:/registry-storage $REG_NAME$REG_RUN_TAG "
 echo ""
