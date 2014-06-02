@@ -10,12 +10,11 @@ It then configures the container and tags it my-registry:mkl
 Usage
 ====
 
-'''bash
+```bash
 build.sh -b --build     build a fresh registry container and configure it
 build.sh -p --pull      pull container samalba/docker-registry and configure it
 build.sh -h --help      this 
-'''
-
+```
 config.sh
 ===
 This script exports variable that are read by the container config file,
