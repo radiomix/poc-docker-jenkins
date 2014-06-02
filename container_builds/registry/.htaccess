@@ -1,5 +1,5 @@
 AuthName "Docker"
 AuthType Basic
-AuthUserFile /var/www/dropbox/.htpasswd
+AuthUserFile /var/www/.htpasswd
 require valid-user
 
