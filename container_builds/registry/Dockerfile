@@ -3,15 +3,12 @@
 # Pupose:	extend the registry container with kdocker web ui
 # Author:	Michael Klöckner
 # Version:	0.1
-#
-
 
 # use our base image tagged my-registry
 FROM my-registry:base
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
-
 
 # apche2
 RUN apt-get install -y apache2
@@ -44,8 +41,4 @@ ADD start_script.sh /usr/local/bin/registry_start.sh
 #ENTRYPOINT ["/usr/local/bin/registry_start.sh"]
 CMD ["/usr/local/bin/registry_start.sh"]
 
-
-
 EXPOSE 5000 80
-
-
