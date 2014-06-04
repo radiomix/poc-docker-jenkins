@@ -1,6 +1,6 @@
 # The `common' part is automatically included (and possibly overriden by all
 # other flavors)
-#MKL 2014.06.02
+#MKL 2014.06.04 REV_0_7_0
 
 common:
     loglevel: _env:LOGLEVEL:debug
