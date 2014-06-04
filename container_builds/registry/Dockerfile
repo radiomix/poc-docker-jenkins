@@ -12,17 +12,17 @@ FROM my-registry:base
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 # apche2
-RUN apt-get install -y apache2
-RUN a2enmod proxy_http
-RUN a2enmod ssl
-RUN a2enmod headers
-ADD apache2.registry.conf /etc/apache2/sites-enabled/000-default.conf
-RUM mkdir /etc/apache2/ssl/
-ADD registry.snakeoil.cert /etc/apache2/ssl/registry.cert
-ADD registry.snakeoil.key /etc/apache2/ssl/registry.key
-RUN mkdir  /etc/apache2/authfiles/
-ADD registry.auth /etc/apache2/authfiles/registry
-RUN service apache2 restart
+#RUN apt-get install -y apache2
+#RUN a2enmod proxy_http
+#RUN a2enmod ssl
+#RUN a2enmod headers
+#ADD apache/apache2.registry.conf /etc/apache2/sites-enabled/000-default.conf
+#RUM mkdir /etc/apache2/ssl/
+#ADD apache/registry.snakeoil.cert /etc/apache2/ssl/registry.cert
+#ADD apache/registry.snakeoil.key /etc/apache2/ssl/registry.key
+#RUN mkdir  /etc/apache2/authfiles/
+#ADD apache/registry.auth /etc/apache2/authfiles/registry
+#RUN service apache2 restart
 
 ## REGISTRY CODE
 ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
@@ -42,4 +42,4 @@ ADD start_script.sh /usr/local/bin/registry_start.sh
 #ENTRYPOINT ["/usr/local/bin/registry_start.sh"]
 CMD ["/usr/local/bin/registry_start.sh"]
 
-EXPOSE 5000 80 443
+EXPOSE 5000 

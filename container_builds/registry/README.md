@@ -31,6 +31,16 @@ build.sh -c --config	use the base registry and configure it
 build.sh -h --help      this message
 ```
 
+Kdocker-web
+======
+We use a [Docker Web Gui](https://github.com/tsaikd/kdocker-web) to show local images, 
+not registry content. 
+
+Authentication
+=====
+We use nginx to provide *basic authentication*. Still any one who can log into the
+serve can pull an push any image. 
+
 registry reachability
 ========
 
