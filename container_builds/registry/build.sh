@@ -66,7 +66,7 @@ case "$1" in
 	sudo git clone https://github.com/dotcloud/docker-registry.git /docker-registry
 	cd /docker-registry && sudo git checkout $REG_VERSION
 	# copy local config file:
-	cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml /docker-registry/config/config.yml
+	sudo cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml /docker-registry/config/config.yml
 
 	# install the registry code locally from REG_VERSION
 	sudo pip install /docker-registry/depends/docker-registry-cor
@@ -100,9 +100,9 @@ build.sh -h --help      this message
         ;;
 esac
 
-
+echo "Configuring Base Registry "
 # build docker registry with apache
-sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
+cd ~/docker/poc-docker-jenkins/container_builds/registry &&  sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
 
 ## we are done: 
 echo ""
