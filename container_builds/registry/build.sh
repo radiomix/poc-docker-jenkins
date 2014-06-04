@@ -22,12 +22,14 @@ REG_VERSION="0.7.0"
 
 # use this to pass docker build options like --no-cache
 BUILD_OPT=" --no-cache --rm "
+BUILD_OPT_MASTER=" --no-cache --rm "
+
 
 # test for input parameter
 case "$1" in
 # ----------------------------------------------------------- #
  -b|--base)  # we install dependencies on host to speed up container build
-	echo " Building Registry "
+	echo " Building Registry Version $REG_VERSION"
 	sudo apt-get update
 	sudo apt-get install -y apt-utils
 	sudo apt-get install -y wget
@@ -50,6 +52,7 @@ case "$1" in
 
 	# install deps for backports.lzma (python2 requires it)
 	sudo apt-get -y install python-dev liblzma-dev libevent1-dev
+
 #####################################
 # All we need for the registry is 
 # installed on this host, saving time
@@ -57,19 +60,21 @@ case "$1" in
 #####################################
 
 	# clean up previous github downloads
-	sudo rm -rf /tmp/docker-registry*
+	sudo rm -rf /docker-registry*
 	# download the registry code from github
-	sudo git clone https://github.com/dotcloud/docker-registry.git /tmp/docker-registry
-	cd /tmp/docker-registry && sudo git checkout $REG_VERSION
+	sudo git clone https://github.com/dotcloud/docker-registry.git /docker-registry
+	cd /docker-registry && sudo git checkout $REG_VERSION
 	# copy local config file:
-	cd /tmp/docker-registry; sudo  cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml config/config.yml
+	cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml /docker-registry/config/config.yml
 
-	# build a docker image from the correct github version and tag it as our base image 
-	sudo cd /tmp/docker-registry; sudo docker build $BUILD_OPT --rm -t $REG_NAME$REG_VERSION. 
-	sudo docker tag  $REG_NAME$REG_VERSION $REG_NAME$REG_BASE_TAG  . 
+	# install the registry code locally from REG_VERSION
+	sudo pip install /docker-registry/depends/docker-registry-cor
+	sudo pip install /docker-registry/
+
+	# build a docker image from the REG_VERSION github version and tag it as our base image 
+	sudo docker build $BUILD_OPT --rm -t $REG_NAME:$REG_VERSION  /docker-registry/
+	sudo docker tag  $REG_NAME:$REG_VERSION $REG_NAME$REG_BASE_TAG   
 	sudo docker images 
-
-
         ;;
 # ----------------------------------------------------------- #
  -p|--pull)
@@ -78,7 +83,7 @@ case "$1" in
 	sudo docker tag samalba/docker-registry $REG_NAME$REG_BASE_TAG 
         ;;
 # ----------------------------------------------------------- #
- -c|--configure)
+ -c|--config)
 	echo " Configure Registry "
         ;;
 # ----------------------------------------------------------- #
@@ -95,7 +100,6 @@ build.sh -h --help      this message
 esac
 
 
-BUILD_OPT_MASTER=" --no-cache --rm "
 # build docker registry with apache
 sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
 
