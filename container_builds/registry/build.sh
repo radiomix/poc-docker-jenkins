@@ -17,6 +17,8 @@ REG_NAME="my-registry"
 # This is the tag
 REG_BASE_TAG=":base"
 REG_RUN_TAG=":run"
+# The registry version:  Not all registry version are running smoothly.
+REG_VERSION="0.7.0"    
 
 # use this to pass docker build options like --no-cache
 BUILD_OPT=" --no-cache --rm "
@@ -58,6 +60,7 @@ case "$1" in
 	sudo rm -rf /tmp/docker-registry*
 	# download the registry code from github
 	sudo git clone https://github.com/dotcloud/docker-registry.git /tmp/docker-registry
+	cd /tmp/docker-registry && sudo git checkout $REG_VERSION
 	# copy local config file:
 	cd /tmp/docker-registry; sudo  cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml config/config.yml
 

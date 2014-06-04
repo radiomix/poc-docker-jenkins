@@ -15,7 +15,7 @@ RUN apt-get install -y apache2
 RUN a2enmod proxy_http
 RUN a2enmod ssl
 RUN a2enmod headers
-ADD apache2.registry.conf /etc/apache2/000-default.conf
+ADD apache2.registry.conf /etc/apache2/sites-enabled/000-default.conf
 RUM mkdir /etc/apache2/ssl/
 ADD registry.snakeoil.cert /etc/apache2/ssl/registry.cert
 ADD registry.snakeoil.key /etc/apache2/ssl/registry.key
@@ -41,4 +41,4 @@ ADD start_script.sh /usr/local/bin/registry_start.sh
 #ENTRYPOINT ["/usr/local/bin/registry_start.sh"]
 CMD ["/usr/local/bin/registry_start.sh"]
 
-EXPOSE 5000 80
+EXPOSE 5000 80 443
