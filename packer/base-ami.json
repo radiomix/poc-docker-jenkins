@@ -52,11 +52,6 @@
   "destination": "/tmp/hosts.im7"
   },
   {
-   "type": "file",
-   "source": "dockerize.sh",
-   "destination": "/tmp/dockerize.sh"
-  },
-  {
   "type": "shell", 
     "inline": [
      "sleep 30",
@@ -65,6 +60,8 @@
      "rm -f /tmp/hosts.im7",
      "mkdir docker",
      "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
+     "cd docker && git clone http://github.com/dotcloud/docker-registry.git",
+     "cd docker/docker-registry && git checkout 0.7.0",
      "cd",
      "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
      "echo INSTALLING DOCKER",
@@ -73,14 +70,17 @@
      "sudo gpasswd -a ubuntu docker",
      "sudo service docker restart",
      "docker --version",
-     "sudo apt-get -y upgrade",
-     "echo INSTALLING DOCKERIZE",
-     "cd docker && git clone http://github.com/cambridge-healthcare/dockerize.git",
-     "echo ADDING DOCKERIZE TO PATH",
-     "chmod a+x /tmp/dockerize.sh",
-     "sudo /tmp/dockerize.sh",
-     "rm -f /tmp/dockerize.sh"
+     "sudo apt-get -y upgrade"
    ]
+  },
+  {
+  "type": "shell",
+    "inline": [
+      "echo BUILDING REGISTRY BASE CONTAINER TAKES 20 MINUTES",
+      "cd  /home/ubuntu/docker/poc-docker-jenkins/container_builds/registry/ && ./build.sh -b",
+      "docker images",
+      "echo WAITING for 10 sec"
+    ]
   }
  ]
 }
