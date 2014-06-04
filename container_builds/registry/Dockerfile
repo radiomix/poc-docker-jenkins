@@ -3,6 +3,7 @@
 # Pupose:	extend the registry container with kdocker web ui
 # Author:	Michael Klöckner
 # Version:	0.1
+#MKL 2014.06.04 REV_0_7_0
 
 # use our base image tagged my-registry
 FROM my-registry:base

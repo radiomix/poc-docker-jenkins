@@ -8,6 +8,14 @@ We assume there is a storage device mounted on /registry-storage to the docker h
 This folder is added to the container as the folder tmp  issuing command 
 `docker run -v /registry-storage:/tmp/`. 
 The registry uses the tmp folder to store the registry data.
+
+Version
+=====
+As docker is under developement, we tested different registry versions
+and found version 0.7.0 working for our purpose. As of 2014-06-04 
+version 0.8.0 does not even boot correctly. 
+
+
 build.sh
 ===
 This script builds the registry container either fresh or by pulling samalba/docker-registry.

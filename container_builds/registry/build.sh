@@ -4,6 +4,7 @@
 # Pupose:	Build a ubunut 12.04 based image as a registry server 
 # Author:	Michael Klöckner
 # Version:	0.7
+# MKL 2014.06.04 REV_0_7_0
 # 
 # We let docker build a new registry container and tag it $REG_NAME$REG_BASE_TAG
 # We then configure it for our needs and tag it $REG_NAME$REG_RUN_TAG

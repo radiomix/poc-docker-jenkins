@@ -3,6 +3,8 @@
 #
 # This script contains start commands for the docker registry
 #
+#MKL 2014.06.04 REV_0_7_0
+
 
 # we need apache for basic authentication
 # and proxy to localhost:5000
