@@ -26,7 +26,7 @@ BUILD_OPT=" --no-cache --rm "
 # test for input parameter
 case "$1" in
 # ----------------------------------------------------------- #
- -b|--build)  # we install dependencies on host to speed up container build
+ -b|--base)  # we install dependencies on host to speed up container build
 	echo " Building Registry "
 	sudo apt-get update
 	sudo apt-get install -y apt-utils
@@ -64,8 +64,9 @@ case "$1" in
 	# copy local config file:
 	cd /tmp/docker-registry; sudo  cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml config/config.yml
 
-	# build a docker image
-	sudo cd /tmp/docker-registry; sudo docker build $BUILD_OPT --rm -t $REG_NAME$REG_BASE_TAG  . 
+	# build a docker image from the correct github version and tag it as our base image 
+	sudo cd /tmp/docker-registry; sudo docker build $BUILD_OPT --rm -t $REG_NAME$REG_VERSION. 
+	sudo docker tag  $REG_NAME$REG_VERSION $REG_NAME$REG_BASE_TAG  . 
 	sudo docker images 
 
 
@@ -84,9 +85,9 @@ case "$1" in
  -h|--help|*)
   echo "
  usage: 
-build.sh -b --build  	build a fresh base registry container and configure it
+build.sh -b --base	build a fresh base registry container and configure it
 build.sh -p --pull	pull container samalba/docker-registry as base and configure it
-build.sh -c --configure	use the base registry and configure it
+build.sh -c --config	use the base registry and configure it
 build.sh -h --help      this message
       "
   exit

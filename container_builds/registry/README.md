@@ -17,9 +17,9 @@ Usage
 ====
 
 ```bash
-build.sh -b --build     build a fresh base registry container and configure it
+build.sh -b --base	build a fresh base registry container and configure it
 build.sh -p --pull      pull container samalba/docker-registry as base and configure it
-build.sh -c --configure use the base registry and configure it
+build.sh -c --config	use the base registry and configure it
 build.sh -h --help      this message
 ```
 
