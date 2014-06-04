@@ -47,21 +47,14 @@
     ]
   },
   {
-  "type": "file",  
-  "source": "hosts.im7",
-  "destination": "/tmp/hosts.im7"
-  },
-  {
   "type": "shell", 
     "inline": [
      "sleep 30",
-     "echo ADDING im7 HOST NAMES to etc hosts",
-     "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
-     "rm -f /tmp/hosts.im7",
      "mkdir docker",
      "cd docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd docker && git clone http://github.com/dotcloud/docker-registry.git",
      "cd docker/docker-registry && git checkout 0.7.0",
+     "cd docker/docker-registry && sudo docker build -t my-registry:base . ",
      "cd",
      "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
      "echo INSTALLING DOCKER",
@@ -74,12 +67,38 @@
    ]
   },
   {
+  "type": "file",  
+  "source": "nginx/registry.auth",
+  "destination": "/etc/nginx/registry.auth"
+  },
+  {
+  "type": "file",  
+  "source": "nginx/registry.conf",
+  "destination": "/etc/nginx/sites-enabled/registry.conf"
+  },
+  {
   "type": "shell",
     "inline": [
-      "echo BUILDING REGISTRY BASE CONTAINER TAKES 20 MINUTES",
-      "cd  /home/ubuntu/docker/poc-docker-jenkins/container_builds/registry/ && ./build.sh -b",
-      "docker images",
-      "echo WAITING for 10 sec"
+      "echo Instaling nginx",
+      "add-apt-repository -y ppa:nginx/stable",
+      "apt-get update",
+      "apt-get install -y nginx",
+      "service nginx restart",
+      "FINISHED"
+    ]
+  },
+  {
+  "type": "file",  
+  "source": "hosts.im7",
+  "destination": "/tmp/hosts.im7"
+  },
+  {
+  "type": "shell",
+    "inline": [
+     "echo ADDING im7 HOST NAMES to etc hosts",
+     "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
+     "rm -f /tmp/hosts.im7",
+      "FINISHED"
     ]
   }
  ]
