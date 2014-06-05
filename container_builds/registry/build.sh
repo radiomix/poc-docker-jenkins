@@ -21,6 +21,9 @@ REG_RUN_TAG=":run"
 # The registry version:  Not all registry version are running smoothly.
 REG_VERSION="0.7.0"    
 
+# this is the name of the running container
+CONT_NAME=my_registry
+
 # use this to pass docker build options like --no-cache
 BUILD_OPT=" --no-cache --rm "
 BUILD_OPT_MASTER=" --no-cache --rm "
