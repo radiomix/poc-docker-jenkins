@@ -33,7 +33,7 @@ pulled onto the docker host.
 
 ### Docker Options
 In order do connect to the docker host, we need to set docker server options, to allow these connections:
-`DOCKER_OPTS="-api-enable-cors=true -H tcp://10.0.0.4 :4243 -H unix:///var/run/docker.sock"` int `/etc/default/docker`
+`DOCKER_OPTS="-api-enable-cors=true -H tcp://10.0.0.4:4243 -H unix:///var/run/docker.sock"` int `/etc/default/docker`
 if 10.0.0.4 is the private ip of the docker host.
 
 ### Authentication
