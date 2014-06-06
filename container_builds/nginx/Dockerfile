@@ -5,25 +5,21 @@
 # Version:      0.1
 #MKL 2014.06.05 REV_0_7_0
 
-FROM ubuntu:12.04
+FROM  dockerfile/nginx
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 
 
-RUN echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu precise main" > /etc/apt/sources.list.d/nginx-stable-precise.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C300EE8C
-
-
-# install nginx  version > 1.3.9
-RUN apt-get update
-RUN apt-get install -y nginx
+RUN apt-get install -y unzip
 
 # copy config and auth file
 ADD registry.conf /etc/nginx/sites-enabled/registry.conf
 ADD registry.auth /etc/nginx/registry.auth
-ADD kdocker-web/ /usr/share/nginx/html/
-RUN service nginx restart
+ADD https://codeload.github.com/tsaikd/kdocker-web/zip/master /usr/share/nginx/html/kdocker-web.zip
+RUN cd /usr/share/nginx/html/ && unzip kdocker-web.zip
+RUN cd /usr/share/nginx/html/ && mv kdocker-web-master kdocker-web
+#RUN service nginx restart
 #RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
 
 #Cleaning up 
@@ -33,7 +29,7 @@ RUN rm -f /var/lib/apt/lists/archive*
 WORKDIR /etc/nginx
 
 # Define default command.
-CMD ["nginx"]
+CMD["nginx"]
 
 # Expose ports.
 EXPOSE 8001
