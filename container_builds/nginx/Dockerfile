@@ -23,6 +23,7 @@ RUN apt-get install -y nginx
 ADD registry.conf /etc/nginx/sites-enabled/registry.conf
 ADD registry.auth /etc/nginx/registry.auth
 ADD kdocker-web/ /usr/share/nginx/html/
+ADD run.sh /usr/local/bin/run.sh
 RUN service nginx restart
 #RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
 
@@ -32,10 +33,10 @@ RUN rm -f /var/lib/apt/lists/archive*
 # Define working directory.
 WORKDIR /etc/nginx
 
-# Define default command.
-CMD ["nginx"]
-
 # Expose ports.
 EXPOSE 8001
+
+# Define default command.
+CMD ["/usr/local/bin/run.sh"]
 
 
