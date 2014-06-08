@@ -37,5 +37,3 @@ ENV CACHE_LRU_REDIS_PORT 6379
 EXPOSE 80
 EXPOSE 443
 CMD ["/usr/local/bin/run"]
-ADD ssl/registry.im7.de /opt/ssl/registry.im7.de
-ADD ssl/registry.im7.de.cert /opt/ssl/registry.im7.de.cert
