@@ -12,6 +12,8 @@
 # We could as well just pull samalba/docker-registry from docker.io
 #
 
+# The domain name of the certificate
+REG_DOMAIN=registry.im7.de
 
 # This is how we call the base container
 REG_NAME="my-registry"
@@ -53,7 +55,19 @@ build.sh -h --help      this message
 esac
 
 echo "Configuring Base Registry "
-# build docker registry with apache
+
+# create the ssl cert
+cd ssl && ./gen_cert.sh $REG_DOMAIN
+cd ../
+
+#create the Dockerfile
+pwd
+cat Dockerfile.base > Dockerfile
+echo "ADD ssl/$REG_DOMAIN /opt/ssl/$REG_DOMAIN" >> Dockerfile
+echo "ADD ssl/$REG_DOMAIN.cert /opt/ssl/$REG_DOMAIN.cert" >> Dockerfile
+more Dockerfile && exit
+
+# build docker registry with nginx
 cd ~/docker/poc-docker-jenkins/container_builds/docker-private-registry &&  sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
 
 ## we are done: 
