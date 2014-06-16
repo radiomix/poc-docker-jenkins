@@ -40,9 +40,9 @@
       "sudo groupadd docker",
       "sudo gpasswd  -a ubuntu docker",
       "sudo service docker restart",
-      "docker --version",
+      "sudo docker --version",
       "echo PULLING BASE CONTAINER",
-      "docker pull ubuntu:12.04"
+      "sudo docker pull ubuntu:12.04"
     ]
   }
  ]
