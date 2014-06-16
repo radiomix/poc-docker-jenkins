@@ -59,8 +59,8 @@
      "cd /home/ubuntu/docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd /home/ubuntu/docker && git clone http://github.com/dotcloud/docker-registry.git",
      "echo PULLING BASE CONTAINER",
-     "docker pull ubuntu:12.04",
-     "docker pull shipyard/docker-registry"
+     "sudo docker pull ubuntu:12.04",
+     "sudo docker pull shipyard/docker-registry"
    ]
   },
   {
