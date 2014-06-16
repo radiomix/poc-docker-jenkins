@@ -12,10 +12,10 @@
     "source_ami": "ami-fa9cf1ca",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
-    "run_tags": {
-	"Name": "docker-{{timestamp}}"
+    "tags": {
+	"Name": "docker-base-container-{{timestamp}}"
     },
-    "ami_name": "docker-{{timestamp}}",
+    "ami_name": "docker-base-container-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
@@ -28,7 +28,20 @@
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
       "sudo apt-get install -y lxc-docker",
       "sudo docker --version",
-      "sudo service ssh restart"
+      "sudo reboot"
+    ]
+  },
+  {
+  "type": "shell",  
+    "inline": [
+      "sleep 70",
+      "echo ADDING DOCKER COMMAND TO SUDO ",
+      "sudo groupadd docker",
+      "sudo gpasswd  -a ubuntu docker",
+      "sudo service docker restart",
+      "docker --version",
+      "echo PULLING BASE CONTAINER",
+      "docker pull ubuntu:12.04"
     ]
   }
  ]

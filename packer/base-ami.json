@@ -12,8 +12,8 @@
     "source_ami": "ami-fa9cf1ca",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
-    "run_tags": {
-	"name": "docker-chef-base-{{timestamp}}"
+    "tags": {
+	"Name": "docker-chef-base-{{timestamp}}"
     },
     "ami_name": "docker-scala-nginx-container{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
@@ -37,14 +37,7 @@
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
-      "sudo uname -a"
-    ]
-  },
-  {
-  "type": "shell",  
-    "inline": [
-      "sleep 10",
-      "echo WAITING for 10 sec"
+      "sudo reboot"
     ]
   },
   {
@@ -65,7 +58,9 @@
      "echo CLONING GIT REPOS",
      "cd /home/ubuntu/docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd /home/ubuntu/docker && git clone http://github.com/dotcloud/docker-registry.git",
-     "echo FINISHED BUILDING CONTAINER "
+     "echo PULLING BASE CONTAINER",
+     "docker pull ubuntu:12.04",
+     "docker pull shipyard/docker-registry"
    ]
   },
   {
