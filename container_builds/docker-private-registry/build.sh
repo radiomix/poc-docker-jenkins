@@ -65,7 +65,6 @@ pwd
 cat Dockerfile.base > Dockerfile
 echo "ADD ssl/$REG_DOMAIN /opt/ssl/$REG_DOMAIN" >> Dockerfile
 echo "ADD ssl/$REG_DOMAIN.cert /opt/ssl/$REG_DOMAIN.cert" >> Dockerfile
-more Dockerfile && exit
 
 # build docker registry with nginx
 cd ~/docker/poc-docker-jenkins/container_builds/docker-private-registry &&  sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
