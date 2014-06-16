@@ -13,7 +13,7 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "run_tags": {
-	"name": "docker-scala-nginx-container{{timestamp}}"
+	"name": "docker-chef-base-{{timestamp}}"
     },
     "ami_name": "docker-scala-nginx-container{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
@@ -34,10 +34,8 @@
       "sudo apt-get install -y sudo",
       "sudo apt-get install -y debconf-utils",
       "which lynx mosh git vi wget unzip",
-      "sudo groupadd docker",
-      "sudo gpasswd  -a ubuntu docker",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
-      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36a1d7869245c8950f966e92d8576a8ba88d21e9",
+      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
       "sudo sh -c 'echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
       "sudo uname -a"
     ]
@@ -59,15 +57,14 @@
      "echo INSTALLING DOCKER",
      "sudo apt-get update",
      "sudo apt-get install -y lxc-docker",
-     "sudo gpasswd -a ubuntu docker",
+     "sudo groupadd docker",
+     "sudo gpasswd  -a ubuntu docker",
      "sudo service docker restart",
      "docker --version",
      "sudo apt-get -y upgrade",
-     "echo BUILDING CONTAINER ",
+     "echo CLONING GIT REPOS",
      "cd /home/ubuntu/docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd /home/ubuntu/docker && git clone http://github.com/dotcloud/docker-registry.git",
-     "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/registry && ./build.sh -b",
-     "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/nginx && sudo ./run.sh ",
      "echo FINISHED BUILDING CONTAINER "
    ]
   },
