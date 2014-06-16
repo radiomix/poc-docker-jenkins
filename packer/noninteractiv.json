@@ -12,7 +12,7 @@
     "source_ami": "ami-fa9cf1ca",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
-    "run_tags": {
+    "tags": {
 	"Name": "test-{{timestamp}}"
     },
     "ami_name": "test-{{timestamp}}",
