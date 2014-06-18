@@ -13,10 +13,10 @@
 #
 
 # The domain name of the certificate
-REG_DOMAIN=registry.im7.de
+REG_DOMAIN=${REG_DOMAIN:-registry.im7.de}
 
 # This is how we call the base container
-REG_NAME="my-registry"
+REG_NAME=${REG_NAME:-my-registry}
 # This is the tag
 REG_BASE_TAG=":base"
 REG_RUN_TAG=":run"
@@ -52,6 +52,7 @@ build.sh -h --help      this message
       "
   exit
         ;;
+# ----------------------------------------------------------- #
 esac
 
 echo "Configuring Base Registry "
@@ -60,11 +61,15 @@ echo "Configuring Base Registry "
 cd ssl && ./gen_cert.sh $REG_DOMAIN
 cd ../
 
+#
 #create the Dockerfile
-pwd
 cat Dockerfile.base > Dockerfile
-echo "ADD ssl/$REG_DOMAIN /opt/ssl/$REG_DOMAIN" >> Dockerfile
+echo "ADD ssl/$REG_DOMAIN.key /opt/ssl/$REG_DOMAIN.key" >> Dockerfile
 echo "ADD ssl/$REG_DOMAIN.cert /opt/ssl/$REG_DOMAIN.cert" >> Dockerfile
+echo "ENV SSL_CERT_PATH /opt/ssl/$REG_DOMAIN.key" >> Dockerfile
+echo "ENV SSL_CERT_KEY_PATH  /opt/ssl/$REG_DOMAIN.cert" >> Dockerfile
+echo "ENV REGISTRY_NAME $REG_DOMAIN">>Dockerfile
+
 
 # build docker registry with nginx
 cd ~/docker/poc-docker-jenkins/container_builds/docker-private-registry &&  sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
@@ -75,8 +80,7 @@ echo ""
 echo " WE ARE DONE: "
 echo ""
 echo "to run REGISTRY as a DOCKER CONTAINER interactively type:"
-#echo "docker run -i -t -p 443 -v /registry-storage:/tmp/ -v /path/to/cert_and_key:/opt/ssl -e SSL_CERT_PATH=/opt/ssl/cert.crt -e SSL_CERT_KEY_PATH=/opt/ssl/cert.key $REG_NAME$REG_RUN_TAG"
-echo "docker run -i -t -p 443-v /registry-storage:/tmp/ -e SSL_CERT_PATH=/opt/ssl/registry.cert -e SSL_CERT_KEY_PATH=/opt/ssl/registry.key --name $CONT_NAME $REG_NAME$REG_RUN_TAG /usr/local/bin/run.sh"
+echo "docker run -i -t -p 443 -v /registry-storage:/tmp/ -e SSL_CERT_PATH=/opt/ssl/$REG_DOMAIN.cert -e SSL_CERT_KEY_PATH=/opt/ssl/$REG_DOMAIN.key --name $CONT_NAME $REG_NAME$REG_RUN_TAG /usr/local/bin/run"
 echo ""
 #echo "sudo docker run -i -t -p 443:443 -v /registry-storage:/tmp/ $REG_NAME$REG_RUN_TAG /bin/bash "
 #echo " within the container you start the registry app typing: docker-registry"
