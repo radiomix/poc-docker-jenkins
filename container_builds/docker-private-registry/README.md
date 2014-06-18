@@ -42,4 +42,4 @@ To run with Amazon S3 as the backing store, you will need the following environm
 
 ## Good to know
 ### nginx 
-* `error_log`: /r/local/openresty/nginx/logs/error.log;
+* `error_log`: /usr/local/openresty/nginx/logs/error.log;
