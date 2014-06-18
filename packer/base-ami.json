@@ -60,7 +60,12 @@
      "cd /home/ubuntu/docker && git clone http://github.com/dotcloud/docker-registry.git",
      "echo PULLING BASE CONTAINER",
      "sudo docker pull ubuntu:12.04",
-     "sudo docker pull shipyard/docker-registry"
+     "sudo docker pull shipyard/docker-registry",
+     "echo CONFIGURING GIT",
+     "sudo -u ubuntu git config --global user.name 'Michael Klöckner' ",
+     "sudo -u ubuntu git config --global user.email 'mkl@im7.de' ",
+     "sudo -u ubuntu git config --global credential.helper 'store' "
+
    ]
   },
   {
