@@ -13,25 +13,19 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "tags": {
-	"Name": "junk-{{timestamp}}"
+	"Name": "test-{{timestamp}}"
     },
-    "ami_name": "junk-{{timestamp}}",
+    "ami_name": "test-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
-  "type": "file",  
-  "source": "dockerize.sh",
-  "destination": "/tmp/dockerize.sh"
-  },
-  {
   "type": "shell", 
     "inline": [
-     "echo INSTALLING DOCKERIZE",
-     "mkdir docker",
-     "cd docker && git clone http://github.com/cambridge-healthcare/dockerize.git",
-     "echo ADDING DOCKERIZE TO PATH",
-     "/tmp/dockerize.sh",
-     "rm -f /tmp/dockerize.sh"
+     "echo CONFIGURING GIT ",
+     "sudo apt-get install -y git",
+     "sudo -u ubuntu git config --global user.name 'Michael Klöckner' ",
+     "sudo -u ubuntu git config --global user.email 'mkl@im7.de' ",
+     "sudo -u ubuntu git config --global credential.helper 'store' "
   ]
   }
  ]
