@@ -3,7 +3,7 @@
 #
 # This script contains start commands for the docker registry
 #
-#MKL 2014.06.04 REV_0_7_0
+#MKL 2014.06.04 REV_0_7_3
 
 # the binary docker-registry executable
 # maybe we could start the unicorn app like

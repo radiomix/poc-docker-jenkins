@@ -9,8 +9,8 @@ The registry uses the tmp folder to store the registry data.
 
 ## Version
 As docker is under developement, we tested different registry versions
-and found version 0.7.0 working for our purpose. As of 2014-06-04 
-version 0.8.0 does not even boot correctly. 
+and found version 0.7.0 working for our purpose. As of 2014-06-24 
+version 0.7.3 does work correctly. 
 
 
 ## build.sh
