@@ -64,6 +64,7 @@
      "echo CONFIGURING GIT",
      "sudo -u ubuntu git config --global user.name 'Michael Klöckner' ",
      "sudo -u ubuntu git config --global user.email 'mkl@im7.de' ",
+     "sudo -u ubuntu git config --global color.ui true ",
      "sudo -u ubuntu git config --global credential.helper 'store' "
 
    ]
