@@ -67,7 +67,9 @@ case "$1" in
 	sudo rm -rf /docker-registry*
 	# download the registry code from github
 	sudo git clone https://github.com/dotcloud/docker-registry.git /docker-registry
-	cd /docker-registry && sudo git checkout $REG_VERSION
+	#MKL newst version works??? 
+	#cd /docker-registry && sudo git checkout $REG_VERSION
+
 	# copy local config file:
 	sudo cp ~/docker/poc-docker-jenkins/container_builds/registry/config.yml /docker-registry/config/config.yml
 
