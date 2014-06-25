@@ -3,7 +3,7 @@
 # Pupose:	extend the registry container with kdocker web ui
 # Author:	Michael Klöckner
 # Version:	0.1
-#MKL 2014.06.04 REV_0_7_0
+#MKL 2014.06.04 REV_0_7_3
 
 # use our base image tagged my-registry
 FROM my-registry:base
@@ -15,8 +15,8 @@ MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
 ADD ./config.yml /docker-registry/config/config.yml
 ENV SETTINGS_FLAVOR dev
-ADD ./registry.public.pem /docker-registry/
-ENV PRIVILEGED_KEY /docker-registry/registry.public.pem
+ADD ./public.pem /docker-registry/
+ENV PRIVILEGED_KEY /docker-registry/public.pem
 ENV SQLALCHEMY_INDEX_DATABASE sqlite:////tmp/docker-registry.db
 ENV STORAGE_PATH /tmp/
 
