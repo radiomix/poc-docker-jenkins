@@ -35,6 +35,7 @@
       "sudo apt-get install -y unzip",
       "sudo apt-get install -y sudo",
       "sudo apt-get install -y debconf-utils",
+      "sudo apt-get install -y emacs",
       "which lynx mosh git vi wget unzip",
       "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
       "sudo reboot"
