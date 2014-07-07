@@ -84,6 +84,8 @@
      "echo ADDING im7 HOST NAMES to etc hosts",
      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
      "rm -f /tmp/hosts.im7",
+     "echo BUILDING jetty container with Scala Web App",
+     "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/jetty-scala-akka && ./build.sh",
      "echo AMI BUILD FINISHED"
     ]
   }
