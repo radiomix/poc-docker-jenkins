@@ -1,12 +1,18 @@
 #
-# Start with trusted build from https://registry.hub.docker.com/u/dockerfile/java/
+# We use ubuntu:14.04 as the jetty container as a base image for dockerfile/java 
+# 
+# FROM starts with trusted build from https://registry.hub.docker.com/u/dockerfile/java/
 # alternatively, we can build an image from Dockerfile: docker build -t="dockerfile/java" github.com/dockerfile/java
 # Exposes Port 8080
 # Usage
 # java:> 	docker run -it --rm dockerfile/java java
 # javac:> 	docker run -it --rm dockerfile/java javac
 # 
-FROM dockerfile/java
+
+#based on ubuntu:14.04
+FROM dockerfile/java  
+
+
 MAINTAINER jglick@cloudbees.com
 # cribbed from cjlyth/jetty
 WORKDIR /opt
@@ -16,3 +22,4 @@ RUN ln -sv jetty-distribution-$VERSION jetty
 ADD etc /opt/jetty/etc
 CMD /opt/jetty/bin/jetty.sh -d supervise
 EXPOSE 8080
+
