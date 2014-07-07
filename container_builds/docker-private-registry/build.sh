@@ -12,7 +12,7 @@
 # We could as well just pull samalba/docker-registry from docker.io
 #
 
-# The domain name of the certificate
+# The domain name of the certificate, needed to create an ssl cert for this domain
 REG_DOMAIN=${REG_DOMAIN:-registry.im7.de}
 
 # This is how we call the base container
