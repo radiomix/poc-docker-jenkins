@@ -30,7 +30,8 @@ BUILD_OPT=" --no-cache --rm "
 BUILD_OPT_MASTER=" --no-cache --rm "
 
 #rsa key length
-RSA_KEY_LENGTH=${RSA_KEY_LENGTH :-2048}
+DEF_KEY_LENGTH=2048
+RSA_KEY_LENGTH=${RSA_KEY_LENGTH:-$DEF_KEY_LENGTH}
 
 
 # test for input parameter
@@ -47,7 +48,7 @@ case "$1" in
 	cd /docker-registry && sudo git checkout $REG_VERSION
 
 	# copy local config file:
-	sudo cp -v ~/docker/poc-docker-jenkins/container_builds/registry/config.yml /docker-registry/config/config.yml
+	sudo cp -v ~/poc-docker-jenkins/container_builds/registry/config.yml /docker-registry/config/config.yml
 
 	# install the registry code locally from REG_VERSION
 	#sudo pip install /docker-registry/depends/docker-registry-cor
@@ -57,18 +58,17 @@ case "$1" in
 	sudo docker build $BUILD_OPT -t $REG_NAME:$REG_VERSION  /docker-registry/
 	sudo docker tag  $REG_NAME:$REG_VERSION $REG_NAME$REG_BASE_TAG   
 	sudo docker images 
+	exit
         ;;
 # ----------------------------------------------------------- #
  -p|--pull)
 	echo " Pulling Registry "
 	sudo docker pull samalba/docker-registry
 	sudo docker tag samalba/docker-registry $REG_NAME$REG_BASE_TAG 
+	exit
         ;;
 # ----------------------------------------------------------- #
- -c|--config) 
-        ;;
-# ----------------------------------------------------------- #
- -h|--help|*)
+ -h|--help)
   echo "
  usage: 
 build.sh -b --base	build a fresh base registry container and configure it
@@ -76,7 +76,11 @@ build.sh -p --pull	pull container samalba/docker-registry as base and configure 
 build.sh -c --config	use the local base registry and configure it
 build.sh -h --help      this message
       "
-exit
+	exit
+        ;;
+# ----------------------------------------------------------- #
+ -c|--config) 
+	echo " Configuring Registry "
         ;;
 esac
 # ----------------------------------------------------------- #
@@ -98,7 +102,7 @@ pyrsa-priv2pub -i private.pem -o public.pem
 
 echo "Configuring Base Registry "
 # configure docker registry 
-cd ~/docker/poc-docker-jenkins/container_builds/registry &&  sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
+cd ~/poc-docker-jenkins/container_builds/registry &&  sudo docker build $BUILD_OPT_MASTER -t $REG_NAME$REG_RUN_TAG  . 
 
 ## we are done: 
 echo ""
