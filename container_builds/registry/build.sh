@@ -81,9 +81,6 @@ build.sh -h --help      this message
 # ----------------------------------------------------------- #
  -c|--config) 
 	echo " Configuring Registry "
-        ;;
-esac
-# ----------------------------------------------------------- #
 
 # install python-pip
 echo " Installing python packages and openssl"
@@ -121,4 +118,11 @@ echo "sudo docker run -d -p 5000:5000 -v /registry-storage:/tmp/ $REG_NAME$REG_R
 echo ""
 
 echo " FINISHED "
+docker images 
+exit
+        ;;
+# ----------------------------------------------------------- #
+  *)  $0 -h ;;   ## show help message
+esac
+# ----------------------------------------------------------- #
 exit
