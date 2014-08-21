@@ -3,10 +3,10 @@
 # Pupose:	extend the registry container with kdocker web ui
 # Author:	Michael Klöckner
 # Version:	0.1
-#MKL 2014.06.04 REV_0_7_3
+#MKL 2014.08.22 REV_0_8_2
 
-# use our base image tagged my-registry
-FROM my-registry:base
+# use our base image tagged elemica-registry
+FROM elemica-registry:base
 
 # who we are
 MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
