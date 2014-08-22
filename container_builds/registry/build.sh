@@ -85,22 +85,23 @@ case "$1" in
 # ----------------------------------------------------------- #
  -r|--run)
 ####FIXME check if we are called as root to enshure proper rights for REG_STORE_DIR
-        if [ ! -d "$REG_STORE_DIR" ] 
-	then 
-          echo "ERROR: Directory $REG_STORE_DIR does not exist"
-          exit 100
-        fi
-        if [ ! -r "$REG_STORE_DIR" ] 
-	then 
-          echo "ERROR: Directory $REG_STORE_DIR not readable"
-          exit 100
-        fi
-        if [ ! -w "$REG_STORE_DIR" ] 
-	then 
-          echo "ERROR: Directory $REG_STORE_DIR not writeable"
-          exit 100
-        fi
+#        if [ ! -d "$REG_STORE_DIR" ] 
+#	then 
+#          echo "ERROR: Directory $REG_STORE_DIR does not exist"
+#          exit 100
+#        fi
+#        if [ ! -r "$REG_STORE_DIR" ] 
+#	then 
+#          echo "ERROR: Directory $REG_STORE_DIR not readable"
+#          exit 100
+#        fi
+#        if [ ! -w "$REG_STORE_DIR" ] 
+#	then 
+#          echo "ERROR: Directory $REG_STORE_DIR not writeable"
+#          exit 100
+#        fi
 	echo " Running Registry "
+#	sudo docker run -d --name="$CONT_NAME" -p 5000:5000 -v $REG_STORE_DIR:/tmp/ \
 	sudo docker run -d --name="$CONT_NAME" -p 5000:5000 -v $REG_STORE_DIR:/tmp/ \
 		-e AWS_BUCKET=$AWS_BUCKET -e STORAGE_PATH=$STORAGE_PATH -e SETTINGS_FLAVOR=$SETTINGS_FLAVOR \
 		$REG_NAME$REG_RUN_TAG 
