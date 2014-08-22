@@ -147,23 +147,16 @@ cd ~/poc-docker-jenkins/container_builds/registry &&  sudo docker build $BUILD_O
 
 ## we are done: 
 echo ""
-echo ""
 echo " WE ARE DONE: "
 #echo " to run the REGISTRY as a GUNICORN APPLICATION type:"
 #echo "sudo gunicorn --access-logfile - --log-level debug --debug -b 0.0.0.0:5000 -w 1 wsgi:application"
-echo ""
-echo ""
-echo "to run REGISTRY as a DOCKER CONTAINER interactively type:"
-echo "sudo docker run -i -t -p 5000:5000 -v /registry-storage:/tmp/ $REG_NAME$REG_RUN_TAG /bin/bash "
-echo " within the container you start the registry app typing: docker-registry"
 echo ""
 echo "Make shure directory /registry-storage exists on host!"
 echo "to run REGISTRY as a DOCKER CONTAINER as a daemon called $CONT_NAME type:"
 echo "
 	sudo docker run -d --name="$CONT_NAME" -p 5000:5000 -v $REG_STORE_DIR:/tmp/ \
 		-e AWS_BUCKET=$AWS_BUCKET -e STORAGE_PATH=$STORAGE_PATH -e SETTINGS_FLAVOR=$SETTINGS_FLAVOR \
-		$REG_NAME$REG_RUN_TAG 
-"
+		$REG_NAME$REG_RUN_TAG "
 echo "Or symply type ./build.sh -r"
 echo ""
 
