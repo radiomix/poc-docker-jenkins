@@ -8,7 +8,7 @@ common:
     standalone: _env:STANDALONE:standalone
     index_endpoint: _env:INDEX_ENDPOINT
     disable_token_auth: _env:DISABLE_TOKEN_AUTH
-    privileged_key: _env:PRIVILEGED_KEY:/tmp/registry/public.pem #MKL 
+    privileged_key: _env:PRIVILEGED_KEY:/docker-registry/config/public.pem #MKL 
 
     search_backend: _env:SEARCH_BACKEND
     sqlalchemy_index_database: _env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/registry/docker-registry.db #MKL

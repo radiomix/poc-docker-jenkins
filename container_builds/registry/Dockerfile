@@ -14,7 +14,7 @@ MAINTAINER Michael Klöckner <mkl AT im7 DOT de>
 ## REGISTRY CODE
 ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
 ADD ./config.yml /docker-registry/config/config.yml
-ADD ./public.pem /docker-registry/
+ADD ./public.pem /docker-registry/config/public.pem
 
 
 # add start script
