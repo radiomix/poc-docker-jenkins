@@ -20,7 +20,8 @@ REG_NAME=${REG_NAME:-elemica-registry}
 REG_BASE_TAG=":base"
 REG_RUN_TAG=":run"
 # The registry version:  Not all registry version are running smoothly.
-REG_VERSION="0.7.3"    
+#REG_VERSION="0.7.3"    
+REG_VERSION="0.8.0"    
 
 # registry storage directory
 REG_STORE_DIR="/mnt/registry-storage/"
