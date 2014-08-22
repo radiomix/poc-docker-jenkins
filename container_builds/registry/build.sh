@@ -36,12 +36,22 @@ BUILD_OPT_MASTER=" --no-cache --rm "
 DEF_KEY_LENGTH=2048
 RSA_KEY_LENGTH=${RSA_KEY_LENGTH:-$DEF_KEY_LENGTH}
 
+# AWS S3 Bucket and Storage path
+AWS_BUCKET="docker-registry-router-oregon-stg"
+STORAGE_PATH=/test
 
-# test for input parameter
+# registry flavor
+SETTINGS_FLAVOR=s3
+
+############################################
+# configuration done
+############################################
+
+# chedk input parameter
 case "$1" in
 # ----------------------------------------------------------- #
  -b|--base)  
-	echo " Building Registry Version $REG_VERSION"
+	echo " Building Base Registry Version $REG_VERSION"
 
 	# clean up previous github downloads
 	sudo rm -rf /docker-registry*
@@ -90,11 +100,12 @@ case "$1" in
           exit 100
         fi
 	echo " Running Registry "
-	sudo docker run -d --name="$CONT_NAME" -p 5000:5000 -v $REG_STORE_DIR:/tmp/ $REG_NAME$REG_RUN_TAG 
+	sudo docker run -d --name="$CONT_NAME" -p 5000:5000 -v $REG_STORE_DIR:/tmp/ \
+		-e AWS_BUCKET=$AWS_BUCKET -e STORAGE_PATH=$STORAGE_PATH -e SETTINGS_FLAVOR=$SETTINGS_FLAVOR \
+		$REG_NAME$REG_RUN_TAG 
 	sudo docker ps -a | grep $CONT_NAME 
 	exit
         ;;
-# ----------------------------------------------------------- #
 # ----------------------------------------------------------- #
  -h|--help)
   echo "
@@ -148,7 +159,11 @@ echo " within the container you start the registry app typing: docker-registry"
 echo ""
 echo "Make shure directory /registry-storage exists on host!"
 echo "to run REGISTRY as a DOCKER CONTAINER as a daemon called $CONT_NAME type:"
-echo "sudo docker run -d -p 5000:5000 -v /registry-storage:/tmp/ $REG_NAME$REG_RUN_TAG $CONT_NAME"
+echo "
+	sudo docker run -d --name="$CONT_NAME" -p 5000:5000 -v $REG_STORE_DIR:/tmp/ \
+		-e AWS_BUCKET=$AWS_BUCKET -e STORAGE_PATH=$STORAGE_PATH -e SETTINGS_FLAVOR=$SETTINGS_FLAVOR \
+		$REG_NAME$REG_RUN_TAG 
+"
 echo "Or symply type ./build.sh -r"
 echo ""
 
