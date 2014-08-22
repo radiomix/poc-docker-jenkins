@@ -54,7 +54,7 @@ s3: &s3
     s3_region: _env:AWS_REGION
     s3_bucket: _env:AWS_BUCKET
     boto_bucket: _env:AWS_BUCKET
-    storage_path: _env:STORAGE_PATH:  #MKL
+    storage_path: _env:STORAGE_PATH  #MKL
     s3_encrypt: _env:AWS_ENCRYPT:true
     s3_secure: _env:AWS_SECURE:true
     s3_access_key: _env:AWS_KEY
