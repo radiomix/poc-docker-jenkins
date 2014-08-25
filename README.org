@@ -239,6 +239,18 @@ The complete syntax is
 #+END_SRC
 If host-dir is missing from the command, then docker creates a new volume. If host-dir is present but points to a non-existent directory on the host, Docker will automatically create this directory and use it as the source of the bind-mount.
 Note that this is not available from a Dockerfile due the portability and sharing purpose of it. The host-dir volumes are entirely host-dependent and might not work on any other machine. [[*Container%20and%20Images][Section Container and Images]] describes, where /Docker/ stores the volumes mounted by the container.
+*** Save an image
+Anothger way to persist and move a docker installation is to save a container. Docker hereby will pack the layers and metadata of all the chain required to build the image. We do not loose the build history of the image.
+#+BEGIN_SRC sh
+sudo docker save mkl/debian:7.4 > mkl-debian-7.4.tar
+#+END_SRC
+*** Load an image
+We can now load the image from a local file into docker, getting all the image build history restored.
+#+BEGIN_SRC sh
+sudo docker loag < mkl-debian-7.4.tar 
+#+END_SRC
+The difference in exporting to saving and importing to loading is towfold. The later works on images instead of containers and tars the meta data together with the image enabeling later rollback to an earlear image version.
+
 ** Build your a base image
 Docker.io provides a way to create a [[http://docs.docker.io/en/latest/articles/baseimages/][base image]]. The base image heavily depends on the distribution, the host is running. The example script [[https://github.com/dotcloud/Docker/blob/master/contrib/mkimage-debootstrap.sh][mkimage-debootstrap.sh]] creates a debian base image.
 *** Download the script
