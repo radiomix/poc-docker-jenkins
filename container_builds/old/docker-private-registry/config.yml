@@ -1,0 +1,80 @@
+# The `common' part is automatically included (and possibly overriden by all
+# other flavors)
+#MKL 2014.06.04 REV_0_7_0
+
+common:
+    loglevel: _env:LOGLEVEL:debug
+    storage_redirect: _env:STORAGE_REDIRECT
+    standalone: _env:STANDALONE:standalone
+    index_endpoint: _env:INDEX_ENDPOINT
+    disable_token_auth: _env:DISABLE_TOKEN_AUTH
+    privileged_key: _env:PRIVILEGED_KEY:/tmp/registry/registry.public.pem #MKL 
+
+    search_backend: _env:SEARCH_BACKEND
+    sqlalchemy_index_database: _env:SQLALCHEMY_INDEX_DATABASE:sqlite:////tmp/registry/docker-registry.db #MKL
+
+    mirroring:
+        source: _env:MIRROR_SOURCE # https://registry-1.docker.io
+        source_index: _env:MIRROR_SOURCE_INDEX # https://index.docker.io
+        tags_cache_ttl: _env:MIRROR_TAGS_CACHE_TTL # 864000 # seconds
+
+    # Enabling LRU cache for small files. This speeds up read/write on small files
+    # when using a remote storage backend (like S3).
+    cache:
+        host: _env:CACHE_REDIS_HOST
+        port: _env:CACHE_REDIS_PORT
+        password: _env:CACHE_REDIS_PASSWORD
+    cache_lru:
+        host: _env:CACHE_LRU_REDIS_HOST
+        port: _env:CACHE_LRU_REDIS_PORT
+        password: _env:CACHE_LRU_REDIS_PASSWORD
+
+    # Enabling these options makes the Registry send an email on each code Exception
+    email_exceptions:
+        smtp_host: _env:SMTP_HOST
+        smtp_port: _env:SMTP_PORT:25
+        smtp_login: _env:SMTP_LOGIN
+        smtp_password: _env:SMTP_PASSWORD
+        smtp_secure: _env:SMTP_SECURE:false
+        from_addr: _env:SMTP_FROM_ADDR:docker-registry@localdomain.local
+        to_addr: _env:SMTP_TO_ADDR:noise+dockerregistry@localdomain.local
+
+    # Enable bugsnag (set the API key)
+    bugsnag: _env:BUGSNAG
+
+
+
+local: &local
+    storage: local
+    storage_path: _env:STORAGE_PATH:/tmp/registry #MKL
+
+
+s3: &s3
+    storage: s3
+    s3_region: _env:AWS_REGION
+    s3_bucket: _env:AWS_BUCKET
+    boto_bucket: _env:AWS_BUCKET
+    storage_path: _env:STORAGE_PATH:/registry
+    s3_encrypt: _env:AWS_ENCRYPT:true
+    s3_secure: _env:AWS_SECURE:true
+    s3_access_key: _env:AWS_KEY
+    s3_secret_key: _env:AWS_SECRET
+
+# This is the default configuration when no flavor is specified
+# MKL 
+dev: &dev
+    <<: *local
+    search_backend: _env:SEARCH_BACKEND:sqlalchemy
+    storage_path: _env:STORAGE_PATH:/tmp/registry
+
+# This flavor is automatically used by unit tests
+test:
+    <<: *dev
+    storage_path: _env:STORAGE_PATH:/tmp/test
+
+# To specify another flavor, set the environment variable SETTINGS_FLAVOR
+# $ export SETTINGS_FLAVOR=prod
+prod:
+    <<: *s3
+    storage_path: _env:STORAGE_PATH:/prod
+

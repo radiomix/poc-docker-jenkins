@@ -85,10 +85,13 @@
      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
      "rm -f /tmp/hosts.im7",
      "echo BUILDING jetty container with Scala Web App",
+<<<<<<< HEAD
      "sudo mkdir /opt/typesafe",
      "wget -O /tmp/typesafe-activator-1.2.3.zip http://downloads.typesafe.com/typesafe-activator/1.2.3/typesafe-activator-1.2.3.zip",
      "unzip -d /opt/typesafe  /tmp/typesafe-activator-1.2.3.zip",
      "sudo chown -R ubuntu /opt/typesafe",
+=======
+>>>>>>> fbb20ed6bd3dc9e56680be308d5173479f16272b
      "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/jetty-scala-akka && ./build.sh",
      "echo AMI BUILD FINISHED"
     ]
