@@ -49,6 +49,13 @@
   "destination": "/tmp/hosts.im7"
   },
   {
+  "type": "shell",
+    "environment_vars": [
+      "version={{user `version`}}"
+      ],
+    "scripts": ["scripts/docker.sh"]
+  },
+  {
   "type": "shell", 
     "inline": [
      "sleep 30",
@@ -69,13 +76,6 @@
      "sudo -u ubuntu git config --global credential.helper 'store' "
 
    ]
-  },
-  {
-  "type": "shell",
-    "environment_vars": [
-      "version={{user `version`}}"
-      ],
-    "scripts": ["scripts/docker.sh"]
   },
   {
   "type": "shell",
