@@ -13,17 +13,59 @@
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "tags": {
-	"Name": "jenkins docker-chef-base-container-UB14-04-{{timestamp}}"
+	"Name": "UB-14-04-docker-chef-base-container{{timestamp}}"
     },
-    "ami_name": "docker-chef-base-container-UB-14-04-{{timestamp}}",
+    "ami_name": "UB-14-04-docker-chef-base-container-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
+    "type": "shell",  
+    "inline": [
+      "sleep 10",
+      "sudo apt-get update",
+      "sudo apt-get install -y wget",
+      "sudo apt-get install -y curl",
+      "sudo apt-get install -y unzip",
+      "sudo apt-get install -y git",
+      "sudo apt-get install -y python"
+    ]
+  },
+  {
+  "type": "shell", 
+    "inline": [
+     "sleep 30",
+     "mkdir docker",
+     "cd",
+     "echo CLONING GIT REPOS",
+     "cd /home/ubuntu/docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
+     "cd /home/ubuntu/ && git clone http://github.com/nichtsnutz/jenkins-plugin-backup.git",
+     "echo CONFIGURING GIT",
+     "sudo -u ubuntu git config --global user.name 'Michael Klöckner' ",
+     "sudo -u ubuntu git config --global user.email 'mkl@im7.de' ",
+     "sudo -u ubuntu git config --global color.ui true ",
+     "sudo -u ubuntu git config --global credential.helper 'store' "
+
+   ]
+  },
+  {
+  "type": "file",  
+  "source": "hosts.im7",
+  "destination": "/tmp/hosts.im7"
+  },
+  {
   "type": "shell",
-    "environment_vars": [
-      "version={{user `version`}}"
-      ],
-    "scripts": ["scripts/docker.sh"]
-  }
- ]
+    "inline": [
+     "echo ADDING im7 HOST NAMES to etc hosts",
+     "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
+     "rm -f /tmp/hosts.im7",
+     "echo BUILDING jetty container with Scala Web App",
+     "sudo mkdir /opt/typesafe",
+     "wget -O /tmp/typesafe-activator-1.2.3.zip http://downloads.typesafe.com/typesafe-activator/1.2.3/typesafe-activator-1.2.3.zip",
+     "sudo unzip -d /opt/typesafe  /tmp/typesafe-activator-1.2.3.zip",
+     "sudo chown -R ubuntu /opt/typesafe",
+     "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/jetty-scala-akka && ./build.sh",
+     "echo AMI BUILD FINISHED"
+    ]
+   }
+  ]
 }
