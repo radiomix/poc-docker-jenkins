@@ -22,8 +22,6 @@
     "type": "shell",  
     "inline": [
       "sleep 10",
-      "sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9",
-      "sudo sh -c 'echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list'",
       "sudo apt-get update",
       "sudo apt-get install -y wget",
       "sudo apt-get install -y curl",
@@ -37,16 +35,8 @@
       "sudo apt-get install -y debconf-utils",
       "sudo apt-get install -y emacs",
       "sudo apt-get install -y python",
-      "sudo apt-get install -y python-pip",
-      "sudo pip install grip",
-      "which lynx mosh git vi wget unzip",
-       "sudo reboot"
+      "sudo apt-get install -y python-pip"
     ]
-  },
-  {
-  "type": "file",  
-  "source": "hosts.im7",
-  "destination": "/tmp/hosts.im7"
   },
   {
   "type": "shell",
@@ -76,6 +66,11 @@
      "sudo -u ubuntu git config --global credential.helper 'store' "
 
    ]
+  },
+  {
+  "type": "file",  
+  "source": "hosts.im7",
+  "destination": "/tmp/hosts.im7"
   },
   {
   "type": "shell",
