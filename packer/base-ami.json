@@ -44,6 +44,11 @@
     ]
   },
   {
+  "type": "file",  
+  "source": "hosts.im7",
+  "destination": "/tmp/hosts.im7"
+  },
+  {
   "type": "shell", 
     "inline": [
      "sleep 30",
@@ -64,11 +69,6 @@
      "sudo -u ubuntu git config --global credential.helper 'store' "
 
    ]
-  },
-  {
-  "type": "file",  
-  "source": "hosts.im7",
-  "destination": "/tmp/hosts.im7"
   },
   {
   "type": "shell",
