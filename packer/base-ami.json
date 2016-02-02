@@ -53,15 +53,21 @@
      "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
      "echo INSTALLING DOCKER",
      "sudo apt-get update",
-     "sudo apt-get install -y lxc-docker",
-     "sudo groupadd docker",
-     "sudo gpasswd  -a ubuntu docker",
+     "$ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D",
+     "sudo echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > /etc/apt/sources.list.d/docker.list",
+     "sudo apt-get update",
+     "sudo apt-get purge lxc-docker",
+     "sudo apt-cache policy docker-engine",
+     "sudo apt-get install linux-image-extra-$(uname -r)",
+     "sudo apt-get install docker-engine",
      "sudo service docker restart",
+     "sudo usermod -aG docker ubuntu",
      "docker --version",
      "sudo apt-get -y upgrade",
      "echo CLONING GIT REPOS",
      "cd /home/ubuntu/docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd /home/ubuntu/docker && git clone http://github.com/dotcloud/docker-registry.git",
+     "cd /home/ubuntu/ && git clone http://github.com/nichtsnutz/jenkins-plugin-backup/.git",
      "echo PULLING BASE CONTAINER",
      "sudo docker pull ubuntu:12.04",
      "sudo docker pull shipyard/docker-registry",
@@ -85,13 +91,10 @@
      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
      "rm -f /tmp/hosts.im7",
      "echo BUILDING jetty container with Scala Web App",
-<<<<<<< HEAD
      "sudo mkdir /opt/typesafe",
      "wget -O /tmp/typesafe-activator-1.2.3.zip http://downloads.typesafe.com/typesafe-activator/1.2.3/typesafe-activator-1.2.3.zip",
      "unzip -d /opt/typesafe  /tmp/typesafe-activator-1.2.3.zip",
      "sudo chown -R ubuntu /opt/typesafe",
-=======
->>>>>>> fbb20ed6bd3dc9e56680be308d5173479f16272b
      "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/jetty-scala-akka && ./build.sh",
      "echo AMI BUILD FINISHED"
     ]
