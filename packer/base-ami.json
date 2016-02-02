@@ -9,13 +9,13 @@
     "access_key": "{{user `aws_access_key`}}",
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "us-west-2",
-    "source_ami": "ami-fa9cf1ca",
+    "source_ami": "ami-24c62044",
     "instance_type": "t1.micro",
     "ssh_username": "ubuntu",
     "tags": {
-	"Name": "docker-chef-base-container{{timestamp}}"
+	"Name": "UB-14-04-docker-chef-base-container{{timestamp}}"
     },
-    "ami_name": "docker-chef-base-container-{{timestamp}}",
+    "ami_name": "UB-14-04-docker-chef-base-container-{{timestamp}}",
     "security_group_id": "{{user `security_group_id`}}"
   }],
   "provisioners": [{
@@ -28,7 +28,7 @@
       "sudo apt-get install -y wget",
       "sudo apt-get install -y curl",
       "sudo apt-get install -y ssh",
-      "sudo apt-get install -y vi",
+      "sudo apt-get install -y vim",
       "sudo apt-get install -y git",
       "sudo apt-get install -y mosh",
       "sudo apt-get install -y lynx",
@@ -40,8 +40,7 @@
       "sudo apt-get install -y python-pip",
       "sudo pip install grip",
       "which lynx mosh git vi wget unzip",
-      "sudo apt-get install -y linux-image-generic-lts-raring linux-headers-generic-lts-raring",
-      "sudo reboot"
+       "sudo reboot"
     ]
   },
   {
@@ -51,23 +50,10 @@
      "mkdir docker",
      "cd",
      "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
-     "echo INSTALLING DOCKER",
-     "sudo apt-get update",
-     "$ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D",
-     "sudo echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > /etc/apt/sources.list.d/docker.list",
-     "sudo apt-get update",
-     "sudo apt-get purge lxc-docker",
-     "sudo apt-cache policy docker-engine",
-     "sudo apt-get install linux-image-extra-$(uname -r)",
-     "sudo apt-get install docker-engine",
-     "sudo service docker restart",
-     "sudo usermod -aG docker ubuntu",
-     "docker --version",
-     "sudo apt-get -y upgrade",
      "echo CLONING GIT REPOS",
      "cd /home/ubuntu/docker && git clone http://github.com/radiomix/poc-docker-jenkins.git",
      "cd /home/ubuntu/docker && git clone http://github.com/dotcloud/docker-registry.git",
-     "cd /home/ubuntu/ && git clone http://github.com/nichtsnutz/jenkins-plugin-backup/.git",
+     "cd /home/ubuntu/ && git clone http://github.com/nichtsnutz/jenkins-plugin-backup.git",
      "echo PULLING BASE CONTAINER",
      "sudo docker pull ubuntu:12.04",
      "sudo docker pull shipyard/docker-registry",
@@ -86,6 +72,13 @@
   },
   {
   "type": "shell",
+    "environment_vars": [
+      "version={{user `version`}}"
+      ],
+    "scripts": ["scripts/docker.sh"]
+  },
+  {
+  "type": "shell",
     "inline": [
      "echo ADDING im7 HOST NAMES to etc hosts",
      "sudo bash -c  'cat /tmp/hosts.im7 >> /etc/hosts'; more /etc/hosts",
@@ -98,6 +91,6 @@
      "cd /home/ubuntu/docker/poc-docker-jenkins/container_builds/jetty-scala-akka && ./build.sh",
      "echo AMI BUILD FINISHED"
     ]
-  }
- ]
+   }
+  ]
 }
