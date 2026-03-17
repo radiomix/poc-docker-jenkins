@@ -1,8 +1,4 @@
 
-#
-#
-#+Options: toc:2
-#
 
 # MARKUS FIX:
 #  LaTeX_CLASS: elemica-com-article
@@ -30,7 +26,7 @@ Chapter two shows different ways to install /Docker/ and its prerequisites. It t
 ** Author
  - Author: Michael Klöckner, Weberstr. 39, 60318 Frankfurt am Main, 
  - Email: mkl AT im7 DOT de
- - Phone: +49 69 9866 1103
+
 ** /Docker/ version
    We installed /Docker/ version 0.8 in 2014/02 and upgraded to version 0.9 in 2014/03.
 * /Docker/
