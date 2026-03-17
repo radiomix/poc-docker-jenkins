@@ -12,9 +12,14 @@
 #+STARTUP: overview
 #+TAGS: PROJECT(p) HOME(h) OFFICE(o) PHONE(t) ERRANDS(e)
 #+STARTUP: 
-#
-#
 
+
+
+-----
+
+* This repository is archived!
+
+-----
 
 * Overview
 ** Abstract
